@@ -40,10 +40,10 @@ npm run build
 ## 🌍 Internationalization
 > 👏 Contributing to translation is the best start to participate in open source projects, and everyone is welcome to participate.
 
-How to achieve internationalization, see [i18n]().
+How to achieve internationalization, see [i18n](./documents/i18n/i18n-en.md).
 
 ## ⚙️ Routing management
-> ✨ The route of this project has been automatically collected, and the specific implementation can be viewed [source code](./src//router/index.tsx)
+> ✨ The route of this project has been automatically collected, and the specific implementation can be viewed [source code](./src/router/index.tsx)
 
 use hash route,route path belong project file path to transform.Just like this example.
 
