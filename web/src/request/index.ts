@@ -22,7 +22,6 @@ const requestThen = (config) => {
       const value = config.params[propName];
       var part = encodeURIComponent(propName) + '=';
       if (value !== null && typeof value !== 'undefined') {
-        // 对象处理
         if (typeof value === 'object') {
           for (const key of Object.keys(value)) {
             let params = propName + '[' + key + ']';
@@ -76,7 +75,9 @@ const responseCatch = (error) => {
   return Promise.reject(error);
 };
 
-// create pure axios instance
+/**
+ * There is no error prompt, you need to implement related error handling yourself
+ */
 const pureRequest = axios.create(initConfig);
 
 pureRequest.interceptors.request.use(requestThen, requestCatch);
@@ -100,6 +101,9 @@ const getService = () => {
   return service;
 };
 
+/**
+ * If there is an error on the server side, a prompt will pop up automatically
+ */
 const Request = getService();
 
 export { pureRequest, Request };
