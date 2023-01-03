@@ -1,14 +1,6 @@
 import Big from 'big.js';
 import { t } from 'i18next';
 
-enum FileUnitEnum {
-  Byte,
-  KB,
-  MB,
-  GB,
-  T,
-}
-
 // Use byte base unit, automatically round up when 1024 is reached
 export const getFileUnit = (fileSize: number, needNumber = true, startUnit = 0) => {
   if (fileSize === 0) {
