@@ -1,0 +1,10 @@
+issue_type_custom = "ONES custom issue type"
+issue_type_detail_type_1 = "Requirement"
+issue_type_detail_type_2 = "Task"
+issue_type_detail_type_3 = "Bug"
+issue_type_detail_type_4 = "Sub-task"
+version_note = "Imprint"
+version = "Version"
+
+[field]
+release_start_date = "Release Start Date"
