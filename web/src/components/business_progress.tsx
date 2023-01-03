@@ -1,7 +1,6 @@
 import { memo, ReactNode } from 'react';
 import type { FC } from 'react';
 import { Progress, Typography } from 'antd';
-import { isUndefined } from 'lodash-es';
 import { FileOutlined } from '@ant-design/icons';
 import type { ProgressProps } from 'antd/es/progress';
 import styled from 'styled-components';

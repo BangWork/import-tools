@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRafInterval } from 'ahooks';
 import { useNavigate } from 'react-router-dom';
 
-import { getImportInfoApi, ImportStatusEnum, resetImportStatusApi } from '@/api';
+import { getImportInfoApi, ImportStatusEnum } from '@/api';
 import { ResultStatusEnum } from '@/page/import_pack/result/config';
 import type { ImportInfoType } from '@/api';
 

@@ -14,7 +14,7 @@ const pages = import.meta.glob('/src/**/*.page.*', {
 export const getRoutes = () => {
   return map(Object.keys(pages), (key) => {
     // route path transform ./src/page/**/*.page.xxx => /page/**
-    let pathArr = key.slice(1).split('/').slice(0, -1);
+    const pathArr = key.slice(1).split('/').slice(0, -1);
     pathArr.shift();
     return {
       path: `/${pathArr.join('/')}`,
@@ -27,8 +27,7 @@ const getRouteList = (Loading?: ComponentType<any>) => {
   const routeList = getRoutes();
 
   const RouteList = map(routeList, (v) => {
-    // @ts-ignore
-    const Components = loadable(v.loader);
+    const Components = loadable<any>(v.loader);
     return (
       <Route
         key={v.path}

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import { Layout, Select, Popover } from 'antd';
 import { useUpdateEffect } from 'ahooks';
 import styled from 'styled-components';
@@ -50,7 +50,7 @@ const LangSelect = styled(Select)`
 /**
  * top Head
  */
-const Header = memo((props) => {
+const Header = memo(() => {
   const { t, i18n } = useTranslation();
   const currentLang = getCurrentLang();
   const [selected, setSelected] = useState(currentLang);

@@ -1,4 +1,3 @@
-import React, { memo, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import styled from 'styled-components';
@@ -31,14 +30,14 @@ const Content = styled.div`
 `;
 
 /** default layout routes */
-const NormalLayoutRoutes = memo(() => (
+const NormalLayoutRoutes = () => (
   <LayoutBox>
     <Header />
     <Content>
       <AutoRouter Loading={Loading} NoMatch={NoMatch} redirectRoutes={redirectRoutes} />
     </Content>
   </LayoutBox>
-));
+);
 
 const Main = () => {
   const { i18n } = useTranslation();

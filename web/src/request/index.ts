@@ -20,12 +20,12 @@ const requestThen = (config) => {
     let url = config.url + '?';
     for (const propName of Object.keys(config.params)) {
       const value = config.params[propName];
-      var part = encodeURIComponent(propName) + '=';
+      const part = encodeURIComponent(propName) + '=';
       if (value !== null && typeof value !== 'undefined') {
         if (typeof value === 'object') {
           for (const key of Object.keys(value)) {
-            let params = propName + '[' + key + ']';
-            var subPart = encodeURIComponent(params) + '=';
+            const params = propName + '[' + key + ']';
+            const subPart = encodeURIComponent(params) + '=';
             url += subPart + encodeURIComponent(value[key]) + '&';
           }
         } else {
