@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "report": "cross-env REPORT=true tsc && vite build --mode report",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --check --write ./src"
   },
   "dependencies": {
     "@types/rollup-plugin-visualizer": "^4.2.1",
