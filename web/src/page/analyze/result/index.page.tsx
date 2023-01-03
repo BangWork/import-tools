@@ -65,21 +65,21 @@ const ResultPage = () => {
     <ModalContent
       title={t('analyzeResult.title')}
       footer={
-        <div className='flex flex-row-reverse'>
-          <Button disabled={loading} type='primary' onClick={handleNext}>
+        <div className="flex flex-row-reverse">
+          <Button disabled={loading} type="primary" onClick={handleNext}>
             {t('common.nextStep')}
           </Button>
-          <Button className='mr-4' onClick={handleBack}>
+          <Button className="mr-4" onClick={handleBack}>
             {t('common.back')}
           </Button>
         </div>
       }
     >
-      <div className='flex justify-center p-4'>
-        <div className='flex justify-between'>
+      <div className="flex justify-center p-4">
+        <div className="flex justify-between">
           <Card
             bordered={false}
-            className='mr-6'
+            className="mr-6"
             title={t('analyzeResult.current.title')}
             style={{ width: 300 }}
           >
@@ -107,7 +107,7 @@ const ResultPage = () => {
                 column={1}
                 contentStyle={{ color: '#606060' }}
                 labelStyle={{ fontWeight: 500 }}
-                layout='vertical'
+                layout="vertical"
               >
                 {map(teamList, (item) => (
                   <Descriptions.Item key={item.key + item.label} label={item.label}>

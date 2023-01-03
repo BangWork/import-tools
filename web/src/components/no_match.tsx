@@ -12,16 +12,20 @@ const NoMatch = memo(() => {
 
   const handleBack = () => {
     navigate('/page/analyze/pack', {
-      replace: true
-    })
-  }
+      replace: true,
+    });
+  };
 
   return (
     <Result
-      status='404'
-      title='404'
+      status="404"
+      title="404"
       subTitle={t('common.noMatch')}
-      extra={<Button type='primary' onClick={handleBack}>{t('common.back')}</Button>}
+      extra={
+        <Button type="primary" onClick={handleBack}>
+          {t('common.back')}
+        </Button>
+      }
     />
   );
 });

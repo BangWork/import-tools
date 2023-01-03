@@ -39,9 +39,9 @@ const BusinessProgress: FC<BusinessProgressProps> = memo((props) => {
   const { message = '', percent = 0, bottomMessage } = props;
 
   return (
-    <div className='flex items-center justify-center'>
-      <FileOutlinedStyled className='mr-4' />
-      <div className='flex flex-col justify-center'>
+    <div className="flex items-center justify-center">
+      <FileOutlinedStyled className="mr-4" />
+      <div className="flex flex-col justify-center">
         <Message>
           <Typography.Text ellipsis={{ tooltip: message }}>{message}</Typography.Text>
         </Message>

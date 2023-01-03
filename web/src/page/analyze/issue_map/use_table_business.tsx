@@ -8,7 +8,6 @@ import { map } from 'lodash-es';
 import { getIssuesApi } from '@/api';
 import type { OnesIssueType, JiraIssueType } from '@/api';
 
-
 const selectedSet = new Set();
 
 const useTableBusiness = () => {
@@ -89,7 +88,7 @@ const useTableBusiness = () => {
             value={record.ones_detail_type || select[record.third_issue_type_id]}
             disabled={!!record.ones_detail_type}
             placeholder={t('issueMap.table.placeholder')}
-            className='w-full'
+            className="w-full"
             onSelect={handleSelect(record)}
             options={options}
           />

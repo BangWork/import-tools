@@ -79,11 +79,12 @@ const analyze = {
       desc: 'Aborting the process will return you to the [Provide Jira backup info] page. Proceed?',
     },
     status: {
-      doing: 'Analyzing'
+      doing: 'Analyzing',
     },
     fail: {
       title: 'Analysis failed',
-      normalDesc: 'Failed to analysis [{{name}}]. Please make sure you provided the correct Jira backup info.',
+      normalDesc:
+        'Failed to analysis [{{name}}]. Please make sure you provided the correct Jira backup info.',
       onExistDesc: 'Analysis failed. [{{name}}] does not exist',
     },
   },
@@ -102,14 +103,14 @@ const analyze = {
     environment: {
       title: 'Target ONES environment info',
       history: 'Imported data from Jira {{version}} on {{time}}',
-      empty: 'No data imported from Jira'
+      empty: 'No data imported from Jira',
     },
     modal: {
       back: {
         title: 'Return to [Provide Jira backup info]',
         desc: 'After selecting [Back], you will be returned to the [Provide Jira backup info] page and need to provide all the information again. Proceed?',
-      }
-    }
+      },
+    },
   },
   teamPage: {
     title: 'Select and import data into a ONES team',
@@ -128,7 +129,7 @@ const analyze = {
       },
       importVersionDiff: {
         title: 'Jira backup data imported into ONES team',
-        desc: "Jira {{packVersion}} will be imported into the selected ONES team. Some data may not be properly imported. Proceed? This team has already selected and imported data from Jira {{version}} on {{time}}.",
+        desc: 'Jira {{packVersion}} will be imported into the selected ONES team. Some data may not be properly imported. Proceed? This team has already selected and imported data from Jira {{version}} on {{time}}.',
       },
       versionDiff: {
         title: 'Incompatible Jira version',
@@ -153,7 +154,8 @@ const analyze = {
     tip: {
       message1: '1、Jira issue types will be displayed in the [Jira] section',
       message2: '2、The [ONES] section displays how issue types from Jira will be mapped on ONES',
-      message3: "3、Each mapping relationship can only be established once and can't be changed. Please proceed with caution.",
+      message3:
+        "3、Each mapping relationship can only be established once and can't be changed. Please proceed with caution.",
     },
     table: {
       columns: {
@@ -170,7 +172,8 @@ const analyze = {
     tip: {
       message1:
         '1、When importing data via shared disks, Jira data and attachments will be copied to a designated location. HTTP method will no longer be required',
-      message2: '2、Import speed of shared disks is 5 times faster. If you select [Yes], you will need to provide shared disk paths',
+      message2:
+        '2、Import speed of shared disks is 5 times faster. If you select [Yes], you will need to provide shared disk paths',
       message3:
         '3、Note: In order to import data via shared disks, DevOPS team needs to mount ONES file storage path (local_file_root) on to the Jira server',
     },

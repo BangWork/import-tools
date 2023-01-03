@@ -95,9 +95,9 @@ const Header = memo((props) => {
         </LangBox>
         <Popover
           open={open}
-          placement='bottom'
+          placement="bottom"
           content={<HelpContentPopover onSelected={handleHidePopover} />}
-          trigger='click'
+          trigger="click"
           onOpenChange={handleOpenChange}
         >
           <QuestionCircleOutlinedStyled />

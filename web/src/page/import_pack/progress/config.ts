@@ -1,9 +1,7 @@
-import {t } from 'i18next';
+import { t } from 'i18next';
 import { getFileUnit } from '@/utils/unit';
 
-import {
-  ImportStatusEnum,
-} from '@/api';
+import { ImportStatusEnum } from '@/api';
 import { ResultStatusEnum } from '@/page/import_pack/result/config';
 
 export const CONTAINER_HEIGHT = 200;
@@ -51,4 +49,4 @@ export const getCurrentDescConfig = (scope) => {
   ];
 
   return currentDescConfig;
-}
+};

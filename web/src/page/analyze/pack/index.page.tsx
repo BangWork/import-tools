@@ -79,26 +79,26 @@ const AnalyzePage = () => {
   }, 500);
 
   const renderButton = () => (
-    <Button disabled={!backupName} type='primary' className='mr-4' htmlType='submit'>
+    <Button disabled={!backupName} type="primary" className="mr-4" htmlType="submit">
       {t('common.nextStep')}
     </Button>
   );
 
   return (
-    <div className='flex h-full w-full'>
-      <Form form={form} layout='vertical' onFinish={handleFinish}>
-        <Space direction='vertical' size='large'>
+    <div className="flex h-full w-full">
+      <Form form={form} layout="vertical" onFinish={handleFinish}>
+        <Space direction="vertical" size="large">
           <h3>{t('backupPage.guide.title')}</h3>
           <div>
             <div>{t('backupPage.guide.desc')}</div>
 
             <Steps
-              direction='vertical'
-              className='mt-8'
+              direction="vertical"
+              className="mt-8"
               items={[
                 {
                   title: (
-                    <Trans i18nKey='backupPage.guide.step1.title'>
+                    <Trans i18nKey="backupPage.guide.step1.title">
                       Click the <SettingOutlined /> icon in the top menu bar, then click System
                     </Trans>
                   ),
@@ -119,12 +119,12 @@ const AnalyzePage = () => {
                   status: 'process',
                   title: t('backupPage.form.title'),
                   description: (
-                    <Space direction='vertical'>
+                    <Space direction="vertical">
                       <div>{t('backupPage.form.desc')}</div>
-                      <div className='flex'>
+                      <div className="flex">
                         <div>
                           <Form.Item
-                            name='localHome'
+                            name="localHome"
                             validateStatus={showServerError ? 'error' : undefined}
                             help={
                               showServerError
@@ -146,7 +146,7 @@ const AnalyzePage = () => {
                           </Form.Item>
                           {showBackUp ? (
                             <Form.Item
-                              name='backupName'
+                              name="backupName"
                               label={t('backupPage.form.backup.label')}
                               rules={[
                                 { required: true, message: t('backupPage.form.backup.emptyError') },
@@ -162,9 +162,9 @@ const AnalyzePage = () => {
                           ) : null}
                         </div>
                         <Button
-                          className='ml-8'
+                          className="ml-8"
                           style={{ marginTop: '30px' }}
-                          type='primary'
+                          type="primary"
                           onClick={handleCheckPath}
                         >
                           {t('backupPage.form.localHome.get')}
@@ -172,7 +172,7 @@ const AnalyzePage = () => {
                       </div>
                       {/* button groups */}
                       <Divider />
-                      <div className='mb-12 flex flex-row-reverse'>
+                      <div className="mb-12 flex flex-row-reverse">
                         {!backupName ? (
                           <Tooltip title={t('backupPage.form.tip')}>{renderButton()}</Tooltip>
                         ) : (

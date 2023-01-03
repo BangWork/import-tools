@@ -15,11 +15,13 @@ const useScopeBusiness = () => {
   const cancelInterval = useRafInterval(
     () => {
       if (infoModalState) {
-        getImportScopeApi().then((res) => {
-          setScope(res.body);
-        }).catch(() => {
-          cancelInterval();
-        })
+        getImportScopeApi()
+          .then((res) => {
+            setScope(res.body);
+          })
+          .catch(() => {
+            cancelInterval();
+          });
       }
     },
     INTERVAL_TIME,

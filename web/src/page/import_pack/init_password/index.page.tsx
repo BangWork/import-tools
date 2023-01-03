@@ -56,38 +56,38 @@ const InitPasswordPage = () => {
   };
 
   return (
-    <Form form={form} onFinish={onFinish} autoComplete='off'>
+    <Form form={form} onFinish={onFinish} autoComplete="off">
       <ModalContent
         title={t('initPassword.title')}
-        width='572px'
+        width="572px"
         footer={
-          <Form.Item className='flex flex-row-reverse'>
-            <Button className='mr-4' onClick={handleBack}>
+          <Form.Item className="flex flex-row-reverse">
+            <Button className="mr-4" onClick={handleBack}>
               {t('common.back')}
             </Button>
-            <Button type='primary' htmlType='submit'>
+            <Button type="primary" htmlType="submit">
               {t('initPassword.startButton')}
             </Button>
           </Form.Item>
         }
       >
-        <div className='p-6'>
+        <div className="p-6">
           <Alert
             showIcon
-            className='mb-4'
+            className="mb-4"
             message={
-              <div className='p-2'>
+              <div className="p-2">
                 <div>{t('initPassword.tip.message1')}</div>
                 <div style={{ color: '#FF4D4F' }}>{t('initPassword.tip.message2')}</div>
               </div>
             }
-            type='info'
+            type="info"
           />
 
           {/* form */}
-          <div className='mx-8'>
+          <div className="mx-8">
             <Form.Item
-              name='password'
+              name="password"
               label={t('initPassword.form.init.label')}
               rules={[
                 {
@@ -104,7 +104,7 @@ const InitPasswordPage = () => {
               <Input.Password allowClear placeholder={t('initPassword.form.init.placeholder')} />
             </Form.Item>
             <Form.Item
-              name='againPassword'
+              name="againPassword"
               label={t('initPassword.form.again.label')}
               rules={[
                 {
@@ -128,7 +128,7 @@ const InitPasswordPage = () => {
             </Form.Item>
           </div>
 
-          <div className='opacity-50'>{t('initPassword.form.tip')}</div>
+          <div className="opacity-50">{t('initPassword.form.tip')}</div>
         </div>
       </ModalContent>
     </Form>

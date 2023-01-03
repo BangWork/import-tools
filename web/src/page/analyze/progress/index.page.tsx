@@ -28,24 +28,24 @@ const ProgressPage = () => {
     <ModalContent
       title={t('analyzeProgress.title')}
       footer={
-        <div className='flex flex-row-reverse'>
-          <Button disabled={loading} className='mr-4' onClick={handleCancel}>
+        <div className="flex flex-row-reverse">
+          <Button disabled={loading} className="mr-4" onClick={handleCancel}>
             {t('analyzeProgress.cancel.text')}
           </Button>
         </div>
       }
     >
       {contextHolder}
-      <div className='flex flex-col justify-center p-6'>
+      <div className="flex flex-col justify-center p-6">
         {loading ? (
           <Loading />
         ) : (
           <>
             <Alert
-              className='mb-12'
+              className="mb-12"
               showIcon
               message={
-                <div className='p-2'>
+                <div className="p-2">
                   <div>
                     {t('analyzeProgress.tip.environment', {
                       name: info?.multi_team ? info?.org_name : info?.team_name,
@@ -58,7 +58,7 @@ const ProgressPage = () => {
                   </div>
                 </div>
               }
-              type='info'
+              type="info"
             />
             <BusinessProgress
               message={t('analyzeProgress.status.doing')}

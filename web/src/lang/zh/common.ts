@@ -19,7 +19,7 @@ const common = {
   unUse: '不使用',
   more: '更多',
 
-  'noMatch': '对不起，您访问的页面不存在。',
+  noMatch: '对不起，您访问的页面不存在。',
 
   fileUnit: {
     0: 'Byte',
@@ -27,7 +27,7 @@ const common = {
     2: 'MB',
     3: 'GB',
     4: 'GB',
-  }
+  },
 };
 
 export default common;

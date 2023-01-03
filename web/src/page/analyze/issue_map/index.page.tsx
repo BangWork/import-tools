@@ -50,30 +50,30 @@ const IssueMapPage = () => {
   };
 
   return (
-    <div className='h-full w-full'>
-      <div className='flex justify-between'>
+    <div className="h-full w-full">
+      <div className="flex justify-between">
         <h2>{t('issueMap.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.cancel')}</Button>
-          <Button className='ml-4' type='primary' onClick={handleNext}>
+          <Button className="ml-4" type="primary" onClick={handleNext}>
             {t('common.nextStep')}
           </Button>
         </div>
       </div>
       <Alert
-        className='my-4'
+        className="my-4"
         message={
-          <div className='p-2'>
+          <div className="p-2">
             <div>{t('issueMap.tip.message1')}</div>
             <div>{t('issueMap.tip.message2')}</div>
             <div style={{ color: '#FF4D4F' }}>{t('issueMap.tip.message3')}</div>
           </div>
         }
         showIcon
-        type='info'
+        type="info"
       />
-      <div className='flex h-4/6 justify-center'>
-        <div ref={boxRef} className='flex h-full w-2/3 justify-center'>
+      <div className="flex h-4/6 justify-center">
+        <div ref={boxRef} className="flex h-full w-2/3 justify-center">
           <Table
             columns={columns}
             loading={loading}

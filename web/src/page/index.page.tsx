@@ -43,7 +43,8 @@ const Page = () => {
         }
 
         navigate(targetUrl, { replace: true });
-      }).catch(() => {
+      })
+      .catch(() => {
         navigate(importProgressUrl, { replace: true });
       });
   }, []);

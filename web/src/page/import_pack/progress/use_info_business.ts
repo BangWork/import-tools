@@ -19,7 +19,6 @@ const useInfoBusiness = () => {
       .then((res) => {
         setInfo(res.body);
 
-
         if (res.body.status === ImportStatusEnum.none) {
           navigate('/page/analyze/pack', {
             replace: true,
@@ -50,7 +49,7 @@ const useInfoBusiness = () => {
     () => {
       handleFetchInfo().catch(() => {
         cancelInterval();
-      })
+      });
     },
     INTERVAL_TIME,
     { immediate: true }

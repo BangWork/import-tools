@@ -27,7 +27,7 @@ const common = {
     2: 'MB',
     3: 'GB',
     4: 'GB',
-  }
+  },
 };
 
 export default common;

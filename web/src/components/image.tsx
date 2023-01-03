@@ -1,6 +1,6 @@
 import { Image } from 'antd';
-import type { FC  } from 'react';
-import type { ImageProps  } from 'antd';
+import type { FC } from 'react';
+import type { ImageProps } from 'antd';
 import { memo } from 'react';
 import ImageError from '@/images/image-error.png';
 

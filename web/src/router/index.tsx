@@ -53,7 +53,7 @@ const AutoRouter: FC<AutoRouterProps> = ({ redirectRoutes, children, Loading, No
       {children}
       {getRouteList(Loading)}
       {redirectRoutes && getRedirect(redirectRoutes)}
-      <Route path='*' element={<NoMatch />} />
+      <Route path="*" element={<NoMatch />} />
     </Routes>
   );
 };
