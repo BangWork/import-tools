@@ -75,7 +75,7 @@ https://XXX.com/#/page/demo/test_demo
 | styled-components | 5.3.6 |
 | Ant Design | v5 |
 | react-router-dom | 6.4.3 |
-| Lodash | 4.17.21 |
+| lodash-es | 4.17.21 |
 | ahooks | 3.7.2 |
 | Typescript | 4.6.4 |
 | TailwindCss | v3 |
