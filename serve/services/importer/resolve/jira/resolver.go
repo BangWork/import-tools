@@ -2800,7 +2800,6 @@ func (p *JiraResolver) NextTaskWorkLog() ([]byte, bool, error) {
 		return utils2.OutputJSON(r), false, nil
 	}
 
-	//
 	element, err := p.nextElement("Worklog")
 	if element == nil || err != nil {
 		return nil, false, err
@@ -2844,6 +2843,7 @@ func (p *JiraResolver) NextTaskWorkLog() ([]byte, bool, error) {
 		Hours:      float64(timeWorked) / 3600,
 		Type:       constants.ThirdTaskWorkLogTypeLog,
 		CreateTime: createdTime,
+		Body:       getAttributeValue(d, "body"),
 	}
 	return utils2.OutputJSON(r), false, nil
 }
