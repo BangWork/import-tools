@@ -1,7 +1,9 @@
-GOOS=$(shell uname | tr '[:upper:]' '[:lower:]')
-GOARCH=$(shell uname -m)
-CGO_ENABLED=0
-ENTRY=main.go
+GOOS = $(shell uname | tr '[:upper:]' '[:lower:]')
+GOARCH = $(shell uname -m)
+CGO_ENABLED = 0
+ENTRY = main.go
+
+IMAGE = ghcr.io/bangwork/import-tools:latest
 
 .PHYNO: all
 all: build-web copy-dist build-api
@@ -20,12 +22,18 @@ build-api:
 		-trimpath \
 		$(ENTRY)
 
+.PHYNO: build-linux
 build-linux:
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=$(CGO_ENABLED) go build \
 		-o bin/$(GOOS)/import-tools \
 		-trimpath \
 		$(ENTRY)
 
+.PHYNO: clean-dist
 clean-dist:
 	rm -rf serve/router/dist
 	rm -rf web/dist
+
+.PHYNO: build-image
+build-image:
+	docker build -t $(IMAGE) .
