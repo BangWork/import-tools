@@ -13,6 +13,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/beevik/etree"
+	"github.com/gin-contrib/i18n"
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/common"
 	commonModel "github.com/bangwork/import-tools/serve/models/common"
 	fieldModel "github.com/bangwork/import-tools/serve/models/field"
@@ -34,9 +38,6 @@ import (
 	utils2 "github.com/bangwork/import-tools/serve/utils"
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
 	"github.com/bangwork/import-tools/serve/utils/unique"
-	"github.com/beevik/etree"
-	"github.com/gin-contrib/i18n"
-	"github.com/juju/errors"
 )
 
 type JiraResolver struct {
@@ -2312,14 +2313,6 @@ func (p *JiraResolver) NextTask() ([]byte, error) {
 	p.handleIssueResolution(o)
 	r.Summary = getAttributeValue(o, "summary")
 	r.Desc = getAttributeValue(o, "description")
-	desc := strings.Split(r.Desc, "\n")
-	description := ""
-	for _, s := range desc {
-		if s != "" {
-			description += fmt.Sprintf("<p>%s</p>", s)
-		}
-	}
-	r.Desc = description
 	creator := getAttributeValue(o, "creator")
 
 	ownerID, ok := p.jiraUserNameIDMap[creator]
