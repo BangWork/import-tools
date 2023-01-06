@@ -1,18 +1,21 @@
 # Import-Tools
 
-Import-Tools is a web tool for migrating Jira data to ONES system .
+Import-Tools is a web tool for migrating Jira data to ONES system.
 
-## Installation
+## Build
 
 ```bash
-./build.sh
+make
 ```
 
 ## Usage
+
 Start the application
-```python
+
+```bash
 ./import-tools -p 8080
 ```
+
 Then visit the website: http://localhost:8080
 
 ## License
