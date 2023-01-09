@@ -1,0 +1,10 @@
+issue_type_custom = "ONES 自定义工作项类型"
+issue_type_detail_type_1 = "需求"
+issue_type_detail_type_2 = "任务"
+issue_type_detail_type_3 = "缺陷"
+issue_type_detail_type_4 = "子任务"
+version_note = "版本说明"
+version = "版本"
+
+[field]
+release_start_date = "发布-开始日期"
