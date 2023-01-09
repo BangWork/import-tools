@@ -42,7 +42,11 @@ const HelpContentPopover: FC<HelpContentPopoverProps> = memo((props) => {
     {
       text: 'common.help.download',
       onClick: () => {
-        downloadFile(`${import.meta.env.VITE_PROXY_DOMAIN_REAL || window.location.origin}/import/log/download/all`)
+        downloadFile(
+          `${
+            import.meta.env.VITE_PROXY_DOMAIN_REAL || window.location.origin
+          }/import/log/download/all`
+        );
       },
     },
   ];

@@ -22,11 +22,13 @@ const useLogBusiness = () => {
   }, []);
 
   const clearRafInterval = useRafInterval(() => {
-    getLogApi(logList.length).then((res) => {
-      setLogList([...logList, ...res.body]);
-    }).catch(() => {
-      clearRafInterval();
-    });
+    getLogApi(logList.length)
+      .then((res) => {
+        setLogList([...logList, ...res.body]);
+      })
+      .catch(() => {
+        clearRafInterval();
+      });
   }, INTERVAL_TIME);
 
   useEffect(() => {

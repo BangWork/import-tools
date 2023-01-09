@@ -148,18 +148,18 @@ const TeamPage = () => {
   }, [location]);
 
   const renderButton = () => (
-    <Button disabled={!teamUUID} type='primary' htmlType='submit'>
+    <Button disabled={!teamUUID} type="primary" htmlType="submit">
       {t('common.nextStep')}
     </Button>
   );
 
   return (
-    <Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
+    <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
       <ModalContent
         title={t('teamPage.title')}
         footer={
-          <Form.Item className='flex flex-row-reverse'>
-            <Button className='mr-4' onClick={handleBack}>
+          <Form.Item className="flex flex-row-reverse">
+            <Button className="mr-4" onClick={handleBack}>
               {t('common.back')}
             </Button>
             {!teamUUID ? (
@@ -170,10 +170,10 @@ const TeamPage = () => {
           </Form.Item>
         }
       >
-        <div className='flex justify-center p-6'>
+        <div className="flex justify-center p-6">
           {/* form */}
           <Form.Item
-            name='teamUUID'
+            name="teamUUID"
             style={{ width: '220px' }}
             label={t('teamPage.form.label')}
             rules={[{ required: true }]}

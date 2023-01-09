@@ -23,6 +23,7 @@ export const pauseImportApi = () => Request.post('/import/pause');
 
 export const continueImportApi = () => Request.post('/import/continue');
 
-export const getImportScopeApi = (): Promise<{ body: ImportScopeType; code: number }> => Request.get('/import/scope');
+export const getImportScopeApi = (): Promise<{ body: ImportScopeType; code: number }> =>
+  Request.get('/import/scope');
 
 export const resetImportStatusApi = () => Request.get('/import/reset');

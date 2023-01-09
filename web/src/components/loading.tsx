@@ -4,7 +4,6 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SpinProps } from 'antd/es/spin';
 
-
 /**
  * Spin need more tip to user
  */

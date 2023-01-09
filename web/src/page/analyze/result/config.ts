@@ -38,4 +38,4 @@ export const getCurrentDescConfig = (resolve_result) => {
   ];
 
   return currentDescConfig;
-}
+};

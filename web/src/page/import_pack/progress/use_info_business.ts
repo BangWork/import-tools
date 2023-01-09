@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRafInterval } from 'ahooks';
 import { useNavigate } from 'react-router-dom';
 
-import { getImportInfoApi, ImportStatusEnum, resetImportStatusApi } from '@/api';
+import { getImportInfoApi, ImportStatusEnum } from '@/api';
 import { ResultStatusEnum } from '@/page/import_pack/result/config';
 import type { ImportInfoType } from '@/api';
 
@@ -18,7 +18,6 @@ const useInfoBusiness = () => {
     return getImportInfoApi()
       .then((res) => {
         setInfo(res.body);
-
 
         if (res.body.status === ImportStatusEnum.none) {
           navigate('/page/analyze/pack', {
@@ -50,7 +49,7 @@ const useInfoBusiness = () => {
     () => {
       handleFetchInfo().catch(() => {
         cancelInterval();
-      })
+      });
     },
     INTERVAL_TIME,
     { immediate: true }

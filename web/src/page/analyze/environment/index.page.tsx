@@ -29,7 +29,7 @@ const EnvironmentPage = () => {
 
   const handleClear = () => {
     form.resetFields();
-  }
+  };
 
   const onFinish = (res) => {
     const url = trim(res.url);
@@ -86,36 +86,36 @@ const EnvironmentPage = () => {
   };
 
   return (
-    <Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
+    <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
       <ModalContent
         title={t('environment.title')}
         footer={
-          <Form.Item className='flex flex-row-reverse'>
-            <Button className='mr-4' onClick={handleBack}>
+          <Form.Item className="flex flex-row-reverse">
+            <Button className="mr-4" onClick={handleBack}>
               {t('common.back')}
             </Button>
-            <Button type='primary' htmlType='submit'>
+            <Button type="primary" htmlType="submit">
               {t('environment.startButton')}
             </Button>
           </Form.Item>
         }
       >
-        <div className='p-6'>
+        <div className="p-6">
           <Alert
             showIcon
-            className='mb-4'
+            className="mb-4"
             message={
-              <div className='p-2'>
+              <div className="p-2">
                 <div>{t('environment.tip.message1')}</div>
                 <div>{t('environment.tip.message2')}</div>
               </div>
             }
-            type='info'
+            type="info"
           />
 
           {/* form */}
           <Form.Item
-            name='url'
+            name="url"
             label={t('environment.url.label')}
             rules={[
               {
@@ -127,7 +127,7 @@ const EnvironmentPage = () => {
             <Input placeholder={t('common.placeholder')} />
           </Form.Item>
           <Form.Item
-            name='email'
+            name="email"
             label={t('environment.email.label')}
             rules={[
               {
@@ -139,7 +139,7 @@ const EnvironmentPage = () => {
             <Input placeholder={t('common.placeholder')} />
           </Form.Item>
           <Form.Item
-            name='password'
+            name="password"
             label={t('environment.password.label')}
             rules={[
               {

@@ -79,7 +79,7 @@ const analyze = {
       desc: '取消解析将返回「填写 Jira 备份包信息」页面，是否确定？',
     },
     status: {
-      doing: '解析中'
+      doing: '解析中',
     },
     fail: {
       title: '解析失败！',
@@ -102,14 +102,14 @@ const analyze = {
     environment: {
       title: 'ONES 环境信息',
       history: '{{time}} 导入 Jira {{version}}',
-      empty: '未导入 Jira 数据'
+      empty: '未导入 Jira 数据',
     },
     modal: {
       back: {
         title: '返回至「填写 Jira 备份包信息」',
         desc: '点击「返回」将返回至第一步「填写 Jira 备份包信息」，相关信息需重新填写，是否确定？',
-      }
-    }
+      },
+    },
   },
   teamPage: {
     title: '选择导入的 ONES 团队',
@@ -168,8 +168,7 @@ const analyze = {
   shareDisk: {
     title: '是否使用共享磁盘导入数据',
     tip: {
-      message1:
-        '1、当使用共享磁盘方式后，Jira 附件会直接拷贝到指定位置，无需走 HTTP 方式导入',
+      message1: '1、当使用共享磁盘方式后，Jira 附件会直接拷贝到指定位置，无需走 HTTP 方式导入',
       message2: '2、附件上传速度预计提升5倍，点击「使用」填写共享磁盘目录',
       message3:
         '3、注意：共享磁盘需要由运维人员将 ONES 文件存储目录(local_file_root)挂载到 Jira 服务器',

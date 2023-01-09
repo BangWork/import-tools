@@ -20,7 +20,6 @@ const AntDesignLang = {
   [LangEnums.en]: enUS,
 };
 
-
 // language setting config, can effect the view at topLeft;
 export const LANGS = [LangEnums.zh, LangEnums.en];
 

@@ -50,14 +50,14 @@ const ImportProjectPage = () => {
   };
 
   const renderButton = () => (
-    <Button disabled={!targetKeys.length} className='ml-4' type='primary' onClick={handleSubmit}>
+    <Button disabled={!targetKeys.length} className="ml-4" type="primary" onClick={handleSubmit}>
       {t('common.nextStep')}
     </Button>
   );
 
   return (
-    <div className='h-full w-full'>
-      <div className='flex justify-between'>
+    <div className="h-full w-full">
+      <div className="flex justify-between">
         <h2>{t('importProject.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.back')}</Button>
@@ -74,7 +74,7 @@ const ImportProjectPage = () => {
         titles={[t('importProject.sourceTitle'), t('importProject.targetTitle')]}
         targetKeys={targetKeys}
         showSearch
-        className='mt-8 h-5/6 px-60 py-0'
+        className="mt-8 h-5/6 px-60 py-0"
         locale={LOCAL_CONFIG}
         selectedKeys={selectedKeys}
         onChange={handleChange}

@@ -75,7 +75,7 @@ This project integrates the following frameworks, which can be used directly in 
 | styled-components | 5.3.6 |
 | Ant Design | v5 |
 | react-router-dom | 6.4.3 |
-| lodash | 4.17.21 |
+| lodash-es | 4.17.21 |
 | ahooks | 3.7.2 |
 | typescript| 4.6.4 |
 | tailwindCss | v3 |

@@ -69,7 +69,7 @@ const importPack = {
       miss: {
         title: 'Jira 备份包不存在',
         text: 'Jira 备份包不存在，取消导入！',
-      }
+      },
     },
     cancelModal: {
       title: '取消导入',
