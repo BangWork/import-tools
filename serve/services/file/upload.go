@@ -38,14 +38,15 @@ func uploadToShareDisk(file *os.File,
 		return
 	}
 	body := &RecordRequest{
-		Type:        LabelUploadAttachment,
-		Name:        realFileName,
-		Hash:        fileInfo.Hash,
-		Mime:        fileInfo.Mime,
-		Size:        fileInfo.Size,
-		ImageWidth:  100,
-		ImageHeight: 100,
-		Exif:        fileInfo.Exif,
+		Type:          LabelUploadAttachment,
+		ReferenceType: EntityTypeUnrelatedLabel,
+		Name:          realFileName,
+		Hash:          fileInfo.Hash,
+		Mime:          fileInfo.Mime,
+		Size:          fileInfo.Size,
+		ImageWidth:    100,
+		ImageHeight:   100,
+		Exif:          fileInfo.Exif,
 	}
 	srcPath := file.Name()
 	if err = file.Close(); err != nil {
@@ -90,7 +91,7 @@ func uploadToShareDisk(file *os.File,
 }
 
 func upload(file *os.File, account *account2.Account, realFileName string) (resourceUUID string, err error) {
-	fileUploadResponse, err := PrepareUploadInfo(realFileName, LabelUploadAttachment, account)
+	fileUploadResponse, err := PrepareUploadInfo(realFileName, LabelUploadAttachment, EntityTypeUnrelatedLabel, account)
 	if err != nil {
 		return "", err
 	}
@@ -108,12 +109,13 @@ func upload(file *os.File, account *account2.Account, realFileName string) (reso
 	return
 }
 
-func PrepareUploadInfo(fileName, label string, account *account2.Account) (*UploadResponse, error) {
+func PrepareUploadInfo(fileName, label string, refType string, account *account2.Account) (*UploadResponse, error) {
 	cacheInfo := account.Cache
 	url := common.GenApiUrl(cacheInfo.URL, fmt.Sprintf(fileUploadUri, cacheInfo.ImportTeamUUID))
 	body := &UploadRequest{
-		Name: fileName,
-		Type: label,
+		Name:          fileName,
+		Type:          label,
+		ReferenceType: refType,
 	}
 	resp1, err := utils.PostJSONWithHeader(url, body, account.AuthHeader)
 	if err != nil {
