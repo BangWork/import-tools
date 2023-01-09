@@ -123,18 +123,18 @@ func InitCacheFile() error {
 func GetCacheInfo() (*Cache, error) {
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	if !utils.CheckPathExist(filePath) {
-		log.Fatalf("cache file missing: %s", filePath)
+		log.Printf("cache file missing: %s", filePath)
 		return nil, common.Errors(common.CacheFileNotFoundError, nil)
 	}
 	bytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("open file error: %s, %s", filePath, err)
+		log.Printf("open file error: %s, %s", filePath, err)
 		return nil, common.Errors(common.ServerError, nil)
 	}
 	res := new(Cache)
 	err = json.Unmarshal(bytes, &res)
 	if err != nil {
-		log.Fatalf("parse json file error: %s, %s", filePath, err)
+		log.Printf("parse json file error: %s, %s", filePath, err)
 		return nil, common.Errors(common.ServerError, nil)
 	}
 	return res, nil
@@ -143,17 +143,17 @@ func GetCacheInfo() (*Cache, error) {
 func SetCacheInfo(cache *Cache) error {
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	if !utils.CheckPathExist(filePath) {
-		log.Fatalf("cache file missing: %s", filePath)
+		log.Printf("cache file missing: %s", filePath)
 		return common.Errors(common.CacheFileNotFoundError, nil)
 	}
 	bytes, err := json.MarshalIndent(cache, "", "  ")
 	if err != nil {
-		log.Fatalf("parse json file error: %s, %s", filePath, err)
+		log.Printf("parse json file error: %s, %s", filePath, err)
 		return common.Errors(common.ServerError, nil)
 	}
 	err = ioutil.WriteFile(filePath, bytes, 0644)
 	if err != nil {
-		log.Fatalf("write file error: %s, %s", filePath, err)
+		log.Printf("write file error: %s, %s", filePath, err)
 		return common.Errors(common.ServerError, nil)
 	}
 	return nil

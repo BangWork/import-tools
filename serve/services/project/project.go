@@ -38,7 +38,7 @@ func GetProjectList() ([]*Project, error) {
 	for {
 		reader, err := xml.NextElementFromReader(xmlReader)
 		if err != nil {
-			log.Fatalf("NextElementFromReader error, %+v", err)
+			log.Printf("NextElementFromReader error, %+v", err)
 			return nil, err
 		}
 		if reader == nil {

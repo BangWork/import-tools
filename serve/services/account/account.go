@@ -499,7 +499,7 @@ func (r *Account) postLogin() (*http.Response, error) {
 }
 
 func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
-	uri := fmt.Sprintf("%s", fmt.Sprintf(thirdIssueTypeBindUri, r.Cache.ImportTeamUUID))
+	uri := fmt.Sprintf(thirdIssueTypeBindUri, r.Cache.ImportTeamUUID)
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {
@@ -517,7 +517,7 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 }
 
 func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
-	uri := fmt.Sprintf("%s", fmt.Sprintf(issueTypeListUri, r.Cache.ImportTeamUUID))
+	uri := fmt.Sprintf(issueTypeListUri, r.Cache.ImportTeamUUID)
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {

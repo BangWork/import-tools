@@ -22,59 +22,59 @@ import (
 )
 
 var (
-	handleTags = map[string]bool{
-		"User":                        true,
-		"ApplicationUser":             true,
-		"Group":                       true,
-		"Membership":                  true,
-		"Status":                      true,
-		"ProjectRole":                 true,
-		"Project":                     true,
-		"ProjectRoleActor":            true,
-		"ProjectCategory":             true,
-		"CustomField":                 true,
-		"Component":                   true,
-		"CustomFieldOption":           true,
-		"Resolution":                  true,
-		"Priority":                    true,
-		"IssueLinkType":               true,
-		"IssueType":                   true,
-		"ConfigurationContext":        true,
-		"OptionConfiguration":         true,
-		"Workflow":                    true,
-		"WorkflowSchemeEntity":        true,
-		"NodeAssociation":             true,
-		"Version":                     true,
-		"IssueLink":                   true,
-		"Issue":                       true,
-		"CustomFieldValue":            true,
-		"Label":                       true,
-		"EventType":                   true,
-		"SchemePermissions":           true,
-		"Action":                      true,
-		"UserAssociation":             true,
-		"Worklog":                     true,
-		"GlobalPermissionEntry":       true,
-		"FileAttachment":              true,
-		"FieldLayout":                 true,
-		"FieldLayoutSchemeEntity":     true,
-		"FieldScreenScheme":           true,
-		"FieldScreenSchemeItem":       true,
-		"FieldScreenTab":              true,
-		"IssueTypeScreenSchemeEntity": true,
-		"FieldLayoutItem":             true,
-		"FieldScreenLayoutItem":       true,
-		"FieldConfigSchemeIssueType":  true,
-		"FieldConfigScheme":           true,
-		"ChangeGroup":                 true,
-		"ChangeItem":                  true,
-		"Notification":                true,
+	handleTags = map[string]struct{}{
+		"User":              {},
+		"ApplicationUser": {},
+		"Group":             {},
+		"Membership":        {},
+		"Status":            {},
+		"ProjectRole":       {},
+		"Project":           {},
+		"ProjectRoleActor":  {},
+		"ProjectCategory":   {},
+		"CustomField":       {},
+		"Component":         {},
+		"CustomFieldOption": {},
+		"Resolution":                  {},
+		"Priority":                    {},
+		"IssueLinkType":               {},
+		"IssueType":                   {},
+		"ConfigurationContext":        {},
+		"OptionConfiguration":         {},
+		"Workflow":                    {},
+		"WorkflowSchemeEntity":        {},
+		"NodeAssociation":             {},
+		"Version":                     {},
+		"IssueLink":                   {},
+		"Issue":                       {},
+		"CustomFieldValue":            {},
+		"Label":                       {},
+		"EventType":                   {},
+		"SchemePermissions":           {},
+		"Action":                      {},
+		"UserAssociation":             {},
+		"Worklog":                     {},
+		"GlobalPermissionEntry":       {},
+		"FileAttachment":              {},
+		"FieldLayout":                 {},
+		"FieldLayoutSchemeEntity":     {},
+		"FieldScreenScheme":           {},
+		"FieldScreenSchemeItem":       {},
+		"FieldScreenTab":              {},
+		"IssueTypeScreenSchemeEntity": {},
+		"FieldLayoutItem":             {},
+		"FieldScreenLayoutItem":       {},
+		"FieldConfigSchemeIssueType":  {},
+		"FieldConfigScheme":           {},
+		"ChangeGroup":                 {},
+		"ChangeItem":                  {},
+		"Notification":                {},
 	}
 )
 
 type handlerEntityFile struct {
 	ImportMessage        *types.ImportTask
-	Tags                 map[string]bool
+	Tags                 map[string]struct{}
 	Reader               io.ReadCloser
 	hoursPerDay          string
 	daysPerWeek          string
@@ -99,7 +99,7 @@ func processedEntityFile(msg *types.ImportTask, reader io.ReadCloser) (map[strin
 	return fileList, mapFilePath, handler, nil
 }
 
-func newHandlerEntityFile(msg *types.ImportTask, tags map[string]bool, reader io.ReadCloser) *handlerEntityFile {
+func newHandlerEntityFile(msg *types.ImportTask, tags map[string]struct{}, reader io.ReadCloser) *handlerEntityFile {
 	o := &handlerEntityFile{
 		ImportMessage:        msg,
 		Tags:                 tags,
@@ -118,7 +118,7 @@ func (o *handlerEntityFile) fileLists() (map[string]*jira.XmlScanner, map[string
 	for tag, file := range o.entityFilePathMap {
 		fi, err := os.Open(file)
 		if err != nil {
-			log.Fatalf("open file fail: %s", err)
+			log.Printf("open file fail: %s", err)
 		}
 		scanner := jira.NewXmlScanner(fi, entityRootTag)
 		o.entityFileScannerMap[tag] = scanner
@@ -198,7 +198,7 @@ func (o *handlerEntityFile) scan() error {
 
 		data := strings.Map(printOnly, line)
 		if _, e := o.entityTmpFile.WriteString(data + "\n"); e != nil {
-			log.Fatalf("write line %s to tmpFile fail.%+v", line, e)
+			log.Printf("write line %s to tmpFile fail.%+v", line, e)
 			return errors.Trace(e)
 		}
 	}
@@ -224,7 +224,7 @@ func (o *handlerEntityFile) scan() error {
 		if e == nil {
 			break
 		}
-		if !o.Tags[e.Tag] {
+		if _, found := o.Tags[e.Tag]; !found {
 			continue
 		}
 
@@ -236,7 +236,7 @@ func (o *handlerEntityFile) scan() error {
 
 		line := e.Encode()
 		if o.entityFileMap[e.Tag] == nil {
-			log.Fatalf("file os closed: %s", e.Tag)
+			log.Printf("file os closed: %s", e.Tag)
 			return errors.Errorf("file os closed:%s", e.Tag)
 		}
 		o.entityFileMap[e.Tag].WriteString(line + "\n")

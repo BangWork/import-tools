@@ -19,7 +19,7 @@ import (
 func StartResolve(account *account.Account) {
 	defer func() {
 		if p := recover(); p != nil {
-			log.Fatalf("[importer] err: %s\n%s", p, debug.Stack())
+			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
 		}
 	}()
 	services.StopResolveSignal = false

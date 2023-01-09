@@ -57,6 +57,7 @@ func (p *Importer) Resolve() error {
 	}
 	resolver, err := InitImportFile(p.importTask)
 	if err != nil {
+		log.Println("init import file err", err)
 		info, err := cache.GetCacheInfo()
 		if err != nil {
 			log.Println("get cache fail", err)
@@ -203,7 +204,7 @@ func (p *Importer) Import() (err error) {
 func (p *Importer) uploadAttachments() error {
 	defer func() {
 		if p := recover(); p != nil {
-			log.Fatalf("[importer] err: %s\n%s", p, debug.Stack())
+			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
 		}
 	}()
 	startTime := time.Now()

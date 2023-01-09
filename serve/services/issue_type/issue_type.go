@@ -61,7 +61,7 @@ func GetIssueTypeList(typeList *services.IssueTypeListResponse, issueTypes map[s
 	for {
 		reader, err := xml.NextElementFromReader(xmlReader)
 		if err != nil {
-			log.Fatalf("NextElementFromReader error, %+v", err)
+			log.Printf("NextElementFromReader error, %+v", err)
 			return nil, err
 		}
 		if reader == nil {

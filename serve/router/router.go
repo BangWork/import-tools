@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"log"
 	"net/http"
 
 	"github.com/bangwork/import-tools/serve/controllers"
@@ -28,7 +29,11 @@ func Run(port int) {
 	temple := template.Must(template.New("").ParseFS(FS, "dist/index.html"))
 	api.SetHTMLTemplate(temple)
 
-	fe, _ := fs.Sub(FS, "dist/assets")
+	fe, err := fs.Sub(FS, "dist/assets")
+	if err != nil {
+		log.Println("embed dist assets err", err)
+		return
+	}
 	api.StaticFS("/assets", http.FS(fe))
 
 	fe, _ = fs.Sub(FS, "dist/public")

@@ -303,53 +303,53 @@ var (
 		"SYSTEM_ADMIN": {permission.AdministerTeam, permission.AdministerDo},
 	}
 	needConvertPermissionMap = map[string]bool{
-		MANAGE_SPRINTS_PERMISSION: true,
-		ADMINISTER_PROJECTS:       true,
-		BROWSE_PROJECTS:           true,
-		CREATE_ISSUES:             true,
-		DELETE_ISSUES:             true,
-		ASSIGNABLE_USER:           true,
-		MANAGE_WATCHERS:           true,
+		ManageSprintsPermission: true,
+		AdministerProjects:      true,
+		BrowseProjects:          true,
+		CreateIssues:            true,
+		DeleteIssues:            true,
+		AssignableUser:          true,
+		ManageWatchers:          true,
 
-		EDIT_ISSUES:   true,
-		ASSIGN_ISSUES: true,
-		LINK_ISSUES:   true,
+		EditIssues:   true,
+		AssignIssues: true,
+		LinkIssues:   true,
 
-		TRANSITION_ISSUES: true,
-		CLOSE_ISSUES:      true,
-		RESOLVE_ISSUES:    true,
+		TransitionIssues: true,
+		CloseIssues:      true,
+		ResolveIssues:    true,
 
-		EDIT_ALL_WORKLOGS:   true,
-		DELETE_ALL_WORKLOGS: true,
+		EditAllWorkLogs:   true,
+		DeleteAllWorkLogs: true,
 
-		EDIT_OWN_WORKLOGS:   true,
-		DELETE_OWN_WORKLOGS: true,
+		EditOwnWorkLogs:   true,
+		DeleteOwnWorkLogs: true,
 	}
 
 	projectPermissionMap = map[string][]string{
-		MANAGE_SPRINTS_PERMISSION: {"manage_sprints", "be_assigned_to_sprint"},
-		ADMINISTER_PROJECTS:       {"manage_project", "view_project_reports", "manage_pipelines"},
-		BROWSE_PROJECTS:           {"browse_project", "view_tasks", "export_tasks"},
-		CREATE_ISSUES:             {"create_tasks"},
-		DELETE_ISSUES:             {"delete_tasks"},
-		ASSIGNABLE_USER:           {"be_assigned"},
-		MANAGE_WATCHERS:           {"update_task_watchers"},
-		EDIT_ISSUES:               {"update_tasks"},
-		TRANSITION_ISSUES:         {"transit_tasks"},
-		EDIT_ALL_WORKLOGS:         {"manage_task_assess_manhour", "manage_task_record_manhours"},
-		EDIT_OWN_WORKLOGS:         {"manage_task_own_record_manhours", "manage_task_own_assess_manhour"},
+		ManageSprintsPermission: {"manage_sprints", "be_assigned_to_sprint"},
+		AdministerProjects:      {"manage_project", "view_project_reports", "manage_pipelines"},
+		BrowseProjects:          {"browse_project", "view_tasks", "export_tasks"},
+		CreateIssues:            {"create_tasks"},
+		DeleteIssues:            {"delete_tasks"},
+		AssignableUser:          {"be_assigned"},
+		ManageWatchers:          {"update_task_watchers"},
+		EditIssues:              {"update_tasks"},
+		TransitionIssues:        {"transit_tasks"},
+		EditAllWorkLogs:         {"manage_task_assess_manhour", "manage_task_record_manhours"},
+		EditOwnWorkLogs:         {"manage_task_own_record_manhours", "manage_task_own_assess_manhour"},
 	}
 	needMergePermissionMap = map[string][]string{
-		EDIT_ISSUES:         {EDIT_ISSUES, ASSIGN_ISSUES, LINK_ISSUES}, // 取数组里的第一个作为标识，这里是EDIT_ISSUES
-		ASSIGN_ISSUES:       {EDIT_ISSUES, ASSIGN_ISSUES, LINK_ISSUES},
-		LINK_ISSUES:         {EDIT_ISSUES, ASSIGN_ISSUES, LINK_ISSUES},
-		TRANSITION_ISSUES:   {TRANSITION_ISSUES, CLOSE_ISSUES, RESOLVE_ISSUES},
-		CLOSE_ISSUES:        {TRANSITION_ISSUES, CLOSE_ISSUES, RESOLVE_ISSUES},
-		RESOLVE_ISSUES:      {TRANSITION_ISSUES, CLOSE_ISSUES, RESOLVE_ISSUES},
-		EDIT_ALL_WORKLOGS:   {EDIT_ALL_WORKLOGS, DELETE_ALL_WORKLOGS},
-		DELETE_ALL_WORKLOGS: {EDIT_ALL_WORKLOGS, DELETE_ALL_WORKLOGS},
-		EDIT_OWN_WORKLOGS:   {EDIT_OWN_WORKLOGS, DELETE_OWN_WORKLOGS},
-		DELETE_OWN_WORKLOGS: {EDIT_OWN_WORKLOGS, DELETE_OWN_WORKLOGS},
+		EditIssues:        {EditIssues, AssignIssues, LinkIssues}, // 取数组里的第一个作为标识，这里是EDIT_ISSUES
+		AssignIssues:      {EditIssues, AssignIssues, LinkIssues},
+		LinkIssues:        {EditIssues, AssignIssues, LinkIssues},
+		TransitionIssues:  {TransitionIssues, CloseIssues, ResolveIssues},
+		CloseIssues:       {TransitionIssues, CloseIssues, ResolveIssues},
+		ResolveIssues:     {TransitionIssues, CloseIssues, ResolveIssues},
+		EditAllWorkLogs:   {EditAllWorkLogs, DeleteAllWorkLogs},
+		DeleteAllWorkLogs: {EditAllWorkLogs, DeleteAllWorkLogs},
+		EditOwnWorkLogs:   {EditOwnWorkLogs, DeleteOwnWorkLogs},
+		DeleteOwnWorkLogs: {EditOwnWorkLogs, DeleteOwnWorkLogs},
 	}
 
 	permissionContextMap = map[string]string{
@@ -383,7 +383,7 @@ func (p *JiraResolverFactory) CreateResolver(importTask *types.ImportTask) (reso
 	for tag, file := range importTask.MapFilePath {
 		fi, err := os.Open(file)
 		if err != nil {
-			log.Fatalf("open file fail: %s", err)
+			log.Printf("open file fail: %s", err)
 		}
 		scanner := resolve.NewXmlScanner(fi, entityRootTag)
 		resolver.tagFilesMap[tag] = scanner
@@ -416,7 +416,7 @@ func (p *JiraResolverFactory) InitImportFile(importTask *types.ImportTask) (reso
 	for tag, file := range resolver.mapTagFilePath {
 		fi, err := os.Open(file)
 		if err != nil {
-			log.Fatalf("open file fail: %s", err)
+			log.Printf("open file fail: %s", err)
 		}
 		scanner := resolve.NewXmlScanner(fi, entityRootTag)
 		resolver.tagFilesMap[tag] = scanner
