@@ -259,12 +259,12 @@ var (
 			"update_issue_type",
 			"update_std_to_sub_issue_type",
 		},
-		"Issue Assigned":       {"update_task_assign"},
-		"Issue Commented":      {"update_task_message"},
-		"Work Logged On Issue": {"update_task_access_manhour", "update_task_record_manhour"},
+		"Issue Assigned":        {"update_task_assign"},
+		"Issue Commented":       {"update_task_message"},
+		"Work Logged On Issue":  {"update_task_access_manhour", "update_task_record_manhour"},
 		"Issue Worklog Updated": {"update_task_record_manhour"},
 		"Issue Worklog Deleted": {"update_task_record_manhour"},
-		"Generic Event":        {"update_task_other_property"},
+		"Generic Event":         {"update_task_other_property"},
 	}
 
 	subscriberMap = map[string]map[string]string{
@@ -2838,14 +2838,14 @@ func (p *JiraResolver) NextTaskWorkLog() ([]byte, bool, error) {
 	startTime := timestamp.StringToInt64(startDate)
 
 	r := &resolve.ThirdTaskWorkLog{
-		Base:       resolve.Base{ResourceID: id},
-		TaskID:     issueID,
-		UserID:     authorID,
-		StartTime:  startTime,
-		Hours:      float64(timeWorked) / 3600,
-		Type:       constants.ThirdTaskWorkLogTypeLog,
-		CreateTime: createdTime,
-		Description:       getAttributeValue(d, "body"),
+		Base:        resolve.Base{ResourceID: id},
+		TaskID:      issueID,
+		UserID:      authorID,
+		StartTime:   startTime,
+		Hours:       float64(timeWorked) / 3600,
+		Type:        constants.ThirdTaskWorkLogTypeLog,
+		CreateTime:  createdTime,
+		Description: getAttributeValue(d, "body"),
 	}
 	return utils2.OutputJSON(r), false, nil
 }
