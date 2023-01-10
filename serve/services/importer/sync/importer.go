@@ -349,7 +349,7 @@ func (p *Importer) sendStartImportNotice() error {
 	if err := accountInfo.Login(); err != nil {
 		return err
 	}
-	info, err := file.PrepareUploadInfo(accountInfo.Cache.BackupName, file.LabelJiraImport, accountInfo)
+	info, err := file.PrepareUploadInfo(accountInfo.Cache.BackupName, file.LabelJiraImport, "", accountInfo)
 	if err != nil {
 		p.writeLog("prepare upload info err:%s", err)
 		return err
