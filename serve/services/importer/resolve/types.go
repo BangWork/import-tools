@@ -335,13 +335,13 @@ type ThirdTaskAttachment struct {
 
 type ThirdTaskWorkLog struct {
 	Base
-	TaskID     string  `json:"task_id"`
-	UserID     string  `json:"user_id"`
-	StartTime  int64   `json:"start_time"`
-	Hours      float64 `json:"hours"`
-	Type       int     `json:"type"`
-	CreateTime int64   `json:"create_time"`
-	Body       string  `json:"body"`
+	TaskID      string  `json:"task_id"`
+	UserID      string  `json:"user_id"`
+	StartTime   int64   `json:"start_time"`
+	Hours       float64 `json:"hours"`
+	Type        int     `json:"type"`
+	CreateTime  int64   `json:"create_time"`
+	Description string  `json:"description"`
 }
 
 type ThirdNotification struct {
