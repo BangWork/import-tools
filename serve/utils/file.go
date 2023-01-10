@@ -193,10 +193,6 @@ func (fis ByModTimeAsc) Less(i, j int) bool {
 }
 
 func GetFileInfo(file *os.File) (fileInfo *FileInfo, err error) {
-	name := filepath.Base(file.Name())
-	fi, _ := file.Stat()
-	size := fi.Size()
-	hash, _ := QEtag(file)
 	seekZero := func(r *os.File) error {
 		if _, err = r.Seek(0, 0); err != nil {
 			return err
@@ -206,6 +202,17 @@ func GetFileInfo(file *os.File) (fileInfo *FileInfo, err error) {
 
 	ext := filepath.Ext(file.Name())
 	fMime, err := DetectFromReaderAndExt(file, ext)
+	name := filepath.Base(file.Name())
+	if err = seekZero(file); err != nil {
+		return
+	}
+	hash, _ := QEtag(file)
+	if err = seekZero(file); err != nil {
+		return
+	}
+	fi, _ := file.Stat()
+	size := fi.Size()
+
 	var imageWidth, imageHeight int
 	var imageExif string
 	if strings.HasPrefix(fMime, "image/") {
