@@ -341,7 +341,7 @@ type ThirdTaskWorkLog struct {
 	Hours      float64 `json:"hours"`
 	Type       int     `json:"type"`
 	CreateTime int64   `json:"create_time"`
-	Body       string  `json:"body"`
+	Description       string  `json:"description"`
 }
 
 type ThirdNotification struct {

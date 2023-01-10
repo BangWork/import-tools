@@ -261,7 +261,9 @@ var (
 		},
 		"Issue Assigned":       {"update_task_assign"},
 		"Issue Commented":      {"update_task_message"},
-		"Work Logged On Issue": {"update_task_access_manhour"},
+		"Work Logged On Issue": {"update_task_access_manhour", "update_task_record_manhour"},
+		"Issue Worklog Updated": {"update_task_record_manhour"},
+		"Issue Worklog Deleted": {"update_task_record_manhour"},
 		"Generic Event":        {"update_task_other_property"},
 	}
 
@@ -2843,7 +2845,7 @@ func (p *JiraResolver) NextTaskWorkLog() ([]byte, bool, error) {
 		Hours:      float64(timeWorked) / 3600,
 		Type:       constants.ThirdTaskWorkLogTypeLog,
 		CreateTime: createdTime,
-		Body:       getAttributeValue(d, "body"),
+		Description:       getAttributeValue(d, "body"),
 	}
 	return utils2.OutputJSON(r), false, nil
 }
