@@ -3618,9 +3618,9 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 	}
 	p.jiraIssueAffectsVersion = nil
 
-	//
 	issueLabelsMap := make(map[string][]string, 0)
-	//
+	userDefinedIssueLabelsMap := make(map[string][]string, 0)
+
 	for {
 		element, e := p.nextElement("Label")
 		if element == nil || e != nil {
@@ -3634,10 +3634,16 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 			continue
 		}
 		label := getAttributeValue(d, "label")
-		issueLabelsMap[issueID] = append(issueLabelsMap[issueID], label)
+		fieldID := getAttributeValue(d, "fieldid")
+
+		if len(fieldID) == 0 {
+			issueLabelsMap[issueID] = append(issueLabelsMap[issueID], label)
+			continue
+		}
+		key := fmt.Sprintf("%s-%s", issueID, fieldID)
+		userDefinedIssueLabelsMap[key] = append(userDefinedIssueLabelsMap[key], label)
 	}
 
-	//
 	for issueID, labels := range issueLabelsMap {
 		r := &resolve.ThirdTaskFieldValue{
 			Base: resolve.Base{
@@ -3645,6 +3651,23 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 			},
 			TaskID:    issueID,
 			FieldID:   customFieldLabels,
+			FieldType: fieldModel.FieldTypeText,
+			Value:     strings.Join(labels, ","),
+		}
+		resp = append(resp, r)
+	}
+	for key, labels := range userDefinedIssueLabelsMap {
+		keys := strings.Split(key, "-")
+		if len(keys[0]) == 0 || len(keys[1]) == 0 {
+			log.Println("userDefinedIssueLabelsMap empty", keys)
+			continue
+		}
+		r := &resolve.ThirdTaskFieldValue{
+			Base: resolve.Base{
+				ResourceID: fmt.Sprintf("%s-%s", keys[0], userDefinedFieldLabels),
+			},
+			TaskID:    keys[0],
+			FieldID:   keys[1],
 			FieldType: fieldModel.FieldTypeText,
 			Value:     strings.Join(labels, ","),
 		}

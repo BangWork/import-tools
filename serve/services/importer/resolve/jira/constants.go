@@ -42,6 +42,8 @@ const (
 	customFieldResolution       = "Resolution"
 	customFieldComponent        = "Component/s"
 	customFieldEnvironment      = "Environment"
+
+	userDefinedFieldLabels = "userDefinedFieldLabels"
 )
 
 const (
@@ -56,20 +58,20 @@ const (
 
 const (
 	ManageSprintsPermission = "MANAGE_SPRINTS_PERMISSION"
-	AdministerProjects  = "ADMINISTER_PROJECTS"
-	BrowseProjects      = "BROWSE_PROJECTS"
-	CreateIssues      = "CREATE_ISSUES"
-	DeleteIssues      = "DELETE_ISSUES"
-	AssignableUser    = "ASSIGNABLE_USER"
-	ManageWatchers    = "MANAGE_WATCHERS"
-	EditIssues        = "EDIT_ISSUES"
-	AssignIssues      = "ASSIGN_ISSUES"
-	LinkIssues        = "LINK_ISSUES"
-	CloseIssues       = "CLOSE_ISSUES"
-	ResolveIssues     = "RESOLVE_ISSUES"
-	TransitionIssues  = "TRANSITION_ISSUES"
-	DeleteAllWorkLogs = "DELETE_ALL_WORKLOGS"
-	EditAllWorkLogs   = "EDIT_ALL_WORKLOGS"
-	DeleteOwnWorkLogs = "DELETE_OWN_WORKLOGS"
-	EditOwnWorkLogs   = "EDIT_OWN_WORKLOGS"
+	AdministerProjects      = "ADMINISTER_PROJECTS"
+	BrowseProjects          = "BROWSE_PROJECTS"
+	CreateIssues            = "CREATE_ISSUES"
+	DeleteIssues            = "DELETE_ISSUES"
+	AssignableUser          = "ASSIGNABLE_USER"
+	ManageWatchers          = "MANAGE_WATCHERS"
+	EditIssues              = "EDIT_ISSUES"
+	AssignIssues            = "ASSIGN_ISSUES"
+	LinkIssues              = "LINK_ISSUES"
+	CloseIssues             = "CLOSE_ISSUES"
+	ResolveIssues           = "RESOLVE_ISSUES"
+	TransitionIssues        = "TRANSITION_ISSUES"
+	DeleteAllWorkLogs       = "DELETE_ALL_WORKLOGS"
+	EditAllWorkLogs         = "EDIT_ALL_WORKLOGS"
+	DeleteOwnWorkLogs       = "DELETE_OWN_WORKLOGS"
+	EditOwnWorkLogs         = "EDIT_OWN_WORKLOGS"
 )
