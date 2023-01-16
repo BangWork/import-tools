@@ -57,6 +57,13 @@ const (
 )
 
 const (
+	ResourceIDProjectType        = "Project Type"
+	ResourceIDProjectCategory    = "Project Category"
+	ResourceIDProjectDescription = "Project Description"
+	ResourceIDProjectURL         = "Project URL"
+)
+
+const (
 	ManageSprintsPermission = "MANAGE_SPRINTS_PERMISSION"
 	AdministerProjects      = "ADMINISTER_PROJECTS"
 	BrowseProjects          = "BROWSE_PROJECTS"
