@@ -12,11 +12,12 @@ all: build-web copy-dist build-api
 build-web:
 	cd web && npm i && npm run build
 
-copy-dist: clean-dist
-	cp -apr web/dist serve/router/
+copy-dist:
+	rm -rf serve/router/dist
+	cp -r web/dist serve/router/
 
 .PHYNO: build-api
-build-api:
+build-api: copy-dist
 	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) go build \
 		-o bin/$(GOOS)/import-tools \
 		-trimpath \
