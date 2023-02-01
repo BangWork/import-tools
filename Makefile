@@ -41,7 +41,7 @@ build-image:
 
 .PHYNO: package
 package:
-	tar zcf import-tool.tar.gz \
+	tar zcf import-tools.tar.gz \
 		LICENSE \
 		README.md \
 		start.sh \
