@@ -48,14 +48,14 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: onesai
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Retrieve Image Tag
         run: |
-          echo "::set-output name=image_tag::${GITHUB_REF/refs\/tags\//}"
+          echo "image_tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - name: Push image
         run: |
           make push-image
-          make push-image IMAGE_TAG=${image_tag}
+          make push-image IMAGE_TAG=${{ env.image_tag }}
