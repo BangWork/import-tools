@@ -3,7 +3,8 @@ GOARCH = $(shell uname -m)
 CGO_ENABLED = 0
 ENTRY = main.go
 
-IMAGE = ghcr.io/bangwork/import-tools:latest
+IMAGE_TAG = latest
+IMAGE = ghcr.io/bangwork/import-tools:$(IMAGE_TAG)
 
 .PHYNO: all
 all: build-web copy-dist build-api
@@ -38,6 +39,9 @@ clean-dist:
 .PHYNO: build-image
 build-image:
 	docker build -t $(IMAGE) .
+
+push-image:
+	docker push $(IMAGE)
 
 .PHYNO: package
 package:
