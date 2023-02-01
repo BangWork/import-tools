@@ -24,7 +24,7 @@ build-api: copy-dist
 		$(ENTRY)
 
 .PHYNO: build-linux
-build-linux:
+build-linux: copy-dist
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=$(CGO_ENABLED) go build \
 		-o bin/$(GOOS)/import-tools \
 		-trimpath \
@@ -38,3 +38,11 @@ clean-dist:
 .PHYNO: build-image
 build-image:
 	docker build -t $(IMAGE) .
+
+.PHYNO: package
+package:
+	tar zcf import-tool.tar.gz \
+		LICENSE \
+		README.md \
+		start.sh \
+		bin
