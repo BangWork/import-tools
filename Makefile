@@ -4,7 +4,7 @@ CGO_ENABLED = 0
 ENTRY = main.go
 
 IMAGE_TAG = latest
-IMAGE = ghcr.io/bangwork/import-tools:$(IMAGE_TAG)
+IMAGE_NAME = ghcr.io/bangwork/import-tools
 
 .PHYNO: all
 all: build-web copy-dist build-api
@@ -38,10 +38,12 @@ clean-dist:
 
 .PHYNO: build-image
 build-image:
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
+	[ "$(IMAGE_TAG)" != "latest" ] && docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):latest || true
 
+.PHYNO: push-image
 push-image:
-	docker push $(IMAGE)
+	docker push $(IMAGE_NAME):$(IMAGE_TAG)
 
 .PHYNO: package
 package:

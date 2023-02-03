@@ -40,9 +40,13 @@ jobs:
         with:
           files: import-tools.tar.gz
 
+      - name: Retrieve Image Tag
+        run: |
+          echo "image_tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
       - name: Build Docker Image
         run: |
-          make build-image
+          make build-image IMAGE_TAG=${{ env.image_tag }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -50,10 +54,6 @@ jobs:
           registry: ghcr.io
           username: onesai
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Retrieve Image Tag
-        run: |
-          echo "image_tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - name: Push image
         run: |
