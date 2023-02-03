@@ -8,12 +8,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/bangwork/import-tools/serve/controllers"
-	"github.com/bangwork/import-tools/serve/middlewares"
 	"github.com/gin-contrib/i18n"
 	"github.com/gin-gonic/gin"
 	"github.com/pelletier/go-toml/v2"
 	"golang.org/x/text/language"
+
+	"github.com/bangwork/import-tools/serve/controllers"
+	"github.com/bangwork/import-tools/serve/middlewares"
 )
 
 //go:embed dist lang
@@ -53,7 +54,6 @@ func Run(port int) {
 	api.GET("/project_list", controllers.ProjectList)
 	api.POST("/choose_team", controllers.ChooseTeam)
 	api.POST("/issue_type_list", controllers.IssueTypeList)
-	api.POST("/set_share_disk", controllers.SetShardDisk)
 
 	api.GET("/import/reset", controllers.Reset)
 	api.POST("/import/start", controllers.StartImport)

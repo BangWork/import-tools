@@ -4,14 +4,21 @@ import (
 	"flag"
 
 	"github.com/bangwork/import-tools/serve/common"
+	"github.com/bangwork/import-tools/serve/router"
+	"github.com/bangwork/import-tools/serve/services/cache"
 
 	_ "github.com/bangwork/import-tools/serve"
-	"github.com/bangwork/import-tools/serve/router"
 )
 
-var port = flag.Int("p", common.DefaultHTTPPort, "http server port")
+var port int
+
+func initFlags() {
+	flag.IntVar(&port, "port", common.DefaultHTTPPort, "http server port")
+	flag.StringVar(&cache.SharedDiskPath, "shared-disk-path", "", "the path of the shared disk")
+	flag.Parse()
+}
 
 func main() {
-	flag.Parse()
-	router.Run(*port)
+	initFlags()
+	router.Run(port)
 }

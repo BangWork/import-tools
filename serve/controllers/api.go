@@ -8,6 +8,8 @@ import (
 
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
 	"github.com/bangwork/import-tools/serve/services/account"
@@ -17,7 +19,6 @@ import (
 	"github.com/bangwork/import-tools/serve/services/log"
 	"github.com/bangwork/import-tools/serve/services/project"
 	"github.com/bangwork/import-tools/serve/utils"
-	"github.com/gin-gonic/gin"
 )
 
 func CheckPathExist(c *gin.Context) {
@@ -192,29 +193,6 @@ func IssueTypeList(c *gin.Context) {
 	}
 	list, err := issue_type.GetIssueTypeList(typeList, issueTypes)
 	RenderJSON(c, err, list)
-}
-
-func SetShardDisk(c *gin.Context) {
-	var data SetShareDiskRequest
-	if err := c.BindJSON(&data); err != nil {
-		return
-	}
-	if data.UseShareDisk {
-		exist := utils.CheckPathExist(data.Path)
-		if !exist {
-			RenderJSON(c, common.Errors(common.NotFoundError, nil), nil)
-			return
-		}
-	}
-	res, err := cache.GetCacheInfo()
-	if err != nil {
-		RenderJSON(c, err, res)
-		return
-	}
-	res.ShareDiskPath = data.Path
-	res.UseShareDisk = data.UseShareDisk
-	err = cache.SetCacheInfo(res)
-	RenderJSON(c, err, nil)
 }
 
 func StartImport(c *gin.Context) {

@@ -11,6 +11,8 @@ import (
 	"github.com/bangwork/import-tools/serve/utils"
 )
 
+var SharedDiskPath string
+
 type Cache struct {
 	ImportUUID          string            `json:"import_uuid"`
 	URL                 string            `json:"url"`
@@ -36,8 +38,6 @@ type Cache struct {
 	MapOutputFilePath   map[string]string `json:"map_output_file_path"`
 	ImportTeamUUID      string            `json:"import_team_uuid"`
 	ImportTeamName      string            `json:"import_team_name"`
-	UseShareDisk        bool              `json:"use_share_disk"`
-	ShareDiskPath       string            `json:"share_disk_path"`
 
 	DaysPerWeek         string              `json:"days_per_week"`
 	HoursPerDay         string              `json:"hours_per_day"`
