@@ -7,7 +7,7 @@ IMAGE_TAG = latest
 IMAGE_NAME = ghcr.io/bangwork/import-tools
 
 .PHYNO: all
-all: build-web copy-dist build-api
+all: build-web build-api
 
 .PHYNO: build-web
 build-web:
@@ -50,5 +50,5 @@ package:
 	tar zcf import-tools.tar.gz \
 		LICENSE \
 		README.md \
-		start.sh \
+		scripts \
 		bin

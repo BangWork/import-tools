@@ -2,6 +2,13 @@
 set -e
 
 DEFAULT_ARCH="${DEFAULT_ARCH:-linux}"
+WORKSPACE=$(pwd -P)
+
+function init_workspace() {
+  if [[ "$WORKSPACE" = */scripts ]]; then
+    WORKSPACE="$(dirname "$WORKSPACE")"
+  fi
+}
 
 function read_params() {
   read -r -p "Please input port (default: 5000): " port
@@ -22,16 +29,17 @@ function read_params() {
 
 function start() {
   if [[ -z "$shared_disk_path" ]]; then
-    ./bin/$DEFAULT_ARCH/import-tools \
+    $WORKSPACE/bin/$DEFAULT_ARCH/import-tools \
       -port $port
   else
-    ./bin/$DEFAULT_ARCH/import-tools \
+    $WORKSPACE/bin/$DEFAULT_ARCH/import-tools \
       -port $port \
       -shared-disk-path $shared_disk_path
   fi
 }
 
 function main() {
+  init_workspace
   read_params
   start
 }

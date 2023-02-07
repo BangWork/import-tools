@@ -16,4 +16,5 @@ RUN tar -C serve/router -zxf serve/router/dist.tgz && \
 FROM alpine:3.15
 COPY --from=api-builder /import-tools/bin/import-tools /usr/local/bin/
 EXPOSE 5000
+ENV IMPORT_TOOLS_SHARED_DISK_PATH="/var/import_tools/shared_disk"
 ENTRYPOINT ["/usr/local/bin/import-tools"]
