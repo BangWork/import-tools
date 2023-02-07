@@ -10,31 +10,30 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
-
-	"github.com/bangwork/import-tools/serve/utils/timestamp"
-
 	"github.com/bangwork/import-tools/serve/services/cache"
 	jira "github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
-	"github.com/juju/errors"
+	"github.com/bangwork/import-tools/serve/utils/timestamp"
 )
 
 var (
 	handleTags = map[string]struct{}{
-		"User":              {},
-		"ApplicationUser": {},
-		"Group":             {},
-		"Membership":        {},
-		"Status":            {},
-		"ProjectRole":       {},
-		"Project":           {},
-		"ProjectRoleActor":  {},
-		"ProjectCategory":   {},
-		"CustomField":       {},
-		"Component":         {},
-		"CustomFieldOption": {},
+		"User":                        {},
+		"ApplicationUser":             {},
+		"Group":                       {},
+		"Membership":                  {},
+		"Status":                      {},
+		"ProjectRole":                 {},
+		"Project":                     {},
+		"ProjectRoleActor":            {},
+		"ProjectCategory":             {},
+		"CustomField":                 {},
+		"Component":                   {},
+		"CustomFieldOption":           {},
 		"Resolution":                  {},
 		"Priority":                    {},
 		"IssueLinkType":               {},
@@ -172,19 +171,19 @@ func (o *handlerEntityFile) closeFile() error {
 	return nil
 }
 
+func printOnly(r rune) rune {
+	// uint32(r) == 10 is line breaks \n
+	if unicode.IsPrint(r) || uint32(r) == 10 {
+		return r
+	}
+	return -1
+}
+
 func (o *handlerEntityFile) scan() error {
 	if err := o.createFile(); err != nil {
 		return err
 	}
 	defer o.closeFile()
-
-	printOnly := func(r rune) rune {
-		// uint32(r) == 10 is line breaks \n
-		if unicode.IsPrint(r) || uint32(r) == 10 {
-			return r
-		}
-		return -1
-	}
 
 	log.Println("[jira import] start tmp xml scanner")
 	tmpScanner := bufio.NewScanner(o.Reader)
