@@ -6,6 +6,8 @@ Import-Tools is a web tool for migrating Jira data to ONES system.
 
 ### Binary
 
+Download the latest release from [GitHub Releases](https://github.com/BangWork/import-tools/releases)
+
 ```bash
 cd scripts
 ./start.sh
