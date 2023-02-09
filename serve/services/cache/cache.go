@@ -102,11 +102,11 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
-	if err := os.MkdirAll(common.Path, 0755); err != nil {
+	if err := os.MkdirAll(common.GetCachePath(), 0755); err != nil {
 		return err
 	}
 	_, err := os.Create(filePath)
@@ -121,7 +121,7 @@ func InitCacheFile() error {
 }
 
 func GetCacheInfo() (*Cache, error) {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	if !utils.CheckPathExist(filePath) {
 		log.Printf("cache file missing: %s", filePath)
 		return nil, common.Errors(common.CacheFileNotFoundError, nil)
@@ -141,7 +141,7 @@ func GetCacheInfo() (*Cache, error) {
 }
 
 func SetCacheInfo(cache *Cache) error {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	if !utils.CheckPathExist(filePath) {
 		log.Printf("cache file missing: %s", filePath)
 		return common.Errors(common.CacheFileNotFoundError, nil)

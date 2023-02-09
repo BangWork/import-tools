@@ -684,7 +684,7 @@ func (p *Importer) writeLogWithoutTime(inputs ...string) {
 }
 
 func (p *Importer) initOutputFile() error {
-	outputPath := fmt.Sprintf("%s/%s", common.Path, common.OutputDir)
+	outputPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.OutputDir)
 	if err := p.initPath(outputPath); err != nil {
 		return err
 	}
@@ -724,6 +724,6 @@ func (p *Importer) initPath(outputPath string) error {
 	return nil
 }
 func (p *Importer) initXmlPath() error {
-	xmlPath := fmt.Sprintf("%s/%s", common.Path, common.XmlDir)
+	xmlPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.XmlDir)
 	return p.initPath(xmlPath)
 }
