@@ -34,7 +34,7 @@ const analyze = {
   environment: {
     title: 'Provide target ONES environment info',
     tip: {
-      message1: '1. Get ONES domain / IP from DevOPS',
+      message1: '1. Get ONES domain / IP from operation personnel',
       message2: '2. Only admin can perform this action',
     },
     url: {
@@ -93,9 +93,9 @@ const analyze = {
     current: {
       title: 'Jira backup info',
       version: 'Version',
-      projects: 'Number of projects',
-      works: 'Number of issues',
-      members: 'Number of members',
+      projects: 'Projects',
+      works: 'Issues',
+      members: 'Members',
       fileSize: 'File size',
       files: 'Number of files',
       unit: '',
@@ -113,10 +113,10 @@ const analyze = {
     },
   },
   teamPage: {
-    title: 'Select and import data into a ONES team',
+    title: 'Select a targeted ONES team',
     form: {
       label: 'Import data into a ONES team',
-      placeholder: 'Select a ONES team',
+      placeholder: 'Select a targeted ONES team',
     },
     error: {
       packDiff: {
@@ -140,7 +140,7 @@ const analyze = {
     buttonTip: 'Please select a ONES team',
   },
   importProject: {
-    title: 'Select which Jira project you want to import data from',
+    title: 'Select Jira projects',
     sourceTitle: 'Jira projects',
     targetTitle: 'Projects imported to ONES',
     local: {
@@ -165,22 +165,6 @@ const analyze = {
       },
       disabledTip: "This mapping relationship is already established and can't be changed",
       placeholder: 'ONES custom issue type',
-    },
-  },
-  shareDisk: {
-    title: 'Do you want to import data via shared disks?',
-    tip: {
-      message1:
-        '1、When importing data via shared disks, Jira data and attachments will be copied to a designated location. HTTP method will no longer be required',
-      message2:
-        '2、Import speed of shared disks is 5 times faster. If you select [Yes], you will need to provide shared disk paths',
-      message3:
-        '3、Note: In order to import data via shared disks, DevOPS team needs to mount ONES file storage path (local_file_root) on to the Jira server',
-    },
-    form: {
-      label: 'Shared disk path',
-      emptyError: 'Shared disk path is required',
-      serverError: 'Wrong path. Please try again',
     },
   },
 };

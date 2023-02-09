@@ -58,9 +58,9 @@ const importPack = {
       currentInfo: {
         title: 'Jira import scope',
         version: 'Version',
-        projects: 'Number of projects',
-        works: 'Number of issues',
-        members: 'Number of member',
+        projects: 'Projects',
+        works: 'Issues',
+        members: 'Members',
         fileSize: 'File size',
         files: 'Number of File',
       },
@@ -68,8 +68,8 @@ const importPack = {
     },
     errorModal: {
       miss: {
-        title: 'Jira 备份包不存在',
-        text: 'Jira 备份包不存在，取消导入！',
+        title: 'Jira backup does not exist',
+        text: 'Import aborted.Jira backup does not exist.',
       },
     },
     cancelModal: {

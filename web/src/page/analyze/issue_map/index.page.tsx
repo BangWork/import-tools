@@ -39,8 +39,7 @@ const IssueMapPage = () => {
       type: select[item.third_issue_type_id] || item.ones_detail_type,
     }));
 
-    const targetUrl = needDisk ? '/page/analyze/share_disk' : '/page/import_pack/init_password';
-    navigate(targetUrl, {
+    navigate('/page/import_pack/init_password', {
       replace: true,
       state: {
         ...(location?.state || {}),

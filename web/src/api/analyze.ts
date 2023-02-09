@@ -43,13 +43,5 @@ export const cancelAnalyzeApi = () => pureRequest.post('/resolve/stop');
 export const getResultApi = (): Promise<{ body: ResultType; code: number }> =>
   Request.get('/resolve/result');
 
-export const checkDiskPathApi = (path = '') =>
-  pureRequest.post('/check_path_exist', {
-    path,
-  });
-
-export const setDiskPathApi = (useShareDisk: boolean, path = '') =>
-  Request.post('/set_share_disk', { use_share_disk: useShareDisk, path });
-
 export const chooseTeamApi = (uuid: string, name: string) =>
   pureRequest.post('/choose_team', { team_uuid: uuid, team_name: name });

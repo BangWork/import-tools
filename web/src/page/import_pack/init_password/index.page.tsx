@@ -17,7 +17,7 @@ const InitPasswordPage = () => {
   const againPassword = Form.useWatch('againPassword', form);
 
   const onBack = () => {
-    navigate('/page/analyze/result', { replace: true });
+    navigate('/page/analyze/issue_map', { replace: true, state: location.state });
   };
 
   const handleBack = () => {

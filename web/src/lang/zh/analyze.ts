@@ -165,20 +165,6 @@ const analyze = {
       placeholder: 'ONES 自定义工作项类型',
     },
   },
-  shareDisk: {
-    title: '是否使用共享磁盘导入数据',
-    tip: {
-      message1: '1、当使用共享磁盘方式后，Jira 附件会直接拷贝到指定位置，无需走 HTTP 方式导入',
-      message2: '2、附件上传速度预计提升5倍，点击「使用」填写共享磁盘目录',
-      message3:
-        '3、注意：共享磁盘需要由运维人员将 ONES 文件存储目录(local_file_root)挂载到 Jira 服务器',
-    },
-    form: {
-      label: '共享磁盘目录',
-      emptyError: '共享磁盘目录不能为空',
-      serverError: '共享磁盘目录错误，请重新输入',
-    },
-  },
 };
 
 export default analyze;

@@ -11,8 +11,6 @@ import type {
 import {
   submitEnvironmentApi,
   cancelAnalyzeApi,
-  checkDiskPathApi,
-  setDiskPathApi,
   checkPathApi,
   chooseTeamApi,
   getBackUpApi,
@@ -38,8 +36,6 @@ export {
   // analyze
   submitEnvironmentApi,
   cancelAnalyzeApi,
-  checkDiskPathApi,
-  setDiskPathApi,
   checkPathApi,
   chooseTeamApi,
   getBackUpApi,
