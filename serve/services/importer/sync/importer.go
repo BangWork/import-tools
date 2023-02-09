@@ -58,13 +58,13 @@ func (p *Importer) Resolve() error {
 	resolver, err := InitImportFile(p.importTask)
 	if err != nil {
 		log.Println("init import file err", err)
-		info, err := cache.GetCacheInfo()
+		info, err := cache.GetCacheInfo(p.importTask.Key)
 		if err != nil {
 			log.Println("get cache fail", err)
 			return err
 		}
 		info.ResolveStatus = common.ResolveStatusFail
-		if err := cache.SetCacheInfo(info); err != nil {
+		if err := cache.SetCacheInfo(p.importTask.Key, info); err != nil {
 			log.Println("set cache fail", err)
 			return err
 		}
@@ -97,12 +97,12 @@ func (p *Importer) init() error {
 		return err
 	}
 	p.logFile = file
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
 	info.ImportUUID = p.importUUID
-	if err = cache.SetCacheInfo(info); err != nil {
+	if err = cache.SetCacheInfo(p.importTask.Key, info); err != nil {
 		return err
 	}
 	if err = p.initOutputFile(); err != nil {
@@ -307,7 +307,7 @@ func (p *Importer) syncImportLog() error {
 		common.ImportStatusLabelInterrupted: true,
 	}
 
-	cacheInfo, err := cache.GetCacheInfo()
+	cacheInfo, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		p.writeLog("[get cache fail]: %+v", err)
 		return err
@@ -329,7 +329,7 @@ func (p *Importer) syncImportLog() error {
 			services.StopImportSignal = true
 		}
 		if needUpdateStatus[importStatus] {
-			if err := cache.SetCacheInfo(cacheInfo); err != nil {
+			if err := cache.SetCacheInfo(p.importTask.Key, cacheInfo); err != nil {
 				p.writeLog("[set cache fail]: %+v", err)
 			}
 			retryFunc(accountInfo, getLogAtLastCount)
@@ -532,7 +532,7 @@ func (p *Importer) outputFileWriteToRead() error {
 }
 
 func (p *Importer) setCache(importErr error) error {
-	cacheInfo, e := cache.GetCacheInfo()
+	cacheInfo, e := cache.GetCacheInfo(p.importTask.Key)
 	if e != nil {
 		return e
 	}
@@ -545,11 +545,11 @@ func (p *Importer) setCache(importErr error) error {
 		cacheInfo.ImportResult.Status = status
 	}
 	cacheInfo.ImportResult.DoneTime = time.Now().Unix()
-	return cache.SetCacheInfo(cacheInfo)
+	return cache.SetCacheInfo(p.importTask.Key, cacheInfo)
 }
 
 func (p *Importer) setCountCache(tag string, count int64) error {
-	cacheInfo, e := cache.GetCacheInfo()
+	cacheInfo, e := cache.GetCacheInfo(p.importTask.Key)
 	if e != nil {
 		return e
 	}
@@ -565,10 +565,10 @@ func (p *Importer) setCountCache(tag string, count int64) error {
 	case services.ResourceTypeStringTaskAttachment:
 		cacheInfo.ImportScope.AttachmentSize = count
 	}
-	if err := cache.SetCacheInfo(cacheInfo); err != nil {
+	if err := cache.SetCacheInfo(p.importTask.Key, cacheInfo); err != nil {
 		return err
 	}
-	cache.SetExpectTimeCache()
+	cache.SetExpectTimeCache(p.importTask.Key)
 	return nil
 }
 
@@ -688,7 +688,7 @@ func (p *Importer) initOutputFile() error {
 	if err := p.initPath(outputPath); err != nil {
 		return err
 	}
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
@@ -703,7 +703,7 @@ func (p *Importer) initOutputFile() error {
 		//services.MapOutputFile[tag] = path
 	}
 	//info.MapOutputFilePath = services.MapOutputFile
-	return cache.SetCacheInfo(info)
+	return cache.SetCacheInfo(p.importTask.Key, info)
 }
 func (p *Importer) initPath(outputPath string) error {
 	if utils.CheckPathExist(outputPath) {

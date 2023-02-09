@@ -41,11 +41,11 @@ func StopResolve() error {
 	return nil
 }
 
-func StartImport(projectIDs []string, builtinIssueTypeMap []types.BuiltinIssueTypeMap, password string) {
+func StartImport(key string, projectIDs []string, builtinIssueTypeMap []types.BuiltinIssueTypeMap, password string) {
 	defer func() {
 		if p := recover(); p != nil {
 			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
-			cacheInfo, err := cache.GetCacheInfo()
+			cacheInfo, err := cache.GetCacheInfo(key)
 			if err != nil {
 				log.Println("get cache fail", err)
 				return
@@ -53,13 +53,13 @@ func StartImport(projectIDs []string, builtinIssueTypeMap []types.BuiltinIssueTy
 			cacheInfo.ImportResult = &cache.ImportResult{
 				Status: common.ImportStatusFail,
 			}
-			if err = cache.SetCacheInfo(cacheInfo); err != nil {
+			if err = cache.SetCacheInfo(key, cacheInfo); err != nil {
 				return
 			}
 		}
 	}()
 
-	cacheInfo, err := cache.GetCacheInfo()
+	cacheInfo, err := cache.GetCacheInfo(key)
 	if err != nil {
 		log.Println("get cache fail", err)
 		return
@@ -77,11 +77,11 @@ func StartImport(projectIDs []string, builtinIssueTypeMap []types.BuiltinIssueTy
 		AttachmentSize:  common.Calculating,
 		AttachmentCount: common.Calculating,
 	}
-	if err := cache.SetCacheInfo(cacheInfo); err != nil {
+	if err := cache.SetCacheInfo(key, cacheInfo); err != nil {
 		log.Println("set cache fail", err)
 		return
 	}
-	cache.SetExpectTimeCache()
+	cache.SetExpectTimeCache(key)
 	mapProjectID := map[string]bool{}
 	for _, id := range projectIDs {
 		mapProjectID[id] = true
@@ -97,6 +97,7 @@ func StartImport(projectIDs []string, builtinIssueTypeMap []types.BuiltinIssueTy
 		ImportTeamUUID:     cacheInfo.ImportTeamUUID,
 		AttachmentsPath:    common.GenAttachmentFilePath(cacheInfo.LocalHome),
 		Password:           password,
+		Key:                key,
 	}
 
 	if err := sync.NewImporter(task).Import(); err != nil {

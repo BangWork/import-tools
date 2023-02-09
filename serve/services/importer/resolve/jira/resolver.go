@@ -183,8 +183,7 @@ type JiraResolver struct {
 	nowTimeString string
 }
 
-type JiraResolverFactory struct {
-}
+type JiraResolverFactory struct{}
 
 var (
 	thirdIssueTypeFields = []*resolve.ThirdIssueTypeField{
@@ -443,12 +442,12 @@ func (p *JiraResolver) prepareProjectIssueTypeMap() error {
 	if err != nil {
 		return err
 	}
-	cacheInfo, err := cache.GetCacheInfo()
+	cacheInfo, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
 	cacheInfo.ProjectIssueTypeMap = projectIssueTypeMap
-	return cache.SetCacheInfo(cacheInfo)
+	return cache.SetCacheInfo(p.importTask.Key, cacheInfo)
 }
 
 func (p *JiraResolver) initIssueTypeMap() {
@@ -507,7 +506,7 @@ func (p *JiraResolver) InitImportFile() error {
 }
 
 func (p *JiraResolver) setCache() error {
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
@@ -518,7 +517,7 @@ func (p *JiraResolver) setCache() error {
 	info.DaysPerWeek = p.daysPerWeek
 	info.ResolveStatus = common.ResolveStatusDone
 	info.ResolveDoneTime = time.Now().Unix()
-	return cache.SetCacheInfo(info)
+	return cache.SetCacheInfo(p.importTask.Key, info)
 }
 
 func (p *JiraResolver) initAttributes() {

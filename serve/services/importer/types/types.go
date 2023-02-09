@@ -1,6 +1,7 @@
 package types
 
 type ImportTask struct {
+	Key             string
 	Password        string
 	UserUUID        string `json:"user_uuid"`
 	ImportType      int    `json:"import_type"`

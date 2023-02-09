@@ -165,7 +165,7 @@ func (r *Account) Login() error {
 	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
 	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
 
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(r.Key())
 	if err != nil {
 		return err
 	}
@@ -395,8 +395,12 @@ func (r *Account) CheckONESAccount() error {
 	return nil
 }
 
+func (r *Account) Key() string {
+	return cache.GenCacheKey(r.URL)
+}
+
 func (r *Account) SetCache() error {
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(r.Key())
 	if err != nil {
 		return err
 	}
@@ -423,7 +427,7 @@ func (r *Account) SetCache() error {
 		info.ImportResult = nil
 	}
 
-	return cache.SetCacheInfo(info)
+	return cache.SetCacheInfo(r.Key(), info)
 }
 
 func getExpectedResolveTime(fileSize int64) int64 {
@@ -468,7 +472,7 @@ func (r *Account) checkTeamPermission() (bool, error) {
 
 func (r *Account) postLogin() (*http.Response, error) {
 	if len(r.Email) == 0 || len(r.Password) == 0 || len(r.URL) == 0 {
-		info, err := cache.GetCacheInfo()
+		info, err := cache.GetCacheInfo(r.Key())
 		if err != nil {
 			return nil, err
 		}

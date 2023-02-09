@@ -52,8 +52,10 @@ func Run(port int) {
 	api.POST("/resolve/stop", controllers.StopResolve)
 	api.GET("/resolve/result", controllers.ResolveResult)
 	api.GET("/project_list", controllers.ProjectList)
+	api.POST("/project_list/save", controllers.SaveProjectList)
 	api.POST("/choose_team", controllers.ChooseTeam)
 	api.POST("/issue_type_list", controllers.IssueTypeList)
+	api.POST("/issue_type_list/save", controllers.SaveIssueTypeList)
 
 	api.GET("/import/reset", controllers.Reset)
 	api.POST("/import/start", controllers.StartImport)

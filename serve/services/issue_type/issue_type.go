@@ -38,8 +38,8 @@ var (
 	}
 )
 
-func GetIssueTypeList(typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
-	list, err := cache.GetCacheInfo()
+func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
+	list, err := cache.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
 	}
