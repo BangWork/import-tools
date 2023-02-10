@@ -232,6 +232,15 @@ func (p *Importer) uploadAttachments() error {
 			return err
 		}
 		resourceUUID, err := file.UploadFile(fi, r.FileName)
+		fi.Close()
+		if err != nil {
+			p.writeLog("upload file error: %+v", err)
+			continue
+		}
+		if resourceUUID == "" {
+			p.writeLog("resource uuid empty", r.FileName)
+			continue
+		}
 		r.ResourceUUID = resourceUUID
 		line := utils.OutputJSON(r)
 		_, err = p.MapTagFile[services.ResourceTypeStringTaskAttachment].WriteString(string(line) + "\n")
