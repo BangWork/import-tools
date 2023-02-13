@@ -74,6 +74,7 @@ func uploadToShareDisk(file *os.File,
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("file record failed")
 		return
@@ -101,6 +102,7 @@ func upload(file *os.File, account *account2.Account, realFileName string) (reso
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != 579 {
 		log.Printf("doUpload file failed")
 		return
@@ -121,6 +123,7 @@ func PrepareUploadInfo(fileName, label string, refType string, account *account2
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("upload file failed")
 		return nil, err
