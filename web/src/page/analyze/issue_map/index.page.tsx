@@ -1,10 +1,9 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { Button, Alert, Table } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSize } from 'ahooks';
 import { map } from 'lodash-es';
-import { getResultApi } from '@/api';
 
 import useTableBusiness from './use_table_business';
 
@@ -14,14 +13,7 @@ const IssueMapPage = () => {
   const boxRef = useRef(null);
   const boxSize = useSize(boxRef);
   const location = useLocation();
-  const [needDisk, setNeedDisk] = useState(false);
   const { loading, columns, select, jiraList } = useTableBusiness();
-
-  useEffect(() => {
-    getResultApi().then((res) => {
-      setNeedDisk(res.body.resolve_result.disk_set_pop_ups);
-    });
-  }, []);
 
   const handleBack = () => {
     navigate('/page/analyze/import_project', { replace: true, state: location.state });
@@ -49,8 +41,8 @@ const IssueMapPage = () => {
   };
 
   return (
-    <div className="h-full w-full">
-      <div className="flex justify-between">
+    <div className="h-full w-full flex flex-col items-center">
+      <div className="flex justify-between w-2/3">
         <h2>{t('issueMap.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.cancel')}</Button>
@@ -60,19 +52,20 @@ const IssueMapPage = () => {
         </div>
       </div>
       <Alert
-        className="my-4"
+        className="my-4 w-2/3"
         message={
-          <div className="p-2">
-            <div>{t('issueMap.tip.message1')}</div>
-            <div>{t('issueMap.tip.message2')}</div>
-            <div style={{ color: '#FF4D4F' }}>{t('issueMap.tip.message3')}</div>
-          </div>
+          <ol className="px-8">
+            <li>{t('issueMap.tip.message1')}</li>
+            <li>{t('issueMap.tip.message2')}</li>
+            <li>{t('issueMap.tip.message3')}</li>
+            <li>{t('issueMap.tip.message4')}</li>
+          </ol>
         }
         showIcon
         type="info"
       />
-      <div className="flex h-4/6 justify-center">
-        <div ref={boxRef} className="flex h-full w-2/3 justify-center">
+      <div className="h-4/6 w-2/3">
+        <div ref={boxRef} className="h-full">
           <Table
             columns={columns}
             loading={loading}

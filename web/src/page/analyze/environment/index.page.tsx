@@ -1,8 +1,9 @@
 import { Alert, Button, Form, Input, message, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { isEmpty, trim } from 'lodash-es';
 import { useNavigate, useLocation } from 'react-router-dom';
+import type { InputRef } from 'antd';
 
 import ModalContent from '@/components/modal_content';
 import { submitEnvironmentApi } from '@/api';
@@ -14,6 +15,11 @@ const EnvironmentPage = () => {
   const navigate = useNavigate();
   const { state: locationState = {} } = useLocation();
   const [form] = Form.useForm();
+  const [showServerError, setShowServerError] = useState(false);
+  const url = Form.useWatch('url', form);
+  const email = Form.useWatch('email', form);
+  const password = Form.useWatch('password', form);
+  const urlInputRef = useRef<InputRef>(null);
 
   const handleBack = () => {
     navigate('/page/analyze/pack', {
@@ -22,14 +28,20 @@ const EnvironmentPage = () => {
   };
 
   useEffect(() => {
+    const initUrl = window.localStorage.getItem('environmentUrl');
+    form.setFieldValue('url', initUrl);
+  }, []);
+
+  useEffect(() => {
+    // localHome change need clear error tip
+    setShowServerError(false);
+  }, [url]);
+
+  useEffect(() => {
     if (isEmpty(locationState)) {
       handleBack();
     }
   }, [locationState]);
-
-  const handleClear = () => {
-    form.resetFields();
-  };
 
   const onFinish = (res) => {
     const url = trim(res.url);
@@ -42,6 +54,7 @@ const EnvironmentPage = () => {
     });
 
     form.validateFields().then(() => {
+      window.localStorage.setItem('environmentUrl', url);
       submitEnvironmentApi({
         ...locationState,
         url,
@@ -59,12 +72,8 @@ const EnvironmentPage = () => {
           const msg = ERROR_MAP[err_code];
 
           if (err_code === 'NetworkError') {
-            Modal.error({
-              title: t('environment.serverError.network.title'),
-              content: t('environment.serverError.network.desc'),
-              okText: t('common.ok'),
-              onOk: handleClear,
-            });
+            setShowServerError(true);
+            urlInputRef.current?.focus();
             return;
           }
 
@@ -85,6 +94,8 @@ const EnvironmentPage = () => {
     });
   };
 
+  const canSubmit = !!(url && email && password);
+
   return (
     <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
       <ModalContent
@@ -94,7 +105,7 @@ const EnvironmentPage = () => {
             <Button className="mr-4" onClick={handleBack}>
               {t('common.back')}
             </Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" disabled={!canSubmit} htmlType="submit">
               {t('environment.startButton')}
             </Button>
           </Form.Item>
@@ -117,6 +128,8 @@ const EnvironmentPage = () => {
           <Form.Item
             name="url"
             label={t('environment.url.label')}
+            validateStatus={showServerError ? 'error' : undefined}
+            help={showServerError ? t('environment.url.serverError') : undefined}
             rules={[
               {
                 required: true,
@@ -124,7 +137,7 @@ const EnvironmentPage = () => {
               },
             ]}
           >
-            <Input placeholder={t('common.placeholder')} />
+            <Input ref={urlInputRef} autoFocus placeholder={t('environment.url.placeholder')} />
           </Form.Item>
           <Form.Item
             name="email"

@@ -3,8 +3,8 @@ const common = {
   loading: 'loading',
 
   help: {
-    import: 'Imported data list',
-    document: 'Manual',
+    import: 'Download data mapping document',
+    document: 'Download Manuel',
     download: 'Download Jira migration log',
   },
 

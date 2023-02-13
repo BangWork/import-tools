@@ -3,7 +3,7 @@ import { useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { map, find, includes } from 'lodash-es';
+import { map, find, includes, head } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import ModalContent from '@/components/modal_content';
@@ -73,11 +73,13 @@ const TeamPage = () => {
     Modal.confirm({
       title: config.title,
       content: config.renderDesc({ time, version, packVersion }),
-      okText: t('common.ok'),
+      okText: t(
+        type === WarningEnum.version ? 'teamPage.error.warning.ok2' : 'teamPage.error.warning.ok1'
+      ),
+      cancelText: t('teamPage.error.warning.cancel'),
       okType: 'primary',
-      cancelText: t(type === WarningEnum.import ? 'common.cancel' : 'teamPage.backButton'),
-      onOk: handleNext,
-      onCancel: () => {
+      onCancel: handleNext,
+      onOk: () => {
         if (config.backPath) {
           navigate(config.backPath, {
             replace: true,
@@ -177,6 +179,7 @@ const TeamPage = () => {
             style={{ width: '220px' }}
             label={t('teamPage.form.label')}
             rules={[{ required: true }]}
+            initialValue={head(options)?.value || ''}
           >
             <SelectStyled options={options} placeholder={t('teamPage.form.placeholder')} />
           </Form.Item>

@@ -3,12 +3,11 @@ const importPack = {
     title: 'Set initial password',
     tip: {
       message1:
-        '1.An initial password is required for new users imported from Jira. They can also select "Forgot password?" to verify their account emails and reset passwords.',
+        'An initial password is required for new users imported from Jira. They can also select "Forgot password?" to verify their account emails and reset passwords.',
       message2:
-        "2.This password will only be displayed once and can't be changed. Please write it down.",
+        "This password will only be displayed once and can't be changed. Please write it down.",
     },
     form: {
-      tip: 'Imported data will be processed on the cloud',
       init: {
         label: 'Initial password',
         placeholder: '8–32 characters, including numbers and letters',

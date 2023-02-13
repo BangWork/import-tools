@@ -57,7 +57,7 @@ const ImportProjectPage = () => {
 
   return (
     <div className="h-full w-full">
-      <div className="flex justify-between">
+      <div className="flex justify-between px-60">
         <h2>{t('importProject.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.back')}</Button>

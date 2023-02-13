@@ -20,14 +20,6 @@ const InitPasswordPage = () => {
     navigate('/page/analyze/issue_map', { replace: true, state: location.state });
   };
 
-  const handleBack = () => {
-    Modal.confirm({
-      title: t('initPassword.modal.back.title'),
-      content: t('initPassword.modal.back.desc'),
-      onOk: onBack,
-    });
-  };
-
   useEffect(() => {
     if (!location?.state) {
       onBack();
@@ -55,17 +47,19 @@ const InitPasswordPage = () => {
     });
   };
 
+  const canSubmit = !!(password && againPassword);
+
   return (
-    <Form form={form} onFinish={onFinish} autoComplete="off">
+    <Form form={form} onFinish={onFinish} layout="vertical" autoComplete="off">
       <ModalContent
         title={t('initPassword.title')}
         width="572px"
         footer={
           <Form.Item className="flex flex-row-reverse">
-            <Button className="mr-4" onClick={handleBack}>
+            <Button className="mr-4" onClick={onBack}>
               {t('common.back')}
             </Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" disabled={!canSubmit} htmlType="submit">
               {t('initPassword.startButton')}
             </Button>
           </Form.Item>
@@ -76,59 +70,55 @@ const InitPasswordPage = () => {
             showIcon
             className="mb-4"
             message={
-              <div className="p-2">
-                <div>{t('initPassword.tip.message1')}</div>
-                <div style={{ color: '#FF4D4F' }}>{t('initPassword.tip.message2')}</div>
-              </div>
+              <ol className="px-8">
+                <li>{t('initPassword.tip.message1')}</li>
+                <li>{t('initPassword.tip.message2')}</li>
+              </ol>
             }
             type="info"
           />
 
           {/* form */}
-          <div className="mx-8">
-            <Form.Item
-              name="password"
-              label={t('initPassword.form.init.label')}
-              rules={[
-                {
-                  required: true,
-                  message: t(
-                    password
-                      ? 'initPassword.form.init.error.rule'
-                      : 'initPassword.form.init.error.empty'
-                  ),
-                  validator: (rule, value) => handleValidate(value),
-                },
-              ]}
-            >
-              <Input.Password allowClear placeholder={t('initPassword.form.init.placeholder')} />
-            </Form.Item>
-            <Form.Item
-              name="againPassword"
-              label={t('initPassword.form.again.label')}
-              rules={[
-                {
-                  required: true,
-                  message: t(
-                    againPassword
-                      ? 'initPassword.form.again.error.diff'
-                      : 'initPassword.form.again.error.empty'
-                  ),
-                  validator: (rule, value) =>
-                    handleValidate(password).then(() => {
-                      if (value === password) {
-                        return Promise.resolve('success');
-                      }
-                      return Promise.reject('fail');
-                    }),
-                },
-              ]}
-            >
-              <Input.Password allowClear placeholder={t('initPassword.form.again.placeholder')} />
-            </Form.Item>
-          </div>
-
-          <div className="opacity-50">{t('initPassword.form.tip')}</div>
+          <Form.Item
+            name="password"
+            label={t('initPassword.form.init.label')}
+            rules={[
+              {
+                required: true,
+                message: t(
+                  password
+                    ? 'initPassword.form.init.error.rule'
+                    : 'initPassword.form.init.error.empty'
+                ),
+                validator: (rule, value) => handleValidate(value),
+              },
+            ]}
+          >
+            <Input allowClear placeholder={t('initPassword.form.init.placeholder')} />
+          </Form.Item>
+          <Form.Item
+            name="againPassword"
+            label={t('initPassword.form.again.label')}
+            rules={[
+              {
+                required: true,
+                message: t(
+                  againPassword
+                    ? 'initPassword.form.again.error.diff'
+                    : 'initPassword.form.again.error.empty'
+                ),
+                validator: (rule, value) =>
+                  handleValidate(password).then(() => {
+                    if (value === password) {
+                      return Promise.resolve('success');
+                    }
+                    return Promise.reject('fail');
+                  }),
+              },
+            ]}
+          >
+            <Input allowClear placeholder={t('initPassword.form.again.placeholder')} />
+          </Form.Item>
         </div>
       </ModalContent>
     </Form>
