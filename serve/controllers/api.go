@@ -76,6 +76,7 @@ func StartResolve(c *gin.Context) {
 	}
 	go importer.StartResolve(data)
 
+	cache.CurrentCacheKey = data.Key()
 	RenderJSON(c, nil, map[string]interface{}{
 		"key": data.Key(),
 	})
