@@ -27,7 +27,7 @@ build-api: copy-dist
 .PHYNO: build-linux
 build-linux: copy-dist
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=$(CGO_ENABLED) go build \
-		-o bin/$(GOOS)/import-tools \
+		-o bin/linux/import-tools \
 		-trimpath \
 		$(ENTRY)
 

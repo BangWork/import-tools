@@ -15,7 +15,10 @@ import (
 	"github.com/bangwork/import-tools/serve/utils"
 )
 
-var SharedDiskPath string
+var (
+	SharedDiskPath  string
+	CurrentCacheKey string
+)
 
 type Cache struct {
 	ImportUUID          string            `json:"import_uuid"`
@@ -48,6 +51,7 @@ type Cache struct {
 	ProjectIssueTypeMap map[string][]string `json:"project_issue_type_map"`
 
 	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
+	ProjectIDs   []string                    `json:"project_ids"`
 }
 
 type ResolveResult struct {
@@ -131,6 +135,9 @@ func GenCacheKey(addr string) string {
 }
 
 func GetCacheInfo(key string) (*Cache, error) {
+	if key == "" {
+		key = CurrentCacheKey
+	}
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -160,6 +167,10 @@ var cacheLock sync.Mutex
 func SetCacheInfo(key string, cache *Cache) error {
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
+
+	if key == "" {
+		key = CurrentCacheKey
+	}
 
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	b, err := ioutil.ReadFile(filePath)

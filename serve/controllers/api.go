@@ -6,9 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bangwork/import-tools/serve/services/importer/types"
-	"github.com/bangwork/import-tools/serve/utils/timestamp"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/bangwork/import-tools/serve/common"
@@ -16,10 +13,12 @@ import (
 	"github.com/bangwork/import-tools/serve/services/account"
 	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer"
+	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/services/issue_type"
 	"github.com/bangwork/import-tools/serve/services/log"
 	"github.com/bangwork/import-tools/serve/services/project"
 	"github.com/bangwork/import-tools/serve/utils"
+	"github.com/bangwork/import-tools/serve/utils/timestamp"
 )
 
 func CheckPathExist(c *gin.Context) {
@@ -168,8 +167,24 @@ func ProjectList(c *gin.Context) {
 	RenderJSON(c, err, list)
 }
 
+type SaveProjectListReq struct {
+	Key        string   `json:"key"`
+	ProjectIDs []string `json:"project_ids"`
+}
+
 func SaveProjectList(c *gin.Context) {
-	RenderJSON(c, nil, nil)
+	req := new(SaveProjectListReq)
+	if err := c.BindJSON(&req); err != nil {
+		return
+	}
+
+	cacheInfo, err := cache.GetCacheInfo(req.Key)
+	if err != nil {
+		return
+	}
+	cacheInfo.ProjectIDs = req.ProjectIDs
+	err = cache.SetCacheInfo(req.Key, cacheInfo)
+	RenderJSON(c, err, nil)
 }
 
 func ChooseTeam(c *gin.Context) {
