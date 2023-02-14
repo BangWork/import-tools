@@ -15,11 +15,6 @@ import GlobalStyle from './global';
 import './index.css';
 import { getCurrentLang, getAntDesignLang } from '@/i18n';
 
-const LayoutBox = styled(Layout)`
-  background: #fff;
-  height: 100%;
-`;
-
 const Content = styled.div`
   min-height: calc(100% - 104px);
   display: flex;
@@ -31,12 +26,12 @@ const Content = styled.div`
 
 /** default layout routes */
 const NormalLayoutRoutes = () => (
-  <LayoutBox>
+  <Layout className="h-full bg-white">
     <Header />
     <Content>
       <AutoRouter Loading={Loading} NoMatch={NoMatch} redirectRoutes={redirectRoutes} />
     </Content>
-  </LayoutBox>
+  </Layout>
 );
 
 const Main = () => {
