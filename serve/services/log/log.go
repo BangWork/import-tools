@@ -147,7 +147,7 @@ func DownloadCurrentLog(teamUUID, importUUID string) ([]byte, error) {
 }
 
 func logRootPath() string {
-	filePath := fmt.Sprintf("%s/%s", common.Path, Log)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), Log)
 	return filePath
 }
 
@@ -157,6 +157,6 @@ func logFilePath(teamUUID, importUUID string) string {
 }
 
 func logTeamPath(teamUUID string) string {
-	filePath := fmt.Sprintf("%s/%s/%s", common.Path, Log, teamUUID)
+	filePath := fmt.Sprintf("%s/%s/%s", common.GetCachePath(), Log, teamUUID)
 	return filePath
 }

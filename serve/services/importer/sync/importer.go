@@ -232,6 +232,15 @@ func (p *Importer) uploadAttachments() error {
 			return err
 		}
 		resourceUUID, err := file.UploadFile(fi, r.FileName)
+		fi.Close()
+		if err != nil {
+			p.writeLog("upload file error: %+v", err)
+			continue
+		}
+		if resourceUUID == "" {
+			p.writeLog("resource uuid empty", r.FileName)
+			continue
+		}
 		r.ResourceUUID = resourceUUID
 		line := utils.OutputJSON(r)
 		_, err = p.MapTagFile[services.ResourceTypeStringTaskAttachment].WriteString(string(line) + "\n")
@@ -684,7 +693,7 @@ func (p *Importer) writeLogWithoutTime(inputs ...string) {
 }
 
 func (p *Importer) initOutputFile() error {
-	outputPath := fmt.Sprintf("%s/%s", common.Path, common.OutputDir)
+	outputPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.OutputDir)
 	if err := p.initPath(outputPath); err != nil {
 		return err
 	}
@@ -724,6 +733,6 @@ func (p *Importer) initPath(outputPath string) error {
 	return nil
 }
 func (p *Importer) initXmlPath() error {
-	xmlPath := fmt.Sprintf("%s/%s", common.Path, common.XmlDir)
+	xmlPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.XmlDir)
 	return p.initPath(xmlPath)
 }
