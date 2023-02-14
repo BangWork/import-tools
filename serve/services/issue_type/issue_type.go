@@ -39,15 +39,15 @@ var (
 )
 
 func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
-	list, err := cache.GetCacheInfo(key)
+	cacheInfo, err := cache.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
 	}
-	v, found := list.MapFilePath[common.TagIssueType]
+	issueTypeFile, found := cacheInfo.MapFilePath[common.TagIssueType]
 	if !found {
 		return nil, common.Errors(common.NotFoundError, nil)
 	}
-	file, err := os.Open(v)
+	file, err := os.Open(issueTypeFile)
 	if err != nil {
 		return nil, err
 	}
