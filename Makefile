@@ -52,3 +52,7 @@ package:
 		README.md \
 		scripts \
 		bin
+
+dev-deploy: build-linux
+	rsync -avh --progress bin/linux/import-tools ones-jira:/root/import-tools
+
