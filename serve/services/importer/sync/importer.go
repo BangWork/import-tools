@@ -239,14 +239,14 @@ func (p *Importer) uploadAttachments() error {
 		resourceUUID, err := file.UploadFile(accountInfo, fi, r.FileName)
 		if err != nil || resourceUUID == "" {
 			for j := 0; j < retryCount; j++ {
-				p.writeLog("retry count: %d", j)
+				p.writeLog("upload file retry count: %d", j)
 				if err := accountInfo.Login(); err != nil {
-					p.writeLog("login err:%+v", err)
+					p.writeLog("upload file login err:%+v", err)
 					continue
 				}
 				resourceUUID, err = file.UploadFile(accountInfo, fi, r.FileName)
-				if err != nil {
-					log.Println("upload file err", err)
+				if err != nil || resourceUUID == "" {
+					log.Println("upload file err", err, resourceUUID)
 					continue
 				}
 				break
