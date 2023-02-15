@@ -210,6 +210,11 @@ func (p *Importer) uploadAttachments() error {
 	startTime := time.Now()
 	p.writeLog("[start upload attachments]")
 	reader := bufio.NewReader(p.MapTagFile[services.ResourceTypeStringTaskAttachmentTmp])
+
+	accountInfo := new(account.Account)
+	if err := accountInfo.Login(); err != nil {
+		return err
+	}
 	for {
 		if services.CheckIsStop() {
 			p.writeLog("importer stop")
@@ -231,7 +236,22 @@ func (p *Importer) uploadAttachments() error {
 		if err != nil {
 			return err
 		}
-		resourceUUID, err := file.UploadFile(fi, r.FileName)
+		resourceUUID, err := file.UploadFile(accountInfo, fi, r.FileName)
+		if err != nil || resourceUUID == "" {
+			for j := 0; j < retryCount; j++ {
+				p.writeLog("retry count: %d", j)
+				if err := accountInfo.Login(); err != nil {
+					p.writeLog("login err:%+v", err)
+					continue
+				}
+				resourceUUID, err = file.UploadFile(accountInfo, fi, r.FileName)
+				if err != nil {
+					log.Println("upload file err", err)
+					continue
+				}
+				break
+			}
+		}
 		fi.Close()
 		if err != nil {
 			p.writeLog("upload file error: %+v", err)
