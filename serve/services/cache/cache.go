@@ -154,7 +154,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	}
 	s, ok := d[key]
 	if !ok {
-		return nil, common.Errors(common.NotFoundError, nil)
+		return new(Cache), nil
 	}
 
 	c := new(Cache)
@@ -210,6 +210,10 @@ func SetExpectTimeCache(key string) {
 	info, err := GetCacheInfo(key)
 	if err != nil {
 		log.Println("get cache err", err)
+		return
+	}
+	if info == nil {
+		log.Println("err: cache not found")
 		return
 	}
 	if info.ImportScope == nil {
