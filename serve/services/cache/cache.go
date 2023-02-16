@@ -138,6 +138,9 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		key = CurrentCacheKey
 	}
+	if key == "" {
+		return nil, nil
+	}
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {

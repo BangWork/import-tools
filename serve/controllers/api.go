@@ -90,10 +90,7 @@ func ResolveProgress(c *gin.Context) {
 		return
 	}
 	if info == nil {
-		RenderJSON(c, nil, map[string]interface{}{
-			"code": 404,
-			"msg":  "invalid key",
-		})
+		RenderJSON(c, nil, new(ResolveProgressResponse))
 		return
 	}
 	if len(info.BackupName) != 0 {
