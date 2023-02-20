@@ -238,6 +238,7 @@ func (p *Importer) uploadAttachments() error {
 		}
 		resourceUUID, err := file.UploadFile(accountInfo, fi, r.FileName)
 		if err != nil || resourceUUID == "" {
+			p.writeLog("upload file err: %+v, %s", err, resourceUUID)
 			for j := 0; j < retryCount; j++ {
 				p.writeLog("upload file retry count: %d", j)
 				if err := accountInfo.Login(); err != nil {
