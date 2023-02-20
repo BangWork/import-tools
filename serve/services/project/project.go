@@ -21,7 +21,12 @@ type Project struct {
 	Name string `json:"name"`
 }
 
-func GetProjectList(key string) ([]*Project, error) {
+type ProjectRes struct {
+	ProjectList []*Project  `json:"projects"`
+	Cache       interface{} `json:"cache"`
+}
+
+func GetProjectList(key string) (*ProjectRes, error) {
 	list, err := cache.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
@@ -69,5 +74,9 @@ func GetProjectList(key string) ([]*Project, error) {
 		}
 		return false
 	})
-	return res, nil
+
+	return &ProjectRes{
+		ProjectList: res,
+		Cache:       list.ProjectIDs,
+	}, nil
 }
