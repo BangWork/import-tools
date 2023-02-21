@@ -18,11 +18,7 @@ import (
 	_ "golang.org/x/image/webp"
 )
 
-func UploadFile(file *os.File, realFileName string) (resourceUUID string, err error) {
-	account := new(account2.Account)
-	if err = account.Login(); err != nil {
-		return
-	}
+func UploadFile(account *account2.Account, file *os.File, realFileName string) (resourceUUID string, err error) {
 	if account.Cache.UseShareDisk {
 		return uploadToShareDisk(file, account, realFileName)
 	}

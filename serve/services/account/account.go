@@ -493,7 +493,6 @@ func (r *Account) postLogin() (*http.Response, error) {
 	if err != nil {
 		return nil, common.Errors(common.NetworkError, nil)
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		data, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
