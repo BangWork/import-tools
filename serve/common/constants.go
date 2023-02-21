@@ -46,3 +46,15 @@ const (
 
 	ShareDiskPathPrivate = "private"
 )
+
+var (
+	CachePath string
+)
+
+func GetCachePath() string {
+	return CachePath
+}
+
+func SetCachePath(path string) {
+	CachePath = path
+}

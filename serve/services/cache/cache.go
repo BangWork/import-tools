@@ -112,11 +112,11 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
-	if err := os.MkdirAll(common.Path, 0755); err != nil {
+	if err := os.MkdirAll(common.GetCachePath(), 0755); err != nil {
 		return err
 	}
 	f, err := os.Create(filePath)
@@ -141,7 +141,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		return nil, nil
 	}
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)
@@ -175,7 +175,7 @@ func SetCacheInfo(key string, cache *Cache) error {
 		key = CurrentCacheKey
 	}
 
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)

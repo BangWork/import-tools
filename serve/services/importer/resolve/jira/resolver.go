@@ -689,10 +689,32 @@ func (p *JiraResolver) loadElements() error {
 		return err
 	}
 
+	p.prepareGlobalProjectField()
 	p.prepareProjectType()
 	p.prepareProjectCategory()
 
 	return nil
+}
+
+func (p *JiraResolver) prepareGlobalProjectField() {
+	globalProjectFields := []*resolve.ThirdGlobalProjectField{
+		{
+			Base: resolve.Base{
+				ResourceID: ResourceIDProjectURL,
+			},
+			Name: ResourceIDProjectURL,
+			Type: fieldModel.FieldTypeText,
+		},
+		{
+			Base: resolve.Base{
+				ResourceID: ResourceIDProjectDescription,
+			},
+			Name: ResourceIDProjectDescription,
+			Type: fieldModel.FieldTypeMultiLineText,
+		},
+	}
+
+	p.jiraGlobalProjectField = append(p.jiraGlobalProjectField, globalProjectFields...)
 }
 
 func (p *JiraResolver) getUIDs(projectID, usersType, parameter string) []string {
@@ -1593,8 +1615,7 @@ func (p *JiraResolver) prepareWorkflow() error {
 
 func (p *JiraResolver) prepareProjectType() {
 	curProjectField := new(resolve.ThirdGlobalProjectField)
-	resourceID := "Project Type"
-	curProjectField.ResourceID = resourceID
+	curProjectField.ResourceID = ResourceIDProjectType
 	curProjectField.Name = curProjectField.ResourceID
 	curProjectField.Type = fieldModel.FieldTypeOption
 	curProjectField.Options = make([]*resolve.ThirdGlobalProjectFieldOption, 0)
@@ -1610,6 +1631,27 @@ func (p *JiraResolver) prepareProjectType() {
 		p.projectIndex++
 		projectType := getAttributeValue(element, "projecttype")
 		projectID := getAttributeValue(element, "id")
+		projectURL := getAttributeValue(element, "url")
+		projectDescription := getAttributeValue(element, "description")
+		projectFieldValues := []*resolve.ThirdProjectFieldValue{
+			{
+				Base: resolve.Base{
+					ResourceID: projectID,
+				},
+				ProjectID:      projectID,
+				ProjectFieldID: ResourceIDProjectDescription,
+				Value:          projectDescription,
+			},
+			{
+				Base: resolve.Base{
+					ResourceID: projectID,
+				},
+				ProjectID:      projectID,
+				ProjectFieldID: ResourceIDProjectURL,
+				Value:          projectURL,
+			},
+		}
+		p.jiraProjectFieldValue = append(p.jiraProjectFieldValue, projectFieldValues...)
 		if projectType == "" {
 			continue
 		}
@@ -1625,7 +1667,7 @@ func (p *JiraResolver) prepareProjectType() {
 		curProjectFieldValue := new(resolve.ThirdProjectFieldValue)
 		curProjectFieldValue.ResourceID = projectID // project type 没有id， 与项目一一对应，所以使用项目id作为属性id
 		curProjectFieldValue.ProjectID = projectID
-		curProjectFieldValue.ProjectFieldID = resourceID
+		curProjectFieldValue.ProjectFieldID = ResourceIDProjectType
 		curProjectFieldValue.Type = fieldModel.FieldTypeOption
 		curProjectFieldValue.Value = projectType
 
@@ -1637,8 +1679,7 @@ func (p *JiraResolver) prepareProjectType() {
 
 func (p *JiraResolver) prepareProjectCategory() {
 	curProjectField := new(resolve.ThirdGlobalProjectField)
-	resourceID := "Project Category"
-	curProjectField.ResourceID = resourceID
+	curProjectField.ResourceID = ResourceIDProjectCategory
 	curProjectField.Name = curProjectField.ResourceID
 	curProjectField.Type = fieldModel.FieldTypeOption
 	curProjectField.Options = make([]*resolve.ThirdGlobalProjectFieldOption, 0)
@@ -1673,7 +1714,7 @@ func (p *JiraResolver) prepareProjectCategory() {
 		curProjectFieldValue.ProjectID = projectID
 		curProjectFieldValue.Type = fieldModel.FieldTypeOption
 		curProjectFieldValue.Value = categoryID
-		curProjectFieldValue.ProjectFieldID = resourceID
+		curProjectFieldValue.ProjectFieldID = ResourceIDProjectCategory
 
 		p.jiraProjectFieldValue = append(p.jiraProjectFieldValue, curProjectFieldValue)
 	}
@@ -3617,9 +3658,9 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 	}
 	p.jiraIssueAffectsVersion = nil
 
-	//
 	issueLabelsMap := make(map[string][]string, 0)
-	//
+	userDefinedIssueLabelsMap := make(map[string][]string, 0)
+
 	for {
 		element, e := p.nextElement("Label")
 		if element == nil || e != nil {
@@ -3633,10 +3674,16 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 			continue
 		}
 		label := getAttributeValue(d, "label")
-		issueLabelsMap[issueID] = append(issueLabelsMap[issueID], label)
+		fieldID := getAttributeValue(d, "fieldid")
+
+		if len(fieldID) == 0 {
+			issueLabelsMap[issueID] = append(issueLabelsMap[issueID], label)
+			continue
+		}
+		key := fmt.Sprintf("%s-%s", issueID, fieldID)
+		userDefinedIssueLabelsMap[key] = append(userDefinedIssueLabelsMap[key], label)
 	}
 
-	//
 	for issueID, labels := range issueLabelsMap {
 		r := &resolve.ThirdTaskFieldValue{
 			Base: resolve.Base{
@@ -3644,6 +3691,23 @@ func (p *JiraResolver) getCustomFieldValues() ([]*resolve.ThirdTaskFieldValue, e
 			},
 			TaskID:    issueID,
 			FieldID:   customFieldLabels,
+			FieldType: fieldModel.FieldTypeText,
+			Value:     strings.Join(labels, ","),
+		}
+		resp = append(resp, r)
+	}
+	for key, labels := range userDefinedIssueLabelsMap {
+		keys := strings.Split(key, "-")
+		if len(keys[0]) == 0 || len(keys[1]) == 0 {
+			log.Println("userDefinedIssueLabelsMap empty", keys)
+			continue
+		}
+		r := &resolve.ThirdTaskFieldValue{
+			Base: resolve.Base{
+				ResourceID: fmt.Sprintf("%s-%s", keys[0], userDefinedFieldLabels),
+			},
+			TaskID:    keys[0],
+			FieldID:   keys[1],
 			FieldType: fieldModel.FieldTypeText,
 			Value:     strings.Join(labels, ","),
 		}
