@@ -444,6 +444,7 @@ func (p *Importer) sendData() error {
 		}
 		fi := p.MapTagFile[tag]
 		fileScanner := bufio.NewScanner(fi)
+		fileScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 		i := 0
 		curData := strings.Builder{}
 
@@ -463,6 +464,9 @@ func (p *Importer) sendData() error {
 				curData = strings.Builder{}
 				i = 0
 			}
+		}
+		if fileScanner.Err() != nil {
+			p.writeLog("scan err: %v\n", fileScanner.Err())
 		}
 		curData.Write([]byte(fileEndSign))
 		if err := retryFunc(tag, curData.String()); err != nil {
@@ -508,6 +512,7 @@ func (p *Importer) sendAttachmentsData() error {
 
 	fi := p.MapTagFile[tag]
 	fileScanner := bufio.NewScanner(fi)
+	fileScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 	i := 0
 	curData := strings.Builder{}
 
@@ -531,6 +536,9 @@ func (p *Importer) sendAttachmentsData() error {
 			curData = strings.Builder{}
 			i = 0
 		}
+	}
+	if fileScanner.Err() != nil {
+		p.writeLog("scan file err: %+v", fileScanner.Err())
 	}
 	curData.Write([]byte(fileEndSign))
 	if err := retryFunc(tag, curData.String()); err != nil {
