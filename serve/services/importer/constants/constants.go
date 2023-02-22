@@ -43,3 +43,7 @@ const (
 	ThirdTaskWorkLogTypeRemaining = 2
 	ThirdTaskWorkLogTypeLog       = 3
 )
+
+const (
+	TaskWorkLogDescMaxLen = 1024
+)

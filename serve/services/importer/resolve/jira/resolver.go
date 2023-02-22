@@ -2886,7 +2886,7 @@ func (p *JiraResolver) NextTaskWorkLog() ([]byte, bool, error) {
 		Hours:       float64(timeWorked) / 3600,
 		Type:        constants.ThirdTaskWorkLogTypeLog,
 		CreateTime:  createdTime,
-		Description: getAttributeValue(d, "body"),
+		Description: utils2.TruncateString(getAttributeValue(d, "body"), constants.TaskWorkLogDescMaxLen),
 	}
 	return utils2.OutputJSON(r), false, nil
 }
