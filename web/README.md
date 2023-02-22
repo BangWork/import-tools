@@ -81,3 +81,4 @@ This project integrates the following frameworks, which can be used directly in 
 | tailwindCss | v3 |
 
 For other detailed versions, please check [package.json](./package.json)
+
