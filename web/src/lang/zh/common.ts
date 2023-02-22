@@ -7,7 +7,7 @@ const common = {
     document: '下载帮助手册',
     download: '下载 Jira 迁移日志',
   },
-
+  save:'保存',
   placeholder: '请输入',
   close: '关闭',
   finish: '完成',

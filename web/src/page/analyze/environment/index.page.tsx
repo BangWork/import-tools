@@ -61,9 +61,11 @@ const EnvironmentPage = () => {
         email,
         password,
       })
-        .then(() => {
+        .then((res) => {
+
           navigate('/page/analyze/progress', {
             replace: true,
+            state:{key : res.body?.key}
           });
         })
         .catch((e) => {

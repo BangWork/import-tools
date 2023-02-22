@@ -8,6 +8,7 @@ const common = {
     download: 'Download Jira migration log',
   },
 
+  save:'Save',
   placeholder: 'Please enter',
   close: 'Close',
   finish: 'Finish',

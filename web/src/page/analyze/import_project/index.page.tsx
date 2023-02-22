@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { map } from 'lodash-es';
 
-import { getProjectsApi } from '@/api';
+import { getProjectsApi,saveProjectsApi } from '@/api';
 import { LOCAL_CONFIG, listStyle } from './config';
 
 const ImportProjectPage = () => {
@@ -23,11 +23,13 @@ const ImportProjectPage = () => {
     if (!location?.state) {
       handleBack();
     }
+
   }, [location]);
 
   useEffect(() => {
     getProjectsApi().then((res) => {
-      setProjects(map(res.body, (item) => ({ id: item.id, title: item.name })));
+      setProjects(map(res.body.projects, (item) => ({ id: item.id, title: item.name })));
+      setTargetKeys(map(res.body.cache))
     });
   }, []);
 
@@ -41,6 +43,9 @@ const ImportProjectPage = () => {
     });
   };
 
+  const handleSave = () => {
+    saveProjectsApi(location.state.key, targetKeys )
+  }
   const handleChange = (newTargetKeys: string[]) => {
     setTargetKeys(newTargetKeys);
   };
@@ -61,6 +66,7 @@ const ImportProjectPage = () => {
         <h2>{t('importProject.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.back')}</Button>
+          <Button onClick={handleSave} className="ml-4" type="primary">{t('common.save')  }</Button>
           {targetKeys.length ? (
             renderButton()
           ) : (

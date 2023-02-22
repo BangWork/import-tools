@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSize } from 'ahooks';
 import { map } from 'lodash-es';
+import { saveIssuesApi } from '@/api';
 
 import useTableBusiness from './use_table_business';
 
@@ -13,10 +14,18 @@ const IssueMapPage = () => {
   const boxRef = useRef(null);
   const boxSize = useSize(boxRef);
   const location = useLocation();
-  const { loading, columns, select, jiraList } = useTableBusiness();
+  const { loading, columns, select, jiraList,selectedObj} = useTableBusiness();
 
   const handleBack = () => {
     navigate('/page/analyze/import_project', { replace: true, state: location.state });
+  };
+
+  const handleSave = () => {
+    const selectedArr = []
+    Object.keys(selectedObj).forEach((key) => {
+      selectedArr[selectedArr.length] = {id:key,type:selectedObj[key]}
+    })
+    saveIssuesApi(location.state.key, selectedArr)
   };
 
   useEffect(() => {
@@ -46,6 +55,7 @@ const IssueMapPage = () => {
         <h2>{t('issueMap.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.cancel')}</Button>
+          <Button className="ml-4" type="primary" onClick={handleSave}>{t('common.save') }</Button>
           <Button className="ml-4" type="primary" onClick={handleNext}>
             {t('common.nextStep')}
           </Button>

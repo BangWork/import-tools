@@ -6,7 +6,7 @@ import {
 import { useEffect, useState } from 'react';
 import { message, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate ,useLocation} from 'react-router-dom';
 import { useRafInterval } from 'ahooks';
 
 import { getAnalyzeProgressInfoApi, cancelAnalyzeApi, AnalyzeStatusEnum } from '@/api';
@@ -23,11 +23,10 @@ const useNavigateBusiness = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [info, setInfo] = useState<Partial<AnalyzeInfoType>>({});
   const [loading, setLoading] = useState(true);
-
+  const location = useLocation()
   const handleBackPack = () => {
     navigate('/page/analyze/pack', { replace: true });
   };
-
   const onFail = (msg) => {
     Modal.error({
       title: t('analyzeProgress.fail.title'),
@@ -42,7 +41,6 @@ const useNavigateBusiness = () => {
       getAnalyzeProgressInfoApi()
         .then((res) => {
           setInfo(res.body);
-          console.log(res.body);
           setLoading(false);
 
           if (res.body.status === AnalyzeStatusEnum.fail) {
@@ -62,7 +60,7 @@ const useNavigateBusiness = () => {
 
   useEffect(() => {
     if (info?.status === AnalyzeStatusEnum.done) {
-      navigate('/page/analyze/result', { replace: true });
+      navigate('/page/analyze/result', { replace: true ,state:{key:location?.state?.key}});
     }
 
     // Jira package was never analyze, need to go back to first page

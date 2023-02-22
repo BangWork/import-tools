@@ -15,9 +15,11 @@ import {
   chooseTeamApi,
   getBackUpApi,
   getIssuesApi,
+  saveIssuesApi,
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  saveProjectsApi,
 } from './analyze';
 
 import {
@@ -40,9 +42,11 @@ export {
   chooseTeamApi,
   getBackUpApi,
   getIssuesApi,
+  saveIssuesApi,
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  saveProjectsApi,
 
   // import_pack
   getImportInfoApi,

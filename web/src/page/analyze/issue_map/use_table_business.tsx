@@ -9,7 +9,7 @@ import { getIssuesApi } from '@/api';
 import type { OnesIssueType, JiraIssueType } from '@/api';
 
 const selectedSet = new Set();
-
+const selectedObj = {}
 const useTableBusiness = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -23,16 +23,22 @@ const useTableBusiness = () => {
   useEffect(() => {
     const projectIds = location?.state?.projects || [];
     getIssuesApi(projectIds).then((res) => {
-      setData(res.body);
 
-      if (res.body.jira_list) {
-        res.body.jira_list.forEach((item) => {
-          if (item.ones_detail_type) {
+      setData(res.body.issue_types);
+
+      if (res?.body?.issue_types?.jira_list) {
+        res.body.issue_types.jira_list.forEach((item) => {
+          if (item?.ones_detail_type) {
             selectedSet.add(item.ones_detail_type);
           }
         });
       }
-
+      if (res?.body?.issue_type_map) {
+        res.body.issue_type_map.forEach((item) => {
+          selectedObj[item.id] = item.type
+          selectedSet.add(item.type);
+        })
+      }
       setLoading(false);
     });
 
@@ -41,14 +47,18 @@ const useTableBusiness = () => {
     };
   }, []);
 
+
+
   const handleSelect = (record) => (v) => {
     const { third_issue_type_id } = record;
     const preValue = select[third_issue_type_id];
     selectedSet.delete(preValue);
 
+
     // when option is diy,don’t add
     if (v) {
       selectedSet.add(v);
+      selectedObj[record.third_issue_type_id] = v
     }
 
     setSelect({
@@ -86,8 +96,9 @@ const useTableBusiness = () => {
         <Tooltip title={record.ones_detail_type ? t('issueMap.table.disabledTip') : ''}>
           <Select
             value={record.ones_detail_type || select[record.third_issue_type_id]}
-            disabled={!!record.ones_detail_type}
+            disabled={!!record.ones_detail_type || selectedObj[record.third_issue_type_id]}
             placeholder={t('issueMap.table.placeholder')}
+            defaultValue={selectedObj[record.third_issue_type_id]}
             className="w-full"
             onSelect={handleSelect(record)}
             options={options}
@@ -102,6 +113,7 @@ const useTableBusiness = () => {
     columns,
     select,
     jiraList: data.jira_list,
+    selectedObj,
   };
 };
 
