@@ -10,6 +10,7 @@ import type { OnesIssueType, JiraIssueType } from '@/api';
 
 const selectedSet = new Set();
 const selectedObj = {}
+const  disabledArr = []
 const useTableBusiness = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -37,6 +38,7 @@ const useTableBusiness = () => {
         res.body.issue_type_map.forEach((item) => {
           selectedObj[item.id] = item.type
           selectedSet.add(item.type);
+          item.type && (disabledArr[disabledArr.length] = item.id)
         })
       }
       setLoading(false);
@@ -58,9 +60,8 @@ const useTableBusiness = () => {
     // when option is diy,don’t add
     if (v) {
       selectedSet.add(v);
-      selectedObj[record.third_issue_type_id] = v
     }
-
+    selectedObj[record.third_issue_type_id] = v
     setSelect({
       ...select,
       [third_issue_type_id]: v,
@@ -96,7 +97,7 @@ const useTableBusiness = () => {
         <Tooltip title={record.ones_detail_type ? t('issueMap.table.disabledTip') : ''}>
           <Select
             value={record.ones_detail_type || select[record.third_issue_type_id]}
-            disabled={!!record.ones_detail_type || selectedObj[record.third_issue_type_id]}
+            disabled={!!record.ones_detail_type || disabledArr.includes(record.third_issue_type_id)}
             placeholder={t('issueMap.table.placeholder')}
             defaultValue={selectedObj[record.third_issue_type_id]}
             className="w-full"
