@@ -57,7 +57,8 @@ type JiraResolver struct {
 	jiraTaskIDMap                           map[string]struct{}
 	jiraTaskKeyIDMap                        map[string]string // jira issue key => jira issue id
 	jiraUserEmailMap                        map[string]string // jira email => jira user id
-	jiraUserNameIDMap                       map[string]string // jira user name => jira user id
+	jiraUserNameIDMap                       map[string]string // jira user key => jira user id
+	jiraLowerUserNameUserKeyMap             map[string]string // jira lower user name => jira user key
 	jiraUIDNameMap                          map[string]string // jira user id => jira user name
 	jiraProjectIDNameMap                    map[string]string // jira project id => jira project name
 	jiraProjectIDAssignIDMap                map[string]string // jira project id => jira project assign id
@@ -522,6 +523,7 @@ func (p *JiraResolver) setCache() error {
 }
 
 func (p *JiraResolver) initAttributes() {
+	p.jiraLowerUserNameUserKeyMap = make(map[string]string)
 	p.jiraTaskIDMap = make(map[string]struct{})
 	p.tagFilesMap = make(map[string]*resolve.XmlScanner)
 	p.jiraProjectIDOriginalKeyMap = make(map[string]string)
@@ -1805,14 +1807,13 @@ func (p *JiraResolver) prepareApplicationUser() error {
 		if element == nil {
 			break
 		}
-		id := getAttributeValue(element, "id")
-		userName := getAttributeValue(element, "userKey")
-		if id == "" || userName == "" {
-			log.Printf("prepare application user map fail: %s, %s", id, userName)
+		userKey := getAttributeValue(element, "userKey")
+		lowerUserName := getAttributeValue(element, "lowerUserName")
+		if userKey == "" || lowerUserName == "" {
+			log.Printf("prepare application user map fail: %s, %s", userKey, lowerUserName)
 			continue
 		}
-		p.jiraUserNameIDMap[userName] = id
-		p.jiraUIDNameMap[id] = userName
+		p.jiraLowerUserNameUserKeyMap[lowerUserName] = userKey
 	}
 	return nil
 }
@@ -2074,6 +2075,7 @@ func (p *JiraResolver) NextChangeItem() ([]byte, bool, error) {
 		if r.OldValue != "" {
 			r.OldValue = p.jiraTaskKeyIDMap[r.OldValue]
 		}
+		r.CreateTime = r.CreateTime + 1
 	}
 	if r.Field == constants.ChangeItemFieldEpicChild {
 		r.Field = constants.ChangeItemFieldLink
@@ -2463,9 +2465,14 @@ func (p *JiraResolver) NextUser() ([]byte, error) {
 	r.CreateTime = timestamp.StringToInt64Micro(getAttributeValue(element, "createdDate"))
 	r.ModifyTime = timestamp.StringToInt64Micro(getAttributeValue(element, "updatedDate"))
 
-	userName := getAttributeValue(element, "userName")
-	p.jiraUserNameIDMap[userName] = r.ResourceID
-	p.jiraUIDNameMap[r.ResourceID] = userName
+	lowerUserName := getAttributeValue(element, "lowerUserName")
+	userKey, found := p.jiraLowerUserNameUserKeyMap[lowerUserName]
+	if found {
+		p.jiraUserNameIDMap[userKey] = r.ResourceID
+		p.jiraUIDNameMap[r.ResourceID] = userKey
+	} else {
+		log.Println("missing user key", lowerUserName)
+	}
 	p.jiraUserEmailMap[email] = r.ResourceID
 
 	return utils2.OutputJSON(r), nil
