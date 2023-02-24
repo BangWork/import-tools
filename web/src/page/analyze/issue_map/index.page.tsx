@@ -14,18 +14,18 @@ const IssueMapPage = () => {
   const boxRef = useRef(null);
   const boxSize = useSize(boxRef);
   const location = useLocation();
-  const { loading, columns, select, jiraList,selectedObj} = useTableBusiness();
+  const { loading, columns, select, jiraList} = useTableBusiness();
 
   const handleBack = () => {
     navigate('/page/analyze/import_project', { replace: true, state: location.state });
   };
 
-  const handleSave = () => {
+  const saveData = () => {
     const selectedArr = []
-    Object.keys(selectedObj).forEach((key) => {
-      selectedArr[selectedArr.length] = {id:key,type:selectedObj[key]}
+    Object.keys(select).forEach((key) => {
+      selectedArr.push({ id: key, type: select[key] })
     })
-    saveIssuesApi(location.state.key, selectedArr)
+    saveIssuesApi(selectedArr)
   };
 
   useEffect(() => {
@@ -35,6 +35,7 @@ const IssueMapPage = () => {
   }, [location]);
 
   const handleNext = () => {
+    saveData()
     const finishSelect = map(jiraList, (item) => ({
       id: item.third_issue_type_id,
       type: select[item.third_issue_type_id] || item.ones_detail_type,
@@ -55,7 +56,6 @@ const IssueMapPage = () => {
         <h2>{t('issueMap.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.cancel')}</Button>
-          <Button className="ml-4" type="primary" onClick={handleSave}>{t('common.save') }</Button>
           <Button className="ml-4" type="primary" onClick={handleNext}>
             {t('common.nextStep')}
           </Button>
