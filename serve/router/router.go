@@ -20,7 +20,7 @@ import (
 var FS embed.FS
 
 func Run(port int) {
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 	api := gin.Default()
 	api.Use(middlewares.Recovery(), middlewares.Logger())
 	api.Use(GinI18nLocalize())
