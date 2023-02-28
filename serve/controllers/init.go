@@ -20,15 +20,24 @@ func RenderJSON(c *gin.Context, err error, obj interface{}) {
 		c.Next()
 		return
 	}
-	res := err.(*common.Err)
-	r := gin.H{
-		"code":     res.Code,
-		"err_code": res.ErrCode,
+
+	res, ok := err.(*common.Err)
+	if !ok {
+		log.Println("err:", err)
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"err": err.Error(),
+		})
+		return
+	} else {
+		r := gin.H{
+			"code":     res.Code,
+			"err_code": res.ErrCode,
+		}
+		if res.Body != nil {
+			r["body"] = res.Body
+		}
+		log.Printf("ERROR: %+v", r)
+		c.JSON(http.StatusOK, r)
 	}
-	if res.Body != nil {
-		r["body"] = res.Body
-	}
-	log.Printf("ERROR: %+v", r)
-	c.JSON(http.StatusOK, r)
 	c.Next()
 }
