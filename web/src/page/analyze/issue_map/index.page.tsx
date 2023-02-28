@@ -50,6 +50,10 @@ const IssueMapPage = () => {
     });
   };
 
+  const showDataList = map(jiraList, (item) => ({
+   ...item,key:item.third_issue_type_id
+  }))
+
   return (
     <div className="h-full w-full flex flex-col items-center">
       <div className="flex justify-between w-2/3">
@@ -79,7 +83,7 @@ const IssueMapPage = () => {
           <Table
             columns={columns}
             loading={loading}
-            dataSource={jiraList}
+            dataSource={showDataList}
             pagination={false}
             scroll={{ y: boxSize?.height || 0 }}
           />

@@ -99,8 +99,8 @@ const useTableBusiness = () => {
       render: (text, record) => (
         <Tooltip title={record.ones_detail_type ? t('issueMap.table.disabledTip') : ''}>
           <Select
-            value={record.ones_detail_type || select[record.third_issue_type_id]}
-            disabled={!!record.ones_detail_type || record.disabled}
+            value={record.ones_detail_type === -1?0: record.ones_detail_type || select[record.third_issue_type_id]}
+            disabled={!!record.ones_detail_type }
             placeholder={t('issueMap.table.placeholder')}
             className="w-full"
             onSelect={handleSelect(record)}

@@ -22,7 +22,6 @@ export interface JiraIssueType {
   third_issue_type_id: string;
   third_issue_type_name: string;
   ones_detail_type: number; // 绑定的ones detail type
-  disabled: boolean;
 }
 
 export interface OnesIssueType {
