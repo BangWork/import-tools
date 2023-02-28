@@ -13,6 +13,7 @@ import (
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/utils"
+	"github.com/juju/errors"
 )
 
 var (
@@ -134,12 +135,55 @@ func GenCacheKey(addr string) string {
 	return base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
+const ConsCacheKey = "__cache_key__"
+
+func GetCacheKey() (string, error) {
+	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", errors.Trace(err)
+	}
+
+	d := map[string]string{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		return "", errors.Trace(err)
+	}
+
+	return d[ConsCacheKey], nil
+}
+
+func SaveCacheKey(key string) error {
+	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	d := map[string]string{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		return errors.Trace(err)
+	}
+
+	d[ConsCacheKey] = key
+
+	b, err = json.Marshal(d)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	err = ioutil.WriteFile(filePath, b, 0644)
+	return errors.Trace(err)
+}
+
 func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
-		key = CurrentCacheKey
+		var err error
+		key, err = GetCacheKey()
+		if err != nil {
+			return nil, errors.Trace(err)
+		}
 	}
 	if key == "" {
-		return nil, nil
+		return nil, errors.New("cache key not found")
 	}
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
 	b, err := ioutil.ReadFile(filePath)
@@ -172,7 +216,14 @@ func SetCacheInfo(key string, cache *Cache) error {
 	defer cacheLock.Unlock()
 
 	if key == "" {
-		key = CurrentCacheKey
+		var err error
+		key, err = GetCacheKey()
+		if err != nil {
+			return errors.Trace(err)
+		}
+	}
+	if key == "" {
+		return errors.New("cache key not found")
 	}
 
 	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
