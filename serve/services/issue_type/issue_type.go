@@ -77,6 +77,8 @@ func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issu
 		detailType, found := mapBind[data.IssueTypeID]
 		if found {
 			data.ONESDetailType = detailType
+		} else {
+			data.ONESDetailType = -1
 		}
 		jiraList = append(jiraList, data)
 	}
