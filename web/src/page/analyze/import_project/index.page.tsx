@@ -34,6 +34,7 @@ const ImportProjectPage = () => {
   }, []);
 
   const handleSubmit = () => {
+    saveData()
     navigate('/page/analyze/issue_map', {
       replace: true,
       state: {
@@ -43,8 +44,8 @@ const ImportProjectPage = () => {
     });
   };
 
-  const handleSave = () => {
-    saveProjectsApi(location.state.key, targetKeys )
+  const saveData = () => {
+    saveProjectsApi(targetKeys )
   }
   const handleChange = (newTargetKeys: string[]) => {
     setTargetKeys(newTargetKeys);
@@ -66,7 +67,6 @@ const ImportProjectPage = () => {
         <h2>{t('importProject.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.back')}</Button>
-          <Button onClick={handleSave} className="ml-4" type="primary">{t('common.save')  }</Button>
           {targetKeys.length ? (
             renderButton()
           ) : (

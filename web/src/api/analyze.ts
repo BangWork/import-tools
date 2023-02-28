@@ -24,9 +24,8 @@ export const getProjectsApi = (): Promise<{ body: {projects:ProjectType[],cache:
   Request.get('/project_list');
 
 
-export const saveProjectsApi = ( key:string, project_ids:string[]) =>
+export const saveProjectsApi = ( project_ids:string[]) =>
   pureRequest.post('/project_list/save', {
-    key,
     project_ids,
   })
 
@@ -37,8 +36,8 @@ export const getIssuesApi = (
   code: number;
 }> => Request.post('/issue_type_list', { project_ids });
 
-export const saveIssuesApi = (key: string,issue_type_map:any[]) =>
-  pureRequest.post('/issue_type_list/save',{key:key,issue_type_map:issue_type_map})
+export const saveIssuesApi = (issue_type_map:any[]) =>
+  pureRequest.post('/issue_type_list/save',{issue_type_map:issue_type_map})
 
 export const checkPathApi = (path) =>
   pureRequest.post('/check_jira_path_exist', {

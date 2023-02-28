@@ -4,7 +4,7 @@ import { Button, Card, Descriptions, Space, Modal, Skeleton } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
-import { useNavigate,useLocation, } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { getResultApi } from '@/api';
 import type { ResultType } from '@/api';
@@ -24,7 +24,6 @@ const ResultPage = () => {
   const [info, setInfo] = useState<Partial<ResultType>>({});
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const location = useLocation()
   useEffect(() => {
     getResultApi().then((res) => {
       setInfo(res.body);
@@ -50,7 +49,6 @@ const ResultPage = () => {
       state: {
         import_history: info?.import_history || [],
         resolve_result: info?.resolve_result || {},
-        key:location.state?.key
       },
     });
   };

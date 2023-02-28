@@ -9,8 +9,7 @@ import { getIssuesApi } from '@/api';
 import type { OnesIssueType, JiraIssueType } from '@/api';
 
 const selectedSet = new Set();
-const selectedObj = {}
-const  disabledArr = []
+
 const useTableBusiness = () => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -26,20 +25,26 @@ const useTableBusiness = () => {
     getIssuesApi(projectIds).then((res) => {
 
       setData(res.body.issue_types);
-
-      if (res?.body?.issue_types?.jira_list) {
+      const comparisonSet = new Set()
+      if (res.body.issue_types.jira_list) {
         res.body.issue_types.jira_list.forEach((item) => {
-          if (item?.ones_detail_type) {
+          comparisonSet.add(item.third_issue_type_id)
+          if (item.ones_detail_type) {
             selectedSet.add(item.ones_detail_type);
           }
         });
       }
-      if (res?.body?.issue_type_map) {
+
+
+      if (res.body.issue_type_map) {
+        const temporaryObj = {}
         res.body.issue_type_map.forEach((item) => {
-          selectedObj[item.id] = item.type
-          selectedSet.add(item.type);
-          item.type && (disabledArr[disabledArr.length] = item.id)
+          if (item.type && comparisonSet.has(item.id)  ) {
+            temporaryObj[item.id] = item.type
+            selectedSet.add(item.type)
+          }
         })
+        setSelect(temporaryObj)
       }
       setLoading(false);
     });
@@ -49,23 +54,21 @@ const useTableBusiness = () => {
     };
   }, []);
 
-
-
   const handleSelect = (record) => (v) => {
     const { third_issue_type_id } = record;
     const preValue = select[third_issue_type_id];
     selectedSet.delete(preValue);
 
-
     // when option is diy,don’t add
     if (v) {
       selectedSet.add(v);
     }
-    selectedObj[record.third_issue_type_id] = v
+
     setSelect({
       ...select,
       [third_issue_type_id]: v,
     });
+
   };
 
   // The selected options need disabled, excluding what has a value of 0
@@ -97,9 +100,8 @@ const useTableBusiness = () => {
         <Tooltip title={record.ones_detail_type ? t('issueMap.table.disabledTip') : ''}>
           <Select
             value={record.ones_detail_type || select[record.third_issue_type_id]}
-            disabled={!!record.ones_detail_type || disabledArr.includes(record.third_issue_type_id)}
+            disabled={!!record.ones_detail_type || record.disabled}
             placeholder={t('issueMap.table.placeholder')}
-            defaultValue={selectedObj[record.third_issue_type_id]}
             className="w-full"
             onSelect={handleSelect(record)}
             options={options}
@@ -114,7 +116,6 @@ const useTableBusiness = () => {
     columns,
     select,
     jiraList: data.jira_list,
-    selectedObj,
   };
 };
 
