@@ -14,7 +14,8 @@ const IssueMapPage = () => {
   const boxRef = useRef(null);
   const boxSize = useSize(boxRef);
   const location = useLocation();
-  const { loading, columns, select, jiraList} = useTableBusiness();
+  const { loading, columns, select, jiraList } = useTableBusiness();
+  const zeroNumber = 0;
 
   const handleBack = () => {
     navigate('/page/analyze/import_project', { replace: true, state: location.state });
@@ -38,7 +39,7 @@ const IssueMapPage = () => {
     saveData()
     const finishSelect = map(jiraList, (item) => ({
       id: item.third_issue_type_id,
-      type: select[item.third_issue_type_id] || item.ones_detail_type,
+      type:select[item.third_issue_type_id] === zeroNumber?0: select[item.third_issue_type_id] || item.ones_detail_type,
     }));
 
     navigate('/page/import_pack/init_password', {
