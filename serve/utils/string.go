@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"unicode/utf8"
@@ -27,4 +28,14 @@ func TruncateString(s string, maxRuneCount int) string {
 	}
 	runes := []rune(s)[:maxRuneCount]
 	return string(runes)
+}
+
+func Base64Encode(input string) string {
+	i := []byte(input)
+	return base64.StdEncoding.EncodeToString(i)
+}
+
+func Base64Decode(input string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(input)
+	return string(decoded), err
 }

@@ -22,9 +22,10 @@ const (
 	NotOrganizationAdministratorError = "NotOrganizationAdministratorError"
 
 	// 500
-	UnknownError = "UnknownError"
-	ServerError  = "ServerError"
-	NetworkError = "NetworkError"
+	UnknownError           = "UnknownError"
+	ServerError            = "ServerError"
+	NetworkError           = "NetworkError"
+	LoginCookieExpireError = "LoginCookieExpireError"
 )
 
 var ErrorCodeMap = map[string]int{

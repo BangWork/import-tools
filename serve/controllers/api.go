@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"fmt"
+	logApi "log"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/bangwork/import-tools/serve/services/auth"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
@@ -19,7 +20,30 @@ import (
 	"github.com/bangwork/import-tools/serve/services/project"
 	"github.com/bangwork/import-tools/serve/utils"
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
+	"github.com/gin-gonic/gin"
 )
+
+func Login(c *gin.Context) {
+	var data *services.LoginRequest
+	if err := c.BindJSON(&data); err != nil {
+		return
+	}
+	cookie, err := auth.Login(data)
+	if err != nil {
+		RenderJSON(c, err, nil)
+		return
+	}
+	c.SetCookie(common.LoginCookieName, cookie, common.GetCookieExpireTime(), "/", "", false, true)
+}
+
+func Logout(c *gin.Context) {
+	cookie, err := c.Cookie(common.LoginCookieName)
+	if err != nil {
+		logApi.Printf("get cookie fail:%+v", err)
+	}
+	auth.Logout(cookie)
+	RenderJSON(c, nil, nil)
+}
 
 func CheckPathExist(c *gin.Context) {
 	var data path

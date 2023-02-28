@@ -45,16 +45,7 @@ const (
 	Calculating           = -1
 
 	ShareDiskPathPrivate = "private"
+	LoginCookieName      = "IMPORTTOOLS"
+
+	DefaultAesKey = "1234567890abcdef"
 )
-
-var (
-	CachePath string
-)
-
-func GetCachePath() string {
-	return CachePath
-}
-
-func SetCachePath(path string) {
-	CachePath = path
-}

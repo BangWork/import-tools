@@ -13,11 +13,13 @@ import (
 
 var port int
 var cachePath string
+var encryptKey string
 
 func initFlags() {
 	flag.IntVar(&port, "port", -1, "http server port")
 	flag.StringVar(&cache.SharedDiskPath, "shared-disk-path", "", "the path of the shared disk")
-	flag.StringVar(&cachePath, "c", common.Path, "cache file path")
+	flag.StringVar(&cachePath, "cache-path", common.Path, "cache file path")
+	flag.StringVar(&encryptKey, "aes-key", common.DefaultAesKey, "cookie encrypt aes key, 16 characters")
 	flag.Parse()
 
 	if port == -1 {
@@ -39,6 +41,7 @@ func initFlags() {
 func main() {
 	initFlags()
 	common.SetCachePath(cachePath)
+	common.SetEncryptKey(encryptKey)
 	serve.Init()
 	router.Run(port)
 }
