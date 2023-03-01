@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bangwork/import-tools/serve/services"
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/services/issue_type"
 
@@ -327,12 +328,12 @@ func (r *Account) GetIssueTypeList() (*services.IssueTypeListResponse, error) {
 
 	issueTypes, err := r.getIssueTypeList()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	thirdIssueTypesBind, err := r.getThirdIssueTypeBind()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	res := new(services.IssueTypeListResponse)
@@ -507,15 +508,15 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	res := make([]*services.JiraIssueType, 0)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	if err = json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	return res, nil
 }
@@ -525,7 +526,7 @@ func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	type issueTypeResp struct {
 		IssueTypes []*services.ONESIssueType `json:"issue_types"`
@@ -533,10 +534,10 @@ func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
 	res := new(issueTypeResp)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	if err = json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	filterRes := make([]*services.ONESIssueType, 0)
 	for _, v := range res.IssueTypes {

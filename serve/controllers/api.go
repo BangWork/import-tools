@@ -230,7 +230,11 @@ func IssueTypeList(c *gin.Context) {
 		}
 	}
 	list, err := issue_type.GetIssueTypeList(req.Key, typeList, issueTypes)
-	RenderJSON(c, err, map[string]interface{}{
+	if err != nil {
+		RenderJSON(c, err, nil)
+		return
+	}
+	RenderJSON(c, nil, map[string]interface{}{
 		"issue_types":    list,
 		"issue_type_map": cacheInfo.IssueTypeMap,
 	})

@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/gin-contrib/i18n"
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
@@ -41,7 +42,7 @@ var (
 func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
 	cacheInfo, err := cache.GetCacheInfo(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	issueTypeFile, found := cacheInfo.MapFilePath[common.TagIssueType]
 	if !found {
@@ -49,7 +50,7 @@ func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issu
 	}
 	file, err := os.Open(issueTypeFile)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	mapBind := map[string]int{}
