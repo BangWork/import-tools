@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -88,6 +89,10 @@ func GetLogTextByImportUUID(teamUUID, importUUID string) []string {
 		if len(test) != 0 {
 			lines = append(lines, fileScanner.Text())
 		}
+	}
+	if fileScanner.Err() != nil {
+		log.Printf("scan error%+v", fileScanner.Err())
+		return lines
 	}
 	return lines
 }

@@ -187,7 +187,7 @@ func (o *handlerEntityFile) scan() error {
 
 	log.Println("[jira import] start tmp xml scanner")
 	tmpScanner := bufio.NewScanner(o.Reader)
-	tmpScanner.Buffer([]byte{}, bufio.MaxScanTokenSize*10)
+	tmpScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 
 	for tmpScanner.Scan() {
 		if services.StopResolveSignal {
@@ -201,7 +201,9 @@ func (o *handlerEntityFile) scan() error {
 			return errors.Trace(e)
 		}
 	}
-
+	if tmpScanner.Err() != nil {
+		return tmpScanner.Err()
+	}
 	log.Println("[jira import] end tmp xml scanner")
 	tmpFilePath := o.entityTmpFile.Name()
 	o.entityTmpFile.Close()

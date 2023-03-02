@@ -4,6 +4,7 @@ var (
 	CachePath        string
 	encryptKey       string
 	cookieExpireTime = 86400 * 30 // second
+	MaxScanTokenSize int
 )
 
 func GetCachePath() string {
@@ -28,4 +29,12 @@ func GetCookieExpireTime() int {
 
 func SetCookieExpireTime(input int) {
 	cookieExpireTime = input
+}
+
+func GetMaxScanTokenSize() int {
+	return MaxScanTokenSize
+}
+
+func SetMaxScanTokenSize(size int) {
+	MaxScanTokenSize = size
 }
