@@ -5,6 +5,7 @@ var (
 	encryptKey       string
 	cookieExpireTime = 86400 * 30 // second
 	MaxScanTokenSize int
+	installArea      = InstallAreaAsia
 )
 
 func GetCachePath() string {
@@ -13,6 +14,13 @@ func GetCachePath() string {
 
 func SetCachePath(path string) {
 	CachePath = path
+}
+func GetInstallArea() string {
+	return installArea
+}
+
+func SetInstallArea(input string) {
+	installArea = input
 }
 
 func GetEncryptKey() string {

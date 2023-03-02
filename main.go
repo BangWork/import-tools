@@ -12,19 +12,11 @@ import (
 	"github.com/bangwork/import-tools/serve/services/cache"
 )
 
-func main() {
-	initFlags()
-	common.SetCachePath(cachePath)
-	common.SetMaxScanTokenSize(maxScanTokenSize)
-	common.SetEncryptKey(encryptKey)
-	serve.Init()
-	router.Run(port)
-}
-
 var port int
 var cachePath string
 var encryptKey string
 var maxScanTokenSize int
+var installArea string
 
 func initFlags() {
 	flag.IntVar(&port, "port", -1, "http server port")
@@ -32,6 +24,7 @@ func initFlags() {
 	flag.StringVar(&cachePath, "cache-path", common.Path, "cache file path")
 	flag.StringVar(&encryptKey, "aes-key", common.DefaultAesKey, "cookie encrypt aes key, 16 characters")
 	flag.IntVar(&maxScanTokenSize, "max_scan_token_size", bufio.MaxScanTokenSize*1000, "max scan token size")
+	flag.StringVar(&installArea, "area", common.InstallAreaAsia, "install area")
 	flag.Parse()
 
 	if port == -1 {
@@ -48,4 +41,14 @@ func initFlags() {
 	if cache.SharedDiskPath == "" {
 		cache.SharedDiskPath = os.Getenv("IMPORT_TOOLS_SHARED_DISK_PATH")
 	}
+}
+
+func main() {
+	initFlags()
+	common.SetCachePath(cachePath)
+	common.SetMaxScanTokenSize(maxScanTokenSize)
+	common.SetEncryptKey(encryptKey)
+	common.SetInstallArea(installArea)
+	serve.Init()
+	router.Run(port)
 }

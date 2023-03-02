@@ -19,7 +19,6 @@ import (
 
 //go:embed dist lang
 var FS embed.FS
-var FSWithLogin embed.FS
 
 func Run(port int) {
 	gin.SetMode(gin.ReleaseMode)
@@ -70,28 +69,7 @@ func Run(port int) {
 	api.GET("/import/log/download/current", controllers.DownloadCurrentLogFile)
 	api.GET("/import/scope", controllers.GetScope)
 
-	//apiLogin := gin.Default()
-	//apiLogin.Use(middlewares.Recovery(), middlewares.Logger())
-	//apiLogin.Use(GinI18nLocalize())
-	//apiLogin.Use(middlewares.Cors())
-	//
-	//temple1 := template.Must(template.New("").ParseFS(FS, "dist/index.html"))
-	//apiLogin.SetHTMLTemplate(temple1)
-	//
-	//fe1, err1 := fs.Sub(FS, "dist/assets")
-	//if err1 != nil {
-	//	log.Println("embed dist assets err", err1)
-	//	return
-	//}
-	//apiLogin.StaticFS("/assets", http.FS(fe1))
-	//
-	//fe1, _ = fs.Sub(FSWithLogin, "dist/public")
-	//apiLogin.StaticFS("/public", http.FS(fe1))
-	//
-	//apiLogin.GET("/", func(c *gin.Context) {
-	//	c.HTML(http.StatusOK, "index.html", gin.H{})
-	//})
-
+	api.GET("/common_config", controllers.Config)
 	api.POST("/login", controllers.Login)
 	api.POST("/logout", middlewares.CheckLogin, controllers.Logout)
 

@@ -48,4 +48,7 @@ const (
 	LoginCookieName      = "IMPORTTOOLS"
 
 	DefaultAesKey = "1234567890abcdef"
+
+	InstallAreaAsia    = "Asia"
+	InstallAreaAmerica = "America"
 )

@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	common2 "github.com/bangwork/import-tools/serve/models/common"
+
 	"github.com/bangwork/import-tools/serve/services/auth"
 
 	"github.com/bangwork/import-tools/serve/common"
@@ -22,6 +24,10 @@ import (
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
 	"github.com/gin-gonic/gin"
 )
+
+func Config(c *gin.Context) {
+	RenderJSON(c, nil, common2.GetConfig())
+}
 
 func Login(c *gin.Context) {
 	var data *services.LoginRequest
