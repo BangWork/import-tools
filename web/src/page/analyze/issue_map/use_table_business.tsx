@@ -24,12 +24,9 @@ const useTableBusiness = () => {
   useEffect(() => {
     const projectIds = location?.state?.projects || [];
     getIssuesApi(projectIds).then((res) => {
-
       setData(res.body.issue_types);
-      const comparisonSet = new Set()
       if (res.body.issue_types.jira_list) {
         res.body.issue_types.jira_list.forEach((item) => {
-          comparisonSet.add(item.third_issue_type_id)
           if (!negativeOneAndZero.has(item.ones_detail_type)) {
             selectedSet.add(item.ones_detail_type);
           }
@@ -37,14 +34,14 @@ const useTableBusiness = () => {
       }
 
       if (res.body.issue_type_map) {
-        const temporaryObj = {}
+        const temporaryObj = {};
         res.body.issue_type_map.forEach((item) => {
-          if (item.type !== negativeOne && comparisonSet.has(item.id)  ) {
-            temporaryObj[item.id] = item.type
-            item.type && selectedSet.add(item.type)
+          if (item.type !== negativeOne) {
+            temporaryObj[item.id] = item.type;
+            item.type && selectedSet.add(item.type);
           }
-        })
-        setSelect(temporaryObj)
+        });
+        setSelect(temporaryObj);
       }
       setLoading(false);
     });
@@ -68,7 +65,6 @@ const useTableBusiness = () => {
       ...select,
       [third_issue_type_id]: v,
     });
-
   };
 
   // The selected options need disabled, excluding what has a value of 0
@@ -97,10 +93,16 @@ const useTableBusiness = () => {
       fixed: 'right',
       width: 100,
       render: (text, record) => (
-        <Tooltip title={record.ones_detail_type !== negativeOne ? t('issueMap.table.disabledTip') : ''}>
+        <Tooltip
+          title={record.ones_detail_type !== negativeOne ? t('issueMap.table.disabledTip') : ''}
+        >
           <Select
-            value={record.ones_detail_type !== negativeOne?record.ones_detail_type: select[record.third_issue_type_id]}
-            disabled={record.ones_detail_type !== negativeOne }
+            value={
+              record.ones_detail_type !== negativeOne
+                ? record.ones_detail_type
+                : select[record.third_issue_type_id]
+            }
+            disabled={record.ones_detail_type !== negativeOne}
             placeholder={t('issueMap.table.placeholder')}
             className="w-full"
             onSelect={handleSelect(record)}
