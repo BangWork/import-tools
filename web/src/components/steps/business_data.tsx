@@ -1,0 +1,42 @@
+import { t } from 'i18next';
+
+export default {
+  importData: [
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+  ],
+  importIndexData: [
+    '/page/analyze/environment',
+    '/page/analyze/pack',
+    '/page/analyze/progress',
+    '/page/analyze/result',
+    '/page/analyze/team',
+    '/page/analyze/import_project',
+    '/page/analyze/issue_map',
+    '/page/import_pack/init_password',
+    '/page/import_pack/progress',
+    '/page/import_pack/result',
+  ],
+  analyzeData: [
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+    { title: t('analyzeResult.current.version') },
+  ],
+};

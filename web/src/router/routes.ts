@@ -13,3 +13,4 @@ export const redirectRoutes = [
     to: '/page/import_pack/init_password',
   },
 ];
+

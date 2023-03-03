@@ -12,6 +12,7 @@ const pages = import.meta.glob('/src/**/*.page.*', {
 
 /** get routes of auto analyze */
 export const getRoutes = () => {
+
   return map(Object.keys(pages), (key) => {
     // route path transform ./src/page/**/*.page.xxx => /page/**
     const pathArr = key.slice(1).split('/').slice(0, -1);
@@ -36,7 +37,6 @@ const getRouteList = (Loading?: ComponentType<any>) => {
       />
     );
   });
-
   return RouteList;
 };
 

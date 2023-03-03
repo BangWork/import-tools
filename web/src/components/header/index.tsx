@@ -1,20 +1,24 @@
 import { memo, useState } from 'react';
-import { Layout, Select, Popover } from 'antd';
+import { Layout, Popover } from '@ones-design/core';
 import { useUpdateEffect } from 'ahooks';
 import styled from 'styled-components';
-import { QuestionCircleOutlined, GlobalOutlined } from '@ant-design/icons';
+import { Help, ChevronDown, ChevronUp } from '@ones-design/icons';
 import { useTranslation } from 'react-i18next';
 import { LANGS, getCurrentLang } from '@/i18n';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { map } from 'lodash-es';
 
 import HelpContentPopover from './help_content_popover';
 
 const HeaderBox = styled(Layout.Header)`
-  margin: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #fff !important;
+  height: 48px !important;
+  padding: 0 0 0 20px !important;
+  margin-bottom: 10px;
   box-shadow: 0px 0px 2px rgba(48, 48, 48, 0.05), 0px 1px 2px rgba(48, 48, 48, 0.2);
 `;
 const Title = styled.div`
@@ -22,29 +26,35 @@ const Title = styled.div`
   font-size: 18px;
   line-height: 26px;
   color: #606060;
-  padding-right: 20px;
-  border-right: 1px solid #c7c7c7;
+  cursor: pointer;
 `;
 const TopRightBanner = styled.div`
   display: flex;
   align-items: center;
   color: #606060;
 `;
-const QuestionCircleOutlinedStyled = styled(QuestionCircleOutlined)`
+const HelpStyled = styled(Help)`
   font-size: 21px;
   margin: 0 20px;
 `;
 
-const GlobalOutlinedStyled = styled(GlobalOutlined)`
-  font-size: 21px;
+const GlobalOutlinedStyled = styled(Help)`
+  font-size: 14px;
+  margin-right: 10px;
 `;
 
 const LangBox = styled.div`
-  display: flex;
-  align-items: center;
-`;
-const LangSelect = styled(Select)`
   width: 100px;
+  border-right: 1px solid #eaeaea;
+`;
+
+const LangContentPopoverItem = styled.div`
+  cursor: pointer;
+  padding: 5px 10px;
+
+  &:hover {
+    background: #f5f5f5;
+  }
 `;
 
 /**
@@ -55,10 +65,13 @@ const Header = memo(() => {
   const currentLang = getCurrentLang();
   const [selected, setSelected] = useState(currentLang);
   const [open, setOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const navigate = useNavigate();
 
   const options = LANGS.map((key) => ({
     value: key,
     label: t(key),
+    onClick: () => handleLangSelected(key),
   }));
 
   useUpdateEffect(() => {
@@ -68,7 +81,9 @@ const Header = memo(() => {
   }, [selected]);
 
   const handleLangSelected = (key) => {
+    console.log('key', key);
     setSelected(key);
+    setOpen(false);
   };
 
   // click popover content need close popover
@@ -80,27 +95,52 @@ const Header = memo(() => {
     setOpen(newOpen);
   };
 
+  const handleOpenPopoverChange = (newOpen: boolean) => {
+    setIsPopoverOpen(newOpen);
+  };
+
+  const handleToHome = () => {
+    navigate('/page/home');
+  };
+
   return (
     <HeaderBox style={{}}>
-      <Title>{t('common.jira.title')}</Title>
+      <Title onClick={handleToHome}>{t('common.jira.title')}</Title>
       <TopRightBanner>
         <LangBox>
           <GlobalOutlinedStyled />
-          <LangSelect
-            value={selected}
-            bordered={false}
-            onSelect={handleLangSelected}
-            options={options}
-          />
+          <Popover
+            className={'oac-flex-1'}
+            visible={isPopoverOpen}
+            placement="bottom"
+            trigger="click"
+            content={
+              <div>
+                {map(options, (item) => (
+                  <LangContentPopoverItem key={item.label} onClick={item.onClick}>
+                    {t(item.value)}
+                  </LangContentPopoverItem>
+                ))}
+              </div>
+            }
+            onVisibleChange={handleOpenPopoverChange}
+          >
+            {t(selected)}
+            {!isPopoverOpen ? (
+              <ChevronDown className={'oac-ml-2'} />
+            ) : (
+              <ChevronUp className={'oac-ml-2'} />
+            )}
+          </Popover>
         </LangBox>
         <Popover
-          open={open}
+          visible={open}
           placement="bottom"
           content={<HelpContentPopover onSelected={handleHidePopover} />}
           trigger="click"
-          onOpenChange={handleOpenChange}
+          onVisibleChange={handleOpenChange}
         >
-          <QuestionCircleOutlinedStyled />
+          <HelpStyled />
         </Popover>
       </TopRightBanner>
     </HeaderBox>

@@ -8,6 +8,7 @@ import AutoRouter from '@/router';
 import { redirectRoutes } from '@/router/routes';
 
 import Header from '@/components/header';
+import LeftSteps from '@/components/steps';
 import Loading from '@/components/loading';
 import NoMatch from '@/components/no_match';
 import GlobalStyle from './global';
@@ -15,22 +16,30 @@ import GlobalStyle from './global';
 import './index.css';
 import { getCurrentLang, getAntDesignLang } from '@/i18n';
 
-const Content = styled.div`
-  min-height: calc(100% - 104px);
+const FollowBox = styled.div`
+  height: calc(100% - 58px);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 50px;
+`;
+const Content = styled.div`
+  width: 100%;
   overflow-y: auto;
+  padding: 0 10px 10px 0;
 `;
 
 /** default layout routes */
 const NormalLayoutRoutes = () => (
-  <Layout className="h-full bg-white">
+  <Layout className="oac-h-full oac-bg-white" style={{ background: '#EAEAEA' }}>
     <Header />
-    <Content>
-      <AutoRouter Loading={Loading} NoMatch={NoMatch} redirectRoutes={redirectRoutes} />
-    </Content>
+    <FollowBox>
+      <LeftSteps />
+      <Content>
+        <AutoRouter
+          Loading={Loading}
+          NoMatch={NoMatch}
+          redirectRoutes={redirectRoutes}
+        ></AutoRouter>
+      </Content>
+    </FollowBox>
   </Layout>
 );
 

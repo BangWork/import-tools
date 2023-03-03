@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, Form, Input, Select, Steps, Divider, Tooltip, Space, Alert, Popover } from 'antd';
+import { Select, Steps, Popover } from 'antd';
+import { Alert, Button, Space, Input, Form } from '@ones-design/core';
 import { useTranslation, Trans } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { map, debounce, trim } from 'lodash-es';
@@ -10,11 +11,24 @@ import Image from '@/components/image';
 import { checkPathApi, getBackUpApi } from '@/api';
 import Guide1Image from './images/guide-1.png';
 import Guide2Image from './images/guide-2.png';
+import FrameworkContent from '@/components/framework_content';
+import Footer from '@/components/footer';
 
 const QuestionCircleOutlinedStyled = styled(QuestionCircleOutlined)`
   font-size: 14px;
   margin: 0 4px;
   color: #909090;
+`;
+
+const TitleNumber = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  background: #e8e8e8;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  margin-right: 10px;
 `;
 
 const AnalyzePage = () => {
@@ -42,7 +56,7 @@ const AnalyzePage = () => {
 
   useEffect(() => {
     if (!showPackItem) {
-      form.setFieldValue('backupName', undefined);
+      form.setFieldsValue({ backupName: undefined });
     }
   }, [showPackItem]);
 
@@ -51,7 +65,7 @@ const AnalyzePage = () => {
       const { localHome, backupName } = res;
       window.localStorage.setItem('backupName', backupName);
 
-      navigate('/page/analyze/environment', {
+      navigate('/page/analyze/progress', {
         state: {
           localHome,
           backupName,
@@ -62,7 +76,7 @@ const AnalyzePage = () => {
 
   const handleCheckPath = debounce(() => {
     const path = trim(localHome);
-    form.setFieldValue('localHome', path);
+    form.setFieldsValue({ localHome: path });
     form.validateFields(['localHome']).then(() => {
       checkPathApi(path)
         .then(() => {
@@ -74,10 +88,10 @@ const AnalyzePage = () => {
             const initValue = window.localStorage.getItem('backupName');
             const options = map(body, (key) => {
               if (key === initValue && !backupName) {
-                form.setFieldValue('backupName', initValue);
+                form.setFieldsValue({ backupName: initValue });
               }
 
-              return { label: key, value: key }
+              return { label: key, value: key };
             });
 
             setPack({
@@ -93,32 +107,42 @@ const AnalyzePage = () => {
     });
   }, 500);
 
-  const renderButton = () => (
-    <Button disabled={!backupName} type="primary" className="mr-4" htmlType="submit">
-      {t('common.nextStep')}
-    </Button>
-  );
-
+  const handleBack = () => {
+    navigate('/page/home');
+  };
   return (
-    <div className="flex h-full w-full justify-center">
-      <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Space direction="vertical" size="large">
-          <Alert
-            description={
-              <div>
-                {t('backupPage.guide.alert.desc')}
-                <a href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html">
-                  {t('backupPage.guide.alert.link')}
-                </a>
-              </div>
-            }
-            type="info"
-            showIcon
-          />
+    <Form form={form} layout="vertical" onFinish={handleFinish} className={'oac-h-full oac-w-full'}>
+      <FrameworkContent
+        className=" oac-h-full oac-w-full "
+        title={t('common.nextStep')}
+        footer={
+          <Footer
+            handleBack={{
+              fun: handleBack,
+              text: 'common.back',
+            }}
+            handleNext={{
+              isDisabled: !backupName,
+              text: 'common.nextStep',
+              type: 'primary',
+              htmlType: 'submit',
+            }}
+          ></Footer>
+        }
+      >
+        <Space direction="vertical" size="xl">
+          <Alert type="info">
+            <div>
+              {t('backupPage.guide.alert.desc')}
+              <a href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html">
+                {t('backupPage.guide.alert.link')}
+              </a>
+            </div>
+          </Alert>
 
           <Steps
             direction="vertical"
-            className="mt-8"
+            className="oac-mt-8"
             items={[
               {
                 status: 'process',
@@ -162,7 +186,7 @@ const AnalyzePage = () => {
 
                     <Space direction="vertical">
                       <div>{t('backupPage.form.desc')}</div>
-                      <div className="flex">
+                      <div className="oac-flex">
                         <div>
                           <Form.Item
                             name="localHome"
@@ -204,7 +228,7 @@ const AnalyzePage = () => {
                           ) : null}
                         </div>
                         <Button
-                          className="ml-8"
+                          className="oac-ml-2"
                           style={{ marginTop: '30px' }}
                           type="primary"
                           onClick={handleCheckPath}
@@ -221,16 +245,8 @@ const AnalyzePage = () => {
         </Space>
 
         {/* bottom button */}
-        <Divider />
-        <div className="mb-12">
-          {!backupName ? (
-            <Tooltip title={t('backupPage.form.tip')}>{renderButton()}</Tooltip>
-          ) : (
-            renderButton()
-          )}
-        </div>
-      </Form>
-    </div>
+      </FrameworkContent>
+    </Form>
   );
 };
 

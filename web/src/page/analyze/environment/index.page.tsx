@@ -1,11 +1,13 @@
-import { Alert, Button, Form, Input, message, Modal } from 'antd';
+import { Input, message, Modal } from 'antd';
+import { Alert, Form } from '@ones-design/core';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useRef } from 'react';
-import { isEmpty, trim } from 'lodash-es';
+import { trim } from 'lodash-es';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { InputRef } from 'antd';
-
-import ModalContent from '@/components/modal_content';
+import styled from 'styled-components';
+import FrameworkContent from '@/components/framework_content';
+import Foooter from '@/components/footer';
 import { submitEnvironmentApi } from '@/api';
 
 import { ERROR_MAP } from './config';
@@ -21,27 +23,29 @@ const EnvironmentPage = () => {
   const password = Form.useWatch('password', form);
   const urlInputRef = useRef<InputRef>(null);
 
+  const FormItemStyled = styled(Form.Item)`
+    max-width: 570px;
+  `;
+
   const handleBack = () => {
-    navigate('/page/analyze/pack', {
+    navigate('/page/home', {
       replace: true,
     });
   };
 
   useEffect(() => {
     const initUrl = window.localStorage.getItem('environmentUrl');
-    form.setFieldValue('url', initUrl);
+    form.setFieldsValue({ url: initUrl });
+  }, []);
+
+  useEffect(() => {
+    form.scrollToField('url');
   }, []);
 
   useEffect(() => {
     // localHome change need clear error tip
     setShowServerError(false);
   }, [url]);
-
-  useEffect(() => {
-    if (isEmpty(locationState)) {
-      handleBack();
-    }
-  }, [locationState]);
 
   const onFinish = (res) => {
     const url = trim(res.url);
@@ -62,7 +66,7 @@ const EnvironmentPage = () => {
         password,
       })
         .then(() => {
-          navigate('/page/analyze/progress', {
+          navigate('/page/analyze/pack', {
             replace: true,
           });
         })
@@ -97,35 +101,36 @@ const EnvironmentPage = () => {
   const canSubmit = !!(url && email && password);
 
   return (
-    <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
-      <ModalContent
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={onFinish}
+      autoComplete="off"
+      className={'oac-h-full oac-w-full'}
+    >
+      <FrameworkContent
         title={t('environment.title')}
         footer={
-          <Form.Item className="flex flex-row-reverse">
-            <Button className="mr-4" onClick={handleBack}>
-              {t('common.back')}
-            </Button>
-            <Button type="primary" disabled={!canSubmit} htmlType="submit">
-              {t('environment.startButton')}
-            </Button>
-          </Form.Item>
+          <Foooter
+            handleCancleMigrate={{ fun: handleBack }}
+            handleNext={{
+              htmlType: 'submit',
+              isDisabled: !canSubmit,
+              text: t('environment.startButton'),
+            }}
+          ></Foooter>
         }
       >
-        <div className="p-6">
-          <Alert
-            showIcon
-            className="mb-4"
-            message={
-              <div className="p-2">
-                <div>{t('environment.tip.message1')}</div>
-                <div>{t('environment.tip.message2')}</div>
-              </div>
-            }
-            type="info"
-          />
+        <div>
+          <Alert className="oac-mb-4" type="info">
+            <div className="p-2">
+              <div>{t('environment.tip.message1')}</div>
+              <div>{t('environment.tip.message2')}</div>
+            </div>
+          </Alert>
 
           {/* form */}
-          <Form.Item
+          <FormItemStyled
             name="url"
             label={t('environment.url.label')}
             validateStatus={showServerError ? 'error' : undefined}
@@ -138,8 +143,8 @@ const EnvironmentPage = () => {
             ]}
           >
             <Input ref={urlInputRef} autoFocus placeholder={t('environment.url.placeholder')} />
-          </Form.Item>
-          <Form.Item
+          </FormItemStyled>
+          <FormItemStyled
             name="email"
             label={t('environment.email.label')}
             rules={[
@@ -150,8 +155,8 @@ const EnvironmentPage = () => {
             ]}
           >
             <Input placeholder={t('common.placeholder')} />
-          </Form.Item>
-          <Form.Item
+          </FormItemStyled>
+          <FormItemStyled
             name="password"
             label={t('environment.password.label')}
             rules={[
@@ -162,9 +167,9 @@ const EnvironmentPage = () => {
             ]}
           >
             <Input.Password placeholder={t('common.placeholder')} />
-          </Form.Item>
+          </FormItemStyled>
         </div>
-      </ModalContent>
+      </FrameworkContent>
     </Form>
   );
 };
