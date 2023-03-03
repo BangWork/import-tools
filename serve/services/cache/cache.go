@@ -51,8 +51,8 @@ type Cache struct {
 	HoursPerDay         string              `json:"hours_per_day"`
 	ProjectIssueTypeMap map[string][]string `json:"project_issue_type_map"`
 
-	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
-	ProjectIDs   []string                    `json:"project_ids"`
+	IssueTypeMap map[string][]types.BuiltinIssueTypeMap `json:"issue_type_map"`
+	ProjectIDs   map[string][]string                    `json:"project_ids"`
 }
 
 type ResolveResult struct {

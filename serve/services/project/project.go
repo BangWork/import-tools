@@ -77,6 +77,6 @@ func GetProjectList(key string) (*ProjectRes, error) {
 
 	return &ProjectRes{
 		ProjectList: res,
-		Cache:       list.ProjectIDs,
+		Cache:       list.ProjectIDs[list.TeamUUID],
 	}, nil
 }

@@ -180,7 +180,7 @@ func SaveProjectList(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	cacheInfo.ProjectIDs = req.ProjectIDs
+	cacheInfo.ProjectIDs[cacheInfo.TeamUUID] = req.ProjectIDs
 	err = cache.SetCacheInfo(req.Key, cacheInfo)
 	RenderJSON(c, err, nil)
 }
@@ -236,7 +236,7 @@ func IssueTypeList(c *gin.Context) {
 	}
 	RenderJSON(c, nil, map[string]interface{}{
 		"issue_types":    list,
-		"issue_type_map": cacheInfo.IssueTypeMap,
+		"issue_type_map": cacheInfo.IssueTypeMap[cacheInfo.TeamUUID],
 	})
 }
 
@@ -255,7 +255,7 @@ func SaveIssueTypeList(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	cacheInfo.IssueTypeMap = req.IssueTypeMap
+	cacheInfo.IssueTypeMap[cacheInfo.TeamUUID] = req.IssueTypeMap
 	err = cache.SetCacheInfo(req.Key, cacheInfo)
 	RenderJSON(c, err, nil)
 }
