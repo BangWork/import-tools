@@ -2461,6 +2461,8 @@ func (p *JiraResolver) NextIssueType() ([]byte, error) {
 	// 系统工作项类型映射
 	if detailType, ok := p.issueTypeDetailTypeMap[r.ResourceID]; ok {
 		r.DetailType = detailType
+	} else {
+		r.DetailType = -1
 	}
 
 	return utils2.OutputJSON(r), nil
