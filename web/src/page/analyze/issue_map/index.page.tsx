@@ -22,11 +22,11 @@ const IssueMapPage = () => {
   };
 
   const saveData = () => {
-    const selectedArr = []
+    const selectedArr = [];
     Object.keys(select).forEach((key) => {
-      selectedArr.push({ id: key, type: select[key] })
-    })
-    saveIssuesApi(selectedArr)
+      selectedArr.push({ id: key, type: select[key] });
+    });
+    saveIssuesApi(selectedArr);
   };
 
   useEffect(() => {
@@ -36,10 +36,13 @@ const IssueMapPage = () => {
   }, [location]);
 
   const handleNext = () => {
-    saveData()
+    saveData();
     const finishSelect = map(jiraList, (item) => ({
       id: item.third_issue_type_id,
-      type:select[item.third_issue_type_id] === zeroNumber?0: select[item.third_issue_type_id] || item.ones_detail_type,
+      type:
+        select[item.third_issue_type_id] === zeroNumber
+          ? 0
+          : select[item.third_issue_type_id] || item.ones_detail_type,
     }));
 
     navigate('/page/import_pack/init_password', {
@@ -52,15 +55,16 @@ const IssueMapPage = () => {
   };
 
   const showDataList = map(jiraList, (item) => ({
-   ...item,key:item.third_issue_type_id
-  }))
+    ...item,
+    key: item.third_issue_type_id,
+  }));
 
   return (
-    <div className="h-full w-full flex flex-col items-center">
-      <div className="flex justify-between w-2/3">
+    <div className="flex h-full w-full flex-col items-center">
+      <div className="flex w-2/3 justify-between">
         <h2>{t('issueMap.title')}</h2>
         <div>
-          <Button onClick={handleBack}>{t('common.cancel')}</Button>
+          <Button onClick={handleBack}>{t('common.back')}</Button>
           <Button className="ml-4" type="primary" onClick={handleNext}>
             {t('common.nextStep')}
           </Button>

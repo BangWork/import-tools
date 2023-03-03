@@ -153,7 +153,7 @@ const analyze = {
     buttonTip: '需选择导入的 Jira 项目',
   },
   issueMap: {
-    title: 'Jira 工作项映射为 ONES 工作项',
+    title: '映射 Jira 问题类型',
     tip: {
       message1: '「ONES」列支持选择如何映射 Jira 问题类型。选择映射关系后，对应问题工作流、属性将会对应创建。',
       message2: '选择「ONES 自定义工作项」则将该 Jira 问题类型创建为 ONES 新的自定义工作项类型。',
