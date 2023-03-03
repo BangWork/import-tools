@@ -77,7 +77,7 @@ const AnalyzePage = () => {
                 form.setFieldValue('backupName', initValue);
               }
 
-              return { label: key, value: key }
+              return { label: key, value: key };
             });
 
             setPack({
@@ -107,7 +107,11 @@ const AnalyzePage = () => {
             description={
               <div>
                 {t('backupPage.guide.alert.desc')}
-                <a href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html">
+                <a
+                  href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {t('backupPage.guide.alert.link')}
                 </a>
               </div>
@@ -118,12 +122,11 @@ const AnalyzePage = () => {
 
           <Steps
             direction="vertical"
-            className="mt-8"
             items={[
               {
                 status: 'process',
                 title: (
-                  <div>
+                  <div style={{ fontWeight: '500' }}>
                     {t('backupPage.guide.step1.title')}
                     <Popover placement="bottom" content={<Image src={Guide1Image} />}>
                       <QuestionCircleOutlinedStyled />
@@ -154,14 +157,13 @@ const AnalyzePage = () => {
                 description: (
                   <div>
                     <div>
-                      {t('backupPage.guide.step2.desc')}
+                      {t('backupPage.guide.step2.desc')} <br></br>
                       <a href="https://confluence.atlassian.com/adminjiraserver/jira-application-home-directory-938847746.html#:~:text=If%20Jira%20was%20installed%20using,data%2FJIRA%20(on%20Linux">
                         {t('backupPage.guide.step2.link')}
                       </a>
                     </div>
 
                     <Space direction="vertical">
-                      <div>{t('backupPage.form.desc')}</div>
                       <div className="flex">
                         <div>
                           <Form.Item
