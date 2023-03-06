@@ -147,7 +147,7 @@ const AnalyzePage = () => {
               {
                 status: 'process',
                 title: (
-                  <div>
+                  <div style={{ fontWeight: '500' }}>
                     {t('backupPage.guide.step2.title')}
                     <Popover placement="bottom" content={<Image src={Guide2Image} />}>
                       <QuestionCircleOutlinedStyled />
@@ -158,7 +158,11 @@ const AnalyzePage = () => {
                   <div>
                     <div>
                       {t('backupPage.guide.step2.desc')} <br></br>
-                      <a href="https://confluence.atlassian.com/adminjiraserver/jira-application-home-directory-938847746.html#:~:text=If%20Jira%20was%20installed%20using,data%2FJIRA%20(on%20Linux">
+                      <a
+                        href="https://confluence.atlassian.com/adminjiraserver/jira-application-home-directory-938847746.html#:~:text=If%20Jira%20was%20installed%20using,data%2FJIRA%20(on%20Linux"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {t('backupPage.guide.step2.link')}
                       </a>
                     </div>
