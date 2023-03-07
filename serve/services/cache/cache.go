@@ -8,11 +8,18 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
+	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/utils"
+)
+
+var (
+	SharedDiskPath  string
+	CurrentCacheKey string
 )
 
 type Cache struct {
