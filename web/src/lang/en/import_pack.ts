@@ -3,7 +3,7 @@ const importPack = {
     title: 'Set initial password',
     tip: {
       message1:
-        'An initial password is required for new users imported from Jira. They can also select "Forgot password?" to verify their account emails and reset passwords.',
+        'An initial password is required for new users imported from Jira. You can verify your account email and reset passwords when logging into ONES. ',
       message2:
         "This password will only be displayed once and can't be changed. Please write it down.",
     },
