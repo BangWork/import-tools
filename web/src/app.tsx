@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
 import { Layout, ConfigProvider } from 'antd';
+import i18n from 'i18next';
 
 import AutoRouter from '@/router';
 import { redirectRoutes } from '@/router/routes';
@@ -35,7 +35,6 @@ const NormalLayoutRoutes = () => (
 );
 
 const Main = () => {
-  const { i18n } = useTranslation();
   const currentLang = getCurrentLang(i18n);
   const local = getAntDesignLang(currentLang);
 

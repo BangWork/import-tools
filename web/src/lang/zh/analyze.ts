@@ -43,7 +43,7 @@ const analyze = {
       label: 'ONES 服务域名/IP',
       emptyError: '请输入 ONES 服务域名/IP',
       serverError: '请输入正确的 ONES 服务域名/IP',
-      placeholder: 'eg：http://ones.com OR https://ones.com',
+      placeholder: '例: http://ones.cn 或 https://ones.cn',
     },
     email: {
       label: 'ONES 邮箱（导入者）',

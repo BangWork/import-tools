@@ -171,7 +171,7 @@ const analyze = {
         issueID: 'Jira issue type ID',
         onesIssue: 'ONES',
       },
-      disabledTip: "This mapping relationship is already established and can't be changed",
+      disabledTip: "Mapping relationship already established",
       placeholder: 'ONES custom issue type',
     },
   },
