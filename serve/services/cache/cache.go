@@ -186,7 +186,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		return nil, errors.New("cache key not found")
 	}
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)
@@ -227,7 +227,7 @@ func SetCacheInfo(key string, cache *Cache) error {
 		return errors.New("cache key not found")
 	}
 
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)
