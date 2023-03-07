@@ -104,6 +104,7 @@ const AnalyzePage = () => {
       <Form form={form} layout="vertical" onFinish={handleFinish}>
         <Space direction="vertical" size="large">
           <Alert
+            style={{ width: '1000px' }}
             description={
               <div>
                 {t('backupPage.guide.alert.desc')}

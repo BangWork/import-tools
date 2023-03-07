@@ -18,7 +18,9 @@ const IssueMapPage = () => {
   const zeroNumber = 0;
 
   const handleBack = () => {
-    navigate('/page/analyze/import_project', { replace: true, state: location.state });
+    saveData().then(() => {
+      navigate('/page/analyze/import_project', { replace: true, state: location.state });
+    });
   };
 
   const saveData = () => {
@@ -26,7 +28,7 @@ const IssueMapPage = () => {
     Object.keys(select).forEach((key) => {
       selectedArr.push({ id: key, type: select[key] });
     });
-    saveIssuesApi(selectedArr);
+    return saveIssuesApi(selectedArr);
   };
 
   useEffect(() => {
@@ -36,21 +38,22 @@ const IssueMapPage = () => {
   }, [location]);
 
   const handleNext = () => {
-    saveData();
-    const finishSelect = map(jiraList, (item) => ({
-      id: item.third_issue_type_id,
-      type:
-        select[item.third_issue_type_id] === zeroNumber
-          ? 0
-          : select[item.third_issue_type_id] || item.ones_detail_type,
-    }));
+    saveData().then(() => {
+      const finishSelect = map(jiraList, (item) => ({
+        id: item.third_issue_type_id,
+        type:
+          select[item.third_issue_type_id] === zeroNumber
+            ? 0
+            : select[item.third_issue_type_id] || item.ones_detail_type,
+      }));
 
-    navigate('/page/import_pack/init_password', {
-      replace: true,
-      state: {
-        ...(location?.state || {}),
-        issue_type_map: finishSelect,
-      },
+      navigate('/page/import_pack/init_password', {
+        replace: true,
+        state: {
+          ...(location?.state || {}),
+          issue_type_map: finishSelect,
+        },
+      });
     });
   };
 

@@ -132,7 +132,7 @@ const analyze = {
       },
       versionDiff: {
         title: 'Jira 版本不兼容',
-        desc: '此 Jira 备份包为 Jira {{version}} ，可能部分数据未能正常导入，是否确定导入此 Jira {{packVersion}} 备份包？',
+        desc: '此 Jira 备份包为 Jira {{packVersion}} ，可能部分数据未能正常导入，是否确定导入此 Jira {{packVersion}} 备份包？',
       },
       warning: {
         cancel: '继续导入',

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { map } from 'lodash-es';
 
-import { getProjectsApi,saveProjectsApi } from '@/api';
+import { getProjectsApi, saveProjectsApi } from '@/api';
 import { LOCAL_CONFIG, listStyle } from './config';
 
 const ImportProjectPage = () => {
@@ -16,37 +16,39 @@ const ImportProjectPage = () => {
   const [projects, setProjects] = useState<{ id: string; title: string }[]>([]);
 
   const handleBack = () => {
-    navigate('/page/analyze/team', { replace: true, state: location?.state });
+    saveData().then(() => {
+      navigate('/page/analyze/team', { replace: true, state: location?.state });
+    });
   };
 
   useEffect(() => {
     if (!location?.state) {
       handleBack();
     }
-
   }, [location]);
 
   useEffect(() => {
     getProjectsApi().then((res) => {
       setProjects(map(res.body.projects, (item) => ({ id: item.id, title: item.name })));
-      setTargetKeys(map(res.body.cache))
+      setTargetKeys(map(res.body.cache));
     });
   }, []);
 
   const handleSubmit = () => {
-    saveData()
-    navigate('/page/analyze/issue_map', {
-      replace: true,
-      state: {
-        ...(location?.state || {}),
-        projects: targetKeys,
-      },
+    saveData().then(() => {
+      navigate('/page/analyze/issue_map', {
+        replace: true,
+        state: {
+          ...(location?.state || {}),
+          projects: targetKeys,
+        },
+      });
     });
   };
 
   const saveData = () => {
-    saveProjectsApi(targetKeys )
-  }
+    return saveProjectsApi(targetKeys);
+  };
   const handleChange = (newTargetKeys: string[]) => {
     setTargetKeys(newTargetKeys);
   };
