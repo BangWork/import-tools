@@ -1,22 +1,28 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"os"
 	"strconv"
 
 	"github.com/bangwork/import-tools/serve/common"
-	"github.com/bangwork/import-tools/serve/router"
 	"github.com/bangwork/import-tools/serve/services/cache"
 
 	_ "github.com/bangwork/import-tools/serve"
+	"github.com/bangwork/import-tools/serve/router"
 )
 
-var port int
+var (
+	port int
+	cachePath string
+	maxScanTokenSize int
+)
 
 func initFlags() {
 	flag.IntVar(&port, "port", -1, "http server port")
 	flag.StringVar(&cache.SharedDiskPath, "shared-disk-path", "", "the path of the shared disk")
+	flag.IntVar(&maxScanTokenSize, "max_scan_token_size", bufio.MaxScanTokenSize*1000, "max scan token size")
 	flag.Parse()
 
 	if port == -1 {
@@ -33,6 +39,9 @@ func initFlags() {
 	if cache.SharedDiskPath == "" {
 		cache.SharedDiskPath = os.Getenv("IMPORT_TOOLS_SHARED_DISK_PATH")
 	}
+
+	common.SetCachePath(cachePath)
+	common.SetMaxScanTokenSize(maxScanTokenSize)
 }
 
 func main() {

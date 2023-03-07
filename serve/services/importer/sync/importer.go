@@ -210,6 +210,11 @@ func (p *Importer) uploadAttachments() error {
 	startTime := time.Now()
 	p.writeLog("[start upload attachments]")
 	reader := bufio.NewReader(p.MapTagFile[services.ResourceTypeStringTaskAttachmentTmp])
+
+	accountInfo := new(account.Account)
+	if err := accountInfo.Login(); err != nil {
+		return err
+	}
 	for {
 		if services.CheckIsStop() {
 			p.writeLog("importer stop")
@@ -231,7 +236,32 @@ func (p *Importer) uploadAttachments() error {
 		if err != nil {
 			return err
 		}
-		resourceUUID, err := file.UploadFile(fi, r.FileName)
+		resourceUUID, err := file.UploadFile(accountInfo, fi, r.FileName)
+		if err != nil || resourceUUID == "" {
+			p.writeLog("upload file err: %+v, %s", err, resourceUUID)
+			for j := 0; j < retryCount; j++ {
+				p.writeLog("upload file retry count: %d", j)
+				if err := accountInfo.Login(); err != nil {
+					p.writeLog("upload file login err:%+v", err)
+					continue
+				}
+				resourceUUID, err = file.UploadFile(accountInfo, fi, r.FileName)
+				if err != nil || resourceUUID == "" {
+					log.Println("upload file err", err, resourceUUID)
+					continue
+				}
+				break
+			}
+		}
+		fi.Close()
+		if err != nil {
+			p.writeLog("upload file error: %+v", err)
+			continue
+		}
+		if resourceUUID == "" {
+			p.writeLog("resource uuid empty", r.FileName)
+			continue
+		}
 		r.ResourceUUID = resourceUUID
 		line := utils.OutputJSON(r)
 		_, err = p.MapTagFile[services.ResourceTypeStringTaskAttachment].WriteString(string(line) + "\n")
@@ -414,6 +444,7 @@ func (p *Importer) sendData() error {
 		}
 		fi := p.MapTagFile[tag]
 		fileScanner := bufio.NewScanner(fi)
+		fileScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 		i := 0
 		curData := strings.Builder{}
 
@@ -433,6 +464,9 @@ func (p *Importer) sendData() error {
 				curData = strings.Builder{}
 				i = 0
 			}
+		}
+		if fileScanner.Err() != nil {
+			p.writeLog("scan err: %v\n", fileScanner.Err())
 		}
 		curData.Write([]byte(fileEndSign))
 		if err := retryFunc(tag, curData.String()); err != nil {
@@ -478,6 +512,7 @@ func (p *Importer) sendAttachmentsData() error {
 
 	fi := p.MapTagFile[tag]
 	fileScanner := bufio.NewScanner(fi)
+	fileScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 	i := 0
 	curData := strings.Builder{}
 
@@ -501,6 +536,9 @@ func (p *Importer) sendAttachmentsData() error {
 			curData = strings.Builder{}
 			i = 0
 		}
+	}
+	if fileScanner.Err() != nil {
+		p.writeLog("scan file err: %+v", fileScanner.Err())
 	}
 	curData.Write([]byte(fileEndSign))
 	if err := retryFunc(tag, curData.String()); err != nil {
@@ -684,7 +722,7 @@ func (p *Importer) writeLogWithoutTime(inputs ...string) {
 }
 
 func (p *Importer) initOutputFile() error {
-	outputPath := fmt.Sprintf("%s/%s", common.Path, common.OutputDir)
+	outputPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.OutputDir)
 	if err := p.initPath(outputPath); err != nil {
 		return err
 	}
@@ -724,6 +762,6 @@ func (p *Importer) initPath(outputPath string) error {
 	return nil
 }
 func (p *Importer) initXmlPath() error {
-	xmlPath := fmt.Sprintf("%s/%s", common.Path, common.XmlDir)
+	xmlPath := fmt.Sprintf("%s/%s", common.GetCachePath(), common.XmlDir)
 	return p.initPath(xmlPath)
 }

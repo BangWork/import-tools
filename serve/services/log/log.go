@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -89,6 +90,10 @@ func GetLogTextByImportUUID(teamUUID, importUUID string) []string {
 			lines = append(lines, fileScanner.Text())
 		}
 	}
+	if fileScanner.Err() != nil {
+		log.Printf("scan error%+v", fileScanner.Err())
+		return lines
+	}
 	return lines
 }
 
@@ -147,7 +152,7 @@ func DownloadCurrentLog(teamUUID, importUUID string) ([]byte, error) {
 }
 
 func logRootPath() string {
-	filePath := fmt.Sprintf("%s/%s", common.Path, Log)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), Log)
 	return filePath
 }
 
@@ -157,6 +162,6 @@ func logFilePath(teamUUID, importUUID string) string {
 }
 
 func logTeamPath(teamUUID string) string {
-	filePath := fmt.Sprintf("%s/%s/%s", common.Path, Log, teamUUID)
+	filePath := fmt.Sprintf("%s/%s/%s", common.GetCachePath(), Log, teamUUID)
 	return filePath
 }

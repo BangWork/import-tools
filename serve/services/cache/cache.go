@@ -8,17 +8,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"sync"
+
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
-	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/utils"
-	"github.com/juju/errors"
-)
-
-var (
-	SharedDiskPath  string
-	CurrentCacheKey string
 )
 
 type Cache struct {
@@ -113,11 +107,11 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
-	if err := os.MkdirAll(common.Path, 0755); err != nil {
+	if err := os.MkdirAll(common.GetCachePath(), 0755); err != nil {
 		return err
 	}
 	f, err := os.Create(filePath)

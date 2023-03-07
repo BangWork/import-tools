@@ -159,6 +159,7 @@ func (r *Account) Login() error {
 	if err != nil {
 		return common.Errors(common.NetworkError, nil)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return common.Errors(common.AccountError, nil)
 	}
@@ -181,6 +182,7 @@ func (r *Account) SendImportData(resourceTypeString string, data string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return err
 	}
@@ -193,6 +195,7 @@ func (r *Account) GetImportLog(count int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return nil, err
 	}
@@ -213,6 +216,7 @@ func (r *Account) GetImportStatus(resourceUUID string) (status string, err error
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", err
 	}
@@ -247,6 +251,7 @@ func (r *Account) GetImportStatusByUUID(batchTaskUUID string) (status string, er
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", err
 	}
@@ -272,6 +277,7 @@ func (r *Account) SetPassword(resourceUUID, password string) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return common.Errors(common.ServerError, nil)
 	}
@@ -287,6 +293,7 @@ func (r *Account) InterruptImport() error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return common.Errors(common.ServerError, nil)
 	}
@@ -299,6 +306,7 @@ func (r *Account) ConfirmImport(reqBody *services.ConfirmImportRequest) (string,
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", common.Errors(common.ServerError, nil)
 	}
@@ -319,6 +327,7 @@ func (r *Account) GetIssueTypeList() (*services.IssueTypeListResponse, error) {
 	if err != nil {
 		return nil, common.Errors(common.NetworkError, nil)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return nil, common.Errors(common.AccountError, nil)
 	}
@@ -351,7 +360,7 @@ func (r *Account) CheckONESAccount() error {
 	if err != nil {
 		return err
 	}
-
+	defer resp.Body.Close()
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -510,6 +519,7 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
+	defer resp.Body.Close()
 	res := make([]*services.JiraIssueType, 0)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -528,6 +538,7 @@ func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
+	defer resp.Body.Close()
 	type issueTypeResp struct {
 		IssueTypes []*services.ONESIssueType `json:"issue_types"`
 	}
@@ -555,6 +566,7 @@ func (r *Account) getImportHistory() ([]*ImportHistory, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	res := make([]*ImportHistory, 0)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -576,6 +588,7 @@ func (r *Account) postOrgPermission() (*Stamps, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	stampsData := new(Stamps)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -594,6 +607,7 @@ func (r *Account) postOrgConfig() (*FileConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	respData := new(FileConfig)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -614,6 +628,7 @@ func (r *Account) postTeamPermission() (*PermissionRules, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	stampsData := new(PermissionRules)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
