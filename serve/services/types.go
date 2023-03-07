@@ -1,5 +1,10 @@
 package services
 
+type StartResolveRequest struct {
+	JiraLocalHome string `json:"jira_local_home"`
+	BackupName    string `json:"backup_name"`
+}
+
 type LoginRequest struct {
 	URL      string `json:"url"`
 	Email    string `json:"email"`

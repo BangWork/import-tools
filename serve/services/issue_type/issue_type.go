@@ -10,7 +10,6 @@ import (
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/utils/xml"
 )
@@ -39,7 +38,7 @@ var (
 )
 
 func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
-	cacheInfo, err := cache.GetCacheInfo(key)
+	cacheInfo, err := common.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
 	}

@@ -52,7 +52,7 @@ type ResourceResolver interface {
 
 	TotalAttachmentSize() int64
 	PrepareResolve() error
-	Clear() error
+	Clear()
 	ServerID() string
 }
 

@@ -12,24 +12,28 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/bangwork/import-tools/serve/models/ones"
+
 	_ "golang.org/x/image/webp"
 
 	"github.com/bangwork/import-tools/serve/common"
-	account2 "github.com/bangwork/import-tools/serve/services/account"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/utils"
 )
 
-func UploadFile(account *account2.Account, file *os.File, realFileName string) (resourceUUID string, err error) {
-	if cache.SharedDiskPath != "" {
-		return uploadToShareDisk(file, account, realFileName)
+func UploadFile(cookie, teamUUID string, file *os.File, realFileName string) (resourceUUID string, err error) {
+	cookieValue, err := ones.DecryptCookieValueByCookie(cookie)
+	if err != nil {
+		return "", err
 	}
-	return upload(file, account, realFileName)
+
+	if common.SharedDiskPath != "" {
+		return uploadToShareDisk(file, cookieValue.URL, teamUUID, realFileName, cookieValue.GenAuthHeader())
+	}
+	return upload(file, cookieValue.URL, teamUUID, realFileName, cookieValue.GenAuthHeader())
 }
 
 func uploadToShareDisk(file *os.File,
-	account *account2.Account, realFileName string) (resourceUUID string, err error) {
-	cacheInfo := account.Cache
+	url, teamUUID, realFileName string, header map[string]string) (resourceUUID string, err error) {
 	fileInfo, err := utils.GetFileInfo(file)
 	if err != nil {
 		return
@@ -53,7 +57,7 @@ func uploadToShareDisk(file *os.File,
 	if err != nil {
 		return "", err
 	}
-	dstPath := fmt.Sprintf("%s/%s/%s", cache.SharedDiskPath, common.ShareDiskPathPrivate, body.Hash)
+	dstPath := fmt.Sprintf("%s/%s/%s", common.SharedDiskPath, common.ShareDiskPathPrivate, body.Hash)
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		log.Printf("open %s failed, err:%v.\n", dstPath, err)
@@ -66,8 +70,8 @@ func uploadToShareDisk(file *os.File,
 		return
 	}
 
-	url := common.GenApiUrl(cacheInfo.URL, fmt.Sprintf(fileRecordUri, cacheInfo.ImportTeamUUID))
-	resp, err := utils.PostJSONWithHeader(url, body, account.AuthHeader)
+	url = common.GenApiUrl(url, fmt.Sprintf(fileRecordUri, teamUUID))
+	resp, err := utils.PostJSONWithHeader(url, body, header)
 	if err != nil {
 		return
 	}
@@ -88,8 +92,8 @@ func uploadToShareDisk(file *os.File,
 	return
 }
 
-func upload(file *os.File, account *account2.Account, realFileName string) (resourceUUID string, err error) {
-	fileUploadResponse, err := PrepareUploadInfo(realFileName, LabelUploadAttachment, EntityTypeUnrelatedLabel, account)
+func upload(file *os.File, url, teamUUID, realFileName string, header map[string]string) (resourceUUID string, err error) {
+	fileUploadResponse, err := PrepareUploadInfo(realFileName, LabelUploadAttachment, EntityTypeUnrelatedLabel, url, teamUUID, header)
 	if err != nil {
 		return "", err
 	}
@@ -108,15 +112,14 @@ func upload(file *os.File, account *account2.Account, realFileName string) (reso
 	return
 }
 
-func PrepareUploadInfo(fileName, label string, refType string, account *account2.Account) (*UploadResponse, error) {
-	cacheInfo := account.Cache
-	url := common.GenApiUrl(cacheInfo.URL, fmt.Sprintf(fileUploadUri, cacheInfo.ImportTeamUUID))
+func PrepareUploadInfo(fileName, label, refType, url, teamUUID string, header map[string]string) (*UploadResponse, error) {
+	url = common.GenApiUrl(url, fmt.Sprintf(fileUploadUri, teamUUID))
 	body := &UploadRequest{
 		Name:          fileName,
 		Type:          label,
 		ReferenceType: refType,
 	}
-	resp, err := utils.PostJSONWithHeader(url, body, account.AuthHeader)
+	resp, err := utils.PostJSONWithHeader(url, body, header)
 	if err != nil {
 		return nil, err
 	}

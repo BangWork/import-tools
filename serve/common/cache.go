@@ -1,4 +1,4 @@
-package cache
+package common
 
 import (
 	"bytes"
@@ -7,12 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"sync"
+	"time"
 
-	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
-	"github.com/bangwork/import-tools/serve/utils"
 )
 
 var (
@@ -21,23 +19,28 @@ var (
 )
 
 type Cache struct {
-	ImportUUID          string            `json:"import_uuid"`
-	URL                 string            `json:"url"`
-	Email               string            `json:"email"`
-	Password            string            `json:"password"`
-	ResolveStartTime    int64             `json:"start_resolve_time"`
-	ResolveStatus       int               `json:"resolve_status"`
-	ExpectedResolveTime int64             `json:"expected_resolve_time"`
-	ResolveDoneTime     int64             `json:"resolve_done_time"`
-	FileStorage         string            `json:"file_storage"`
-	MultiTeam           bool              `json:"multi_team"`
-	OrgName             string            `json:"org_name"`
-	OrgUUID             string            `json:"org_uuid"`
-	TeamUUID            string            `json:"team_uuid"`
-	TeamName            string            `json:"team_name"`
-	ImportUserUUID      string            `json:"import_user_uuid"`
-	LocalHome           string            `json:"local_home"`
-	BackupName          string            `json:"backup_name"`
+	URL                 string
+	UserName            string
+	Password            string
+	ImportBatchTaskUUID string
+	ImportTimeSecond    int64
+	StopResolveSignal   bool
+	PauseImportSignal   bool
+	StopImportSignal    bool
+	ImportUUID          string `json:"import_uuid"`
+	ResolveStartTime    int64  `json:"start_resolve_time"`
+	ResolveStatus       int    `json:"resolve_status"`
+	ExpectedResolveTime int64  `json:"expected_resolve_time"`
+	ResolveDoneTime     int64  `json:"resolve_done_time"`
+	FileStorage         string `json:"file_storage"`
+	MultiTeam           bool   `json:"multi_team"`
+	OrgName             string `json:"org_name"`
+	OrgUUID             string `json:"org_uuid"`
+	TeamUUID            string `json:"team_uuid"`
+	TeamName            string `json:"team_name"`
+	ImportUserUUID      string `json:"import_user_uuid"`
+	LocalHome           string `json:"local_home"`
+	BackupName          string
 	ResolveResult       *ResolveResult    `json:"resolve_result"`
 	ImportResult        *ImportResult     `json:"import_result"`
 	ImportScope         *ResolveResult    `json:"import_scope"`
@@ -52,6 +55,13 @@ type Cache struct {
 
 	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
 	ProjectIDs   []string                    `json:"project_ids"`
+}
+
+func (c *Cache) CheckIsStop() (stop bool) {
+	for c.PauseImportSignal {
+		time.Sleep(5 * time.Second)
+	}
+	return c.StopImportSignal
 }
 
 type ResolveResult struct {
@@ -111,23 +121,6 @@ var (
 	}
 )
 
-func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
-	if utils.CheckPathExist(filePath) {
-		return nil
-	}
-	if err := os.MkdirAll(common.GetCachePath(), 0755); err != nil {
-		return err
-	}
-	f, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	f.Write([]byte("{}"))
-	return nil
-}
-
 func GenCacheKey(addr string) string {
 	buf := &bytes.Buffer{}
 	buf.WriteString(addr)
@@ -141,16 +134,16 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		return nil, nil
 	}
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	filePath := fmt.Sprintf("%s/%s", GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, Errors(ServerError, nil)
 	}
 
 	d := map[string]string{}
 	if err := json.Unmarshal(b, &d); err != nil {
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, Errors(ServerError, nil)
 	}
 	s, ok := d[key]
 	if !ok {
@@ -160,7 +153,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	c := new(Cache)
 	err = json.Unmarshal([]byte(s), &c)
 	if err != nil {
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, Errors(ServerError, nil)
 	}
 	return c, nil
 }
@@ -175,33 +168,33 @@ func SetCacheInfo(key string, cache *Cache) error {
 		key = CurrentCacheKey
 	}
 
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	filePath := fmt.Sprintf("%s/%s", GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		log.Printf("open file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
+		return Errors(ServerError, nil)
 	}
 
 	m := map[string]string{}
 	if err := json.Unmarshal(b, &m); err != nil {
-		return common.Errors(common.ServerError, nil)
+		return Errors(ServerError, nil)
 	}
 
 	cb, err := json.Marshal(cache)
 	if err != nil {
-		return common.Errors(common.ServerError, nil)
+		return Errors(ServerError, nil)
 	}
 	m[key] = string(cb)
 
 	b, err = json.Marshal(m)
 	if err != nil {
-		return common.Errors(common.ServerError, nil)
+		return Errors(ServerError, nil)
 	}
 
 	err = ioutil.WriteFile(filePath, b, 0644)
 	if err != nil {
 		log.Printf("write file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
+		return Errors(ServerError, nil)
 	}
 	return nil
 }
@@ -219,15 +212,15 @@ func SetExpectTimeCache(key string) {
 	if info.ImportScope == nil {
 		return
 	}
-	if info.ImportScope.IssueCount != common.Calculating {
+	if info.ImportScope.IssueCount != Calculating {
 		info.ImportResult.ExpectedTime = getExpectedTime(info.ImportScope.IssueCount, issueCountExpectTimeMap)
 		return
 	}
-	if info.ImportScope.AttachmentSize != common.Calculating {
+	if info.ImportScope.AttachmentSize != Calculating {
 		info.ImportResult.ExpectedTime = getExpectedTime(info.ImportScope.AttachmentSize, attachmentSizeExpectTimeMap)
 		return
 	}
-	if info.ImportScope.ProjectCount != common.Calculating {
+	if info.ImportScope.ProjectCount != Calculating {
 		info.ImportResult.ExpectedTime = getExpectedTime(info.ImportScope.ProjectCount, projectCountExpectTimeMap)
 		return
 	}

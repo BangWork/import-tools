@@ -13,8 +13,6 @@ import (
 	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
-	"github.com/bangwork/import-tools/serve/services"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	jira "github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
@@ -85,7 +83,7 @@ type handlerEntityFile struct {
 	entityFileScannerMap map[string]*jira.XmlScanner
 	entityTmpFile        *os.File
 	nowTimeString        string
-	ResolveResult        cache.ResolveResult
+	ResolveResult        common.ResolveResult
 }
 
 func processedEntityFile(msg *types.ImportTask, reader io.ReadCloser) (map[string]*jira.XmlScanner, map[string]string, *handlerEntityFile, error) {
@@ -179,6 +177,11 @@ func printOnly(r rune) rune {
 	return -1
 }
 
+func (o *handlerEntityFile) checkIsStop() bool {
+	importCache := common.ImportCacheMap.Get(o.ImportMessage.Cookie)
+	return importCache.StopResolveSignal
+}
+
 func (o *handlerEntityFile) scan() error {
 	if err := o.createFile(); err != nil {
 		return err
@@ -190,7 +193,7 @@ func (o *handlerEntityFile) scan() error {
 	tmpScanner.Buffer([]byte{}, common.GetMaxScanTokenSize())
 
 	for tmpScanner.Scan() {
-		if services.StopResolveSignal {
+		if o.checkIsStop() {
 			return common.Errors(common.StopResolve, nil)
 		}
 		line := tmpScanner.Text()
@@ -218,7 +221,7 @@ func (o *handlerEntityFile) scan() error {
 	log.Println("[jira import] start xml scanner")
 	scanner := jira.NewXmlScanner(o.Reader, entityRootTag)
 	for {
-		if services.StopResolveSignal {
+		if o.checkIsStop() {
 			return common.Errors(common.StopResolve, nil)
 		}
 		e := scanner.NextElement()

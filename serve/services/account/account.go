@@ -6,13 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/bangwork/import-tools/serve/services"
 
 	"github.com/bangwork/import-tools/serve/services/issue_type"
-
-	"github.com/bangwork/import-tools/serve/services/cache"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/utils"
@@ -57,7 +54,7 @@ type Account struct {
 	OrgInfo    Organization
 	TeamInfo   Team
 
-	Cache *cache.Cache
+	Cache *common.Cache
 }
 
 type LoginRequest struct {
@@ -125,53 +122,12 @@ type ImportHistory struct {
 }
 
 type ResolveResultResponse struct {
-	*cache.ResolveResult `json:"resolve_result"`
-	ImportHistory        []*ImportHistory `json:"import_history"`
+	*common.ResolveResult `json:"resolve_result"`
+	ImportHistory         []*ImportHistory `json:"import_history"`
 }
 
-func (r *Account) SetCurrentCache(c *cache.Cache) {
+func (r *Account) SetCurrentCache(c *common.Cache) {
 	r.Cache = c
-}
-
-func (r *Account) GetImportHistory() ([]*ImportHistory, error) {
-	resp, err := r.postLogin()
-	if err != nil {
-		return nil, common.Errors(common.NetworkError, nil)
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, common.Errors(common.AccountError, nil)
-	}
-	r.AuthHeader = make(map[string]string)
-	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
-	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
-
-	history, err := r.getImportHistory()
-	if err != nil {
-		return nil, err
-	}
-
-	return history, nil
-}
-
-func (r *Account) Login() error {
-	resp, err := r.postLogin()
-	if err != nil {
-		return common.Errors(common.NetworkError, nil)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return common.Errors(common.AccountError, nil)
-	}
-	r.AuthHeader = make(map[string]string)
-	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
-	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
-
-	info, err := cache.GetCacheInfo(r.Key())
-	if err != nil {
-		return err
-	}
-	r.SetCurrentCache(info)
-	return nil
 }
 
 func (r *Account) SendImportData(resourceTypeString string, data string) error {
@@ -283,21 +239,21 @@ func (r *Account) SetPassword(resourceUUID, password string) error {
 	return nil
 }
 
-func (r *Account) InterruptImport() error {
-	if services.ImportBatchTaskUUID == "" {
-		return nil
-	}
-	url := common.GenApiUrl(r.URL, fmt.Sprintf(interruptImport, r.Cache.ImportTeamUUID, services.ImportBatchTaskUUID))
-	resp, err := utils.PostJSONWithHeader(url, []string{}, r.AuthHeader)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return common.Errors(common.ServerError, nil)
-	}
-	return nil
-}
+//func (r *Account) InterruptImport() error {
+//	if services.ImportBatchTaskUUID == "" {
+//		return nil
+//	}
+//	url := common.GenApiUrl(r.URL, fmt.Sprintf(interruptImport, r.Cache.ImportTeamUUID, services.ImportBatchTaskUUID))
+//	resp, err := utils.PostJSONWithHeader(url, []string{}, r.AuthHeader)
+//	if err != nil {
+//		return err
+//	}
+//	defer resp.Body.Close()
+//	if resp.StatusCode != http.StatusOK {
+//		return common.Errors(common.ServerError, nil)
+//	}
+//	return nil
+//}
 
 func (r *Account) ConfirmImport(reqBody *services.ConfirmImportRequest) (string, error) {
 	url := common.GenApiUrl(r.URL, fmt.Sprintf(confirmImportUri, r.Cache.ImportTeamUUID))
@@ -321,127 +277,74 @@ func (r *Account) ConfirmImport(reqBody *services.ConfirmImportRequest) (string,
 	return respBody.UUID, nil
 }
 
-func (r *Account) GetIssueTypeList() (*services.IssueTypeListResponse, error) {
-	resp, err := r.postLogin()
-	if err != nil {
-		return nil, common.Errors(common.NetworkError, nil)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, common.Errors(common.AccountError, nil)
-	}
-	r.AuthHeader = make(map[string]string)
-	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
-	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
-
-	issueTypes, err := r.getIssueTypeList()
-	if err != nil {
-		return nil, err
-	}
-
-	thirdIssueTypesBind, err := r.getThirdIssueTypeBind()
-	if err != nil {
-		return nil, err
-	}
-
-	res := new(services.IssueTypeListResponse)
-	res.JiraList = thirdIssueTypesBind
-	res.ONESList = issueTypes
-
-	return res, nil
-}
-
-func (r *Account) CheckONESAccount() error {
-	if len(r.URL) == 0 || len(r.Email) == 0 || len(r.Password) == 0 || len(r.LocalHome) == 0 || len(r.BackupName) == 0 {
-		return common.Errors(common.ParameterMissingError, nil)
-	}
-	resp, err := r.postLogin()
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	respBody := new(loginResponse)
-	if err = json.Unmarshal(data, &respBody); err != nil {
-		return err
-	}
-
-	r.AuthHeader = make(map[string]string)
-	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
-	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
-	r.OrgInfo = respBody.Org
-	r.TeamInfo = respBody.Teams[0]
-	config, err := r.postOrgConfig()
-	if err != nil {
-		return err
-	}
-	r.FileStorage = config.FileStorage
-	if respBody.User.UUID == respBody.Org.Owner {
-		return nil
-	}
-
-	if respBody.Org.MultiTeam {
-		havePermission, err := r.checkOrgPermission()
-		if err != nil {
-			return err
-		}
-		if !havePermission {
-			return common.Errors(common.NotOrganizationAdministratorError, nil)
-		}
-		return nil
-	}
-
-	havePermission, err := r.checkTeamPermission()
-	if err != nil {
-		return err
-	}
-	if !havePermission {
-		return common.Errors(common.NotSuperAdministratorError, nil)
-	}
-	return nil
-}
+//func (r *Account) GetIssueTypeList() (*services.IssueTypeListResponse, error) {
+//	resp, err := r.postLogin()
+//	if err != nil {
+//		return nil, common.Errors(common.NetworkError, nil)
+//	}
+//	defer resp.Body.Close()
+//	if resp.StatusCode != http.StatusOK {
+//		return nil, common.Errors(common.AccountError, nil)
+//	}
+//	r.AuthHeader = make(map[string]string)
+//	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
+//	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
+//
+//	issueTypes, err := r.getIssueTypeList()
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	thirdIssueTypesBind, err := r.getThirdIssueTypeBind()
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	res := new(services.IssueTypeListResponse)
+//	res.JiraList = thirdIssueTypesBind
+//	res.ONESList = issueTypes
+//
+//	return res, nil
+//}
 
 func (r *Account) Key() string {
-	return cache.GenCacheKey(r.URL)
+	return common.GenCacheKey(r.URL)
 }
 
-func (r *Account) SetCache() error {
-	info, err := cache.GetCacheInfo(r.Key())
-	if err != nil {
-		return err
-	}
-	fileSize, err := utils.GetFileSize(common.GenBackupFilePath(r.LocalHome, r.BackupName))
-	if err != nil {
-		return common.Errors(common.NotFoundError, nil)
-	}
-	info.ExpectedResolveTime = getExpectedResolveTime(fileSize)
-	info.URL = r.URL
-	info.Email = r.Email
-	info.Password = r.Password
-	info.MultiTeam = r.OrgInfo.MultiTeam
-	info.ResolveStartTime = time.Now().Unix()
-	info.OrgName = r.OrgInfo.Name
-	info.OrgUUID = r.OrgInfo.UUID
-	info.TeamUUID = r.TeamInfo.UUID
-	info.TeamName = r.TeamInfo.Name
-	info.LocalHome = r.LocalHome
-	info.BackupName = r.BackupName
-	info.ResolveStatus = common.ResolveStatusInProgress
-	info.ImportUserUUID = r.AuthHeader[common.UserID]
-	info.FileStorage = r.FileStorage
-	if info.ImportResult != nil {
-		info.ImportResult = nil
-	}
-
-	return cache.SetCacheInfo(r.Key(), info)
-}
+//func (r *Account) SetCache() error {
+//	info, err := cache.GetCacheInfo(r.Key())
+//	if err != nil {
+//		return err
+//	}
+//	fileSize, err := utils.GetFileSize(common.GenBackupFilePath(r.LocalHome, r.BackupName))
+//	if err != nil {
+//		return common.Errors(common.NotFoundError, nil)
+//	}
+//	info.ExpectedResolveTime = getExpectedResolveTime(fileSize)
+//	info.URL = r.URL
+//	info.Email = r.Email
+//	info.Password = r.Password
+//	info.MultiTeam = r.OrgInfo.MultiTeam
+//	info.ResolveStartTime = time.Now().Unix()
+//	info.OrgName = r.OrgInfo.Name
+//	info.OrgUUID = r.OrgInfo.UUID
+//	info.TeamUUID = r.TeamInfo.UUID
+//	info.TeamName = r.TeamInfo.Name
+//	info.LocalHome = r.LocalHome
+//	info.BackupName = r.BackupName
+//	info.ResolveStatus = common.ResolveStatusInProgress
+//	info.ImportUserUUID = r.AuthHeader[common.UserID]
+//	info.FileStorage = r.FileStorage
+//	if info.ImportResult != nil {
+//		info.ImportResult = nil
+//	}
+//
+//	return cache.SetCacheInfo(r.Key(), info)
+//}
 
 func getExpectedResolveTime(fileSize int64) int64 {
 	fileSizeM := fileSize / 1024 / 1024
-	for size, t := range services.MapResolveTime {
+	for size, t := range common.MapResolveTime {
 		if fileSizeM > size {
 			return t
 		}
@@ -479,37 +382,37 @@ func (r *Account) checkTeamPermission() (bool, error) {
 	return false, nil
 }
 
-func (r *Account) postLogin() (*http.Response, error) {
-	if len(r.Email) == 0 || len(r.Password) == 0 || len(r.URL) == 0 {
-		info, err := cache.GetCacheInfo(r.Key())
-		if err != nil {
-			return nil, err
-		}
-		r.URL = info.URL
-		r.Email = info.Email
-		r.Password = info.Password
-	}
-	body := new(LoginRequest)
-	body.Email = r.Email
-	body.Password = r.Password
-	url := common.GenApiUrl(r.URL, loginUri)
-	resp, err := utils.PostJSON(url, body)
-	if err != nil {
-		return nil, common.Errors(common.NetworkError, nil)
-	}
-	if resp.StatusCode != http.StatusOK {
-		data, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		respBody := new(loginErrorResponse)
-		if err = json.Unmarshal(data, &respBody); err != nil {
-			return nil, err
-		}
-		return nil, common.Errors(common.AccountError, respBody)
-	}
-	return resp, nil
-}
+//func (r *Account) postLogin() (*http.Response, error) {
+//	if len(r.Email) == 0 || len(r.Password) == 0 || len(r.URL) == 0 {
+//		info, err := cache.GetCacheInfo(r.Key())
+//		if err != nil {
+//			return nil, err
+//		}
+//		r.URL = info.URL
+//		r.Email = info.Email
+//		r.Password = info.Password
+//	}
+//	body := new(LoginRequest)
+//	body.Email = r.Email
+//	body.Password = r.Password
+//	url := common.GenApiUrl(r.URL, loginUri)
+//	resp, err := utils.PostJSON(url, body)
+//	if err != nil {
+//		return nil, common.Errors(common.NetworkError, nil)
+//	}
+//	if resp.StatusCode != http.StatusOK {
+//		data, err := ioutil.ReadAll(resp.Body)
+//		if err != nil {
+//			return nil, err
+//		}
+//		respBody := new(loginErrorResponse)
+//		if err = json.Unmarshal(data, &respBody); err != nil {
+//			return nil, err
+//		}
+//		return nil, common.Errors(common.AccountError, respBody)
+//	}
+//	return resp, nil
+//}
 
 func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 	uri := fmt.Sprintf(thirdIssueTypeBindUri, r.Cache.ImportTeamUUID)

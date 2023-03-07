@@ -1,6 +1,9 @@
-package services
+package common
 
-import "time"
+import (
+	"fmt"
+	"sync"
+)
 
 const (
 	ResourceTypeStringUser                   = "user"
@@ -101,18 +104,23 @@ var (
 	}
 )
 
-var StopResolveSignal bool
-var PauseImportSignal bool
-var StopImportSignal bool
-
 var (
-	ImportBatchTaskUUID string
-	ImportTimeSecond    int64
+	ImportCacheMap = new(ImportCache)
 )
 
-func CheckIsStop() (stop bool) {
-	for PauseImportSignal {
-		time.Sleep(5 * time.Second)
+type ImportCache struct {
+	Map sync.Map
+}
+
+func (c *ImportCache) Get(cookie string) *Cache {
+	res, ok := c.Map.Load(cookie)
+	if !ok {
+		panic(fmt.Sprintf("load sync map err, %s", cookie))
 	}
-	return StopImportSignal
+	r := res.(*Cache)
+	return r
+}
+
+func (c *ImportCache) Set(cookie string, input *Cache) {
+	c.Map.Store(cookie, input)
 }

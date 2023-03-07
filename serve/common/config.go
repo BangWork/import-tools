@@ -1,13 +1,22 @@
 package common
 
 var (
-	CachePath        string
-	encryptKey       string
-	cookieExpireTime = 86400 * 30 // second
-	MaxScanTokenSize int
-	installArea      = InstallAreaAsia
+	CachePath            string
+	encryptKey           string
+	cookieExpireTime     = 86400 * 30 // second
+	MaxScanTokenSize     int
+	installArea          = InstallAreaAsia
+	DefaultJiraLocalHome = "/var/atlassian/application-data/jira"
+	JiraLocalHome        string
 )
 
+func GetJiraLocalHome() string {
+	return JiraLocalHome
+}
+
+func SetJiraLocalHome(path string) {
+	JiraLocalHome = path
+}
 func GetCachePath() string {
 	return CachePath
 }

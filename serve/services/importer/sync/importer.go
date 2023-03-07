@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bangwork/import-tools/serve/models/ones"
+
 	"github.com/bangwork/import-tools/serve/services/file"
 
 	"github.com/bangwork/import-tools/serve/services/account"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
 	log2 "github.com/bangwork/import-tools/serve/services/log"
@@ -55,40 +56,31 @@ func (p *Importer) Resolve() error {
 	if err := p.initXmlPath(); err != nil {
 		return err
 	}
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
 	resolver, err := InitImportFile(p.importTask)
 	if err != nil {
 		log.Println("init import file err", err)
-		info, err := cache.GetCacheInfo(p.importTask.Key)
-		if err != nil {
-			log.Println("get cache fail", err)
-			return err
-		}
-		info.ResolveStatus = common.ResolveStatusFail
-		if err := cache.SetCacheInfo(p.importTask.Key, info); err != nil {
-			log.Println("set cache fail", err)
-			return err
-		}
-		log.Printf("create resolver fail:%s; stopResolveSignal:%t", err, services.StopResolveSignal)
+		importCache.ResolveStatus = common.ResolveStatusFail
+		common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
+		log.Printf("create resolver fail:%s; stopResolveSignal:%t", err, importCache.StopResolveSignal)
 		return err
 	}
 	if err := resolver.PrepareResolve(); err != nil {
 		return err
 	}
 	log.Printf("[end InitImportFile] cost: %s", time.Since(startT))
-	if err := resolver.Clear(); err != nil {
-		return err
-	}
+	resolver.Clear()
 
 	return nil
 }
 
 func (p *Importer) init() error {
 	p.needCalculateTag = map[string]bool{
-		services.ResourceTypeStringProject:           true,
-		services.ResourceTypeStringTask:              true,
-		services.ResourceTypeStringUser:              true,
-		services.ResourceTypeStringTaskAttachmentTmp: true,
-		services.ResourceTypeStringTaskAttachment:    true,
+		common.ResourceTypeStringProject:           true,
+		common.ResourceTypeStringTask:              true,
+		common.ResourceTypeStringUser:              true,
+		common.ResourceTypeStringTaskAttachmentTmp: true,
+		common.ResourceTypeStringTaskAttachment:    true,
 	}
 	p.mapCount = make(map[string]int64)
 	p.importUUID = utils.UUID()
@@ -97,12 +89,12 @@ func (p *Importer) init() error {
 		return err
 	}
 	p.logFile = file
-	info, err := cache.GetCacheInfo(p.importTask.Key)
+	info, err := common.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
 	info.ImportUUID = p.importUUID
-	if err = cache.SetCacheInfo(p.importTask.Key, info); err != nil {
+	if err = common.SetCacheInfo(p.importTask.Key, info); err != nil {
 		return err
 	}
 	if err = p.initOutputFile(); err != nil {
@@ -116,7 +108,9 @@ func (p *Importer) Import() (err error) {
 		if err = p.setCache(err); err != nil {
 			p.writeLog("set cache fail:%+v", err)
 		}
-		services.StopImportSignal = true
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		importCache.StopImportSignal = true
+		common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
 	}()
 	startT := time.Now()
 	p.writeLog("[start resolve]")
@@ -129,43 +123,43 @@ func (p *Importer) Import() (err error) {
 		return err
 	}
 
-	p.runBatch(services.ResourceTypeStringUser, resolver.NextUser)
-	p.runBatch(services.ResourceTypeStringUserGroup, resolver.NextUserGroup)
-	p.runBatch(services.ResourceTypeStringUserGroupMember, resolver.NextUserGroupMember)
-	p.runBatch(services.ResourceTypeStringGlobalProjectRole, resolver.NextGlobalProjectRole)
-	p.runBatch(services.ResourceTypeStringGlobalProjectField, resolver.NextGlobalProjectField)
-	p.runBatch(services.ResourceTypeStringIssueType, resolver.NextIssueType)
-	p.runBatch(services.ResourceTypeStringProject, resolver.NextProject)
-	p.runBatch(services.ResourceTypeStringProjectIssueType, resolver.NextProjectIssueType)
-	p.runBatch(services.ResourceTypeStringProjectRole, resolver.NextProjectRole)
-	p.runBatch(services.ResourceTypeStringProjectRoleMember, resolver.NextProjectRoleMember)
-	p.runBatch(services.ResourceTypeStringGlobalPermission, resolver.NextGlobalPermission)
-	p.runBatch(services.ResourceTypeStringProjectPermission, resolver.NextProjectPermission)
-	p.runBatch(services.ResourceTypeStringProjectFieldValue, resolver.NextProjectFieldValue)
-	p.runContinueBatch(services.ResourceTypeStringTaskStatus, resolver.NextTaskStatus)
-	p.runBatch(services.ResourceTypeStringTaskField, resolver.NextTaskField)
-	p.runBatch(services.ResourceTypeStringTaskFieldOption, resolver.NextTaskFieldOption)
-	p.runBatch(services.ResourceTypeStringIssueTypeField, resolver.NextIssueTypeField)
-	p.runBatch(services.ResourceTypeStringIssueTypeLayout, resolver.NextIssueTypeLayout)
-	p.runBatch(services.ResourceTypeStringProjectIssueTypeField, resolver.NextProjectIssueTypeField)
-	p.runBatch(services.ResourceTypeStringProjectIssueTypeLayout, resolver.NextProjectIssueTypeLayout)
-	p.runBatch(services.ResourceTypeStringPriority, resolver.NextPriority)
-	p.runBatch(services.ResourceTypeStringTaskLinkType, resolver.NextTaskLinkType)
-	p.runBatch(services.ResourceTypeStringWorkflow, resolver.NextWorkflow)
-	p.runBatch(services.ResourceTypeStringSprint, resolver.NextSprint)
-	p.runBatch(services.ResourceTypeStringTask, resolver.NextTask)
-	p.runContinueBatch(services.ResourceTypeStringTaskFieldValue, resolver.NextTaskFieldValue)
-	p.runContinueBatch(services.ResourceTypeStringTaskWatcher, resolver.NextTaskWatcher)
-	p.runContinueBatch(services.ResourceTypeStringTaskWorkLog, resolver.NextTaskWorkLog)
-	p.runContinueBatch(services.ResourceTypeStringTaskComment, resolver.NextTaskComment)
-	p.runBatch(services.ResourceTypeStringTaskRelease, resolver.NextTaskRelease)
-	p.runBatch(services.ResourceTypeStringTaskLink, resolver.NextTaskLink)
-	p.runBatch(services.ResourceTypeStringNotification, resolver.NextNotification)
-	p.runContinueBatch(services.ResourceTypeStringTaskAttachmentTmp, resolver.NextTaskAttachment)
-	p.runContinueBatch(services.ResourceTypeStringChangeItem, resolver.NextChangeItem)
-	p.runOnce(services.ResourceTypeStringConfig, resolver.Config)
+	p.runBatch(common.ResourceTypeStringUser, resolver.NextUser)
+	p.runBatch(common.ResourceTypeStringUserGroup, resolver.NextUserGroup)
+	p.runBatch(common.ResourceTypeStringUserGroupMember, resolver.NextUserGroupMember)
+	p.runBatch(common.ResourceTypeStringGlobalProjectRole, resolver.NextGlobalProjectRole)
+	p.runBatch(common.ResourceTypeStringGlobalProjectField, resolver.NextGlobalProjectField)
+	p.runBatch(common.ResourceTypeStringIssueType, resolver.NextIssueType)
+	p.runBatch(common.ResourceTypeStringProject, resolver.NextProject)
+	p.runBatch(common.ResourceTypeStringProjectIssueType, resolver.NextProjectIssueType)
+	p.runBatch(common.ResourceTypeStringProjectRole, resolver.NextProjectRole)
+	p.runBatch(common.ResourceTypeStringProjectRoleMember, resolver.NextProjectRoleMember)
+	p.runBatch(common.ResourceTypeStringGlobalPermission, resolver.NextGlobalPermission)
+	p.runBatch(common.ResourceTypeStringProjectPermission, resolver.NextProjectPermission)
+	p.runBatch(common.ResourceTypeStringProjectFieldValue, resolver.NextProjectFieldValue)
+	p.runContinueBatch(common.ResourceTypeStringTaskStatus, resolver.NextTaskStatus)
+	p.runBatch(common.ResourceTypeStringTaskField, resolver.NextTaskField)
+	p.runBatch(common.ResourceTypeStringTaskFieldOption, resolver.NextTaskFieldOption)
+	p.runBatch(common.ResourceTypeStringIssueTypeField, resolver.NextIssueTypeField)
+	p.runBatch(common.ResourceTypeStringIssueTypeLayout, resolver.NextIssueTypeLayout)
+	p.runBatch(common.ResourceTypeStringProjectIssueTypeField, resolver.NextProjectIssueTypeField)
+	p.runBatch(common.ResourceTypeStringProjectIssueTypeLayout, resolver.NextProjectIssueTypeLayout)
+	p.runBatch(common.ResourceTypeStringPriority, resolver.NextPriority)
+	p.runBatch(common.ResourceTypeStringTaskLinkType, resolver.NextTaskLinkType)
+	p.runBatch(common.ResourceTypeStringWorkflow, resolver.NextWorkflow)
+	p.runBatch(common.ResourceTypeStringSprint, resolver.NextSprint)
+	p.runBatch(common.ResourceTypeStringTask, resolver.NextTask)
+	p.runContinueBatch(common.ResourceTypeStringTaskFieldValue, resolver.NextTaskFieldValue)
+	p.runContinueBatch(common.ResourceTypeStringTaskWatcher, resolver.NextTaskWatcher)
+	p.runContinueBatch(common.ResourceTypeStringTaskWorkLog, resolver.NextTaskWorkLog)
+	p.runContinueBatch(common.ResourceTypeStringTaskComment, resolver.NextTaskComment)
+	p.runBatch(common.ResourceTypeStringTaskRelease, resolver.NextTaskRelease)
+	p.runBatch(common.ResourceTypeStringTaskLink, resolver.NextTaskLink)
+	p.runBatch(common.ResourceTypeStringNotification, resolver.NextNotification)
+	p.runContinueBatch(common.ResourceTypeStringTaskAttachmentTmp, resolver.NextTaskAttachment)
+	p.runContinueBatch(common.ResourceTypeStringChangeItem, resolver.NextChangeItem)
+	p.runOnce(common.ResourceTypeStringConfig, resolver.Config)
 
-	p.setCountCache(services.ResourceTypeStringTaskAttachment, resolver.TotalAttachmentSize())
+	p.setCountCache(common.ResourceTypeStringTaskAttachment, resolver.TotalAttachmentSize())
 	p.writeLog("[end resolve] cost: %s", time.Since(startT))
 
 	if err = p.outputFileWriteToRead(); err != nil {
@@ -209,14 +203,15 @@ func (p *Importer) uploadAttachments() error {
 	}()
 	startTime := time.Now()
 	p.writeLog("[start upload attachments]")
-	reader := bufio.NewReader(p.MapTagFile[services.ResourceTypeStringTaskAttachmentTmp])
+	reader := bufio.NewReader(p.MapTagFile[common.ResourceTypeStringTaskAttachmentTmp])
 
-	accountInfo := new(account.Account)
-	if err := accountInfo.Login(); err != nil {
+	if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+		p.writeLog("LoginONESAndSetAuth err:%+v", err)
 		return err
 	}
 	for {
-		if services.CheckIsStop() {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		if importCache.CheckIsStop() {
 			p.writeLog("importer stop")
 			break
 		}
@@ -236,16 +231,16 @@ func (p *Importer) uploadAttachments() error {
 		if err != nil {
 			return err
 		}
-		resourceUUID, err := file.UploadFile(accountInfo, fi, r.FileName)
+		resourceUUID, err := file.UploadFile(p.importTask.Cookie, p.importTask.ImportTeamUUID, fi, r.FileName)
 		if err != nil || resourceUUID == "" {
 			p.writeLog("upload file err: %+v, %s", err, resourceUUID)
 			for j := 0; j < retryCount; j++ {
 				p.writeLog("upload file retry count: %d", j)
-				if err := accountInfo.Login(); err != nil {
+				if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
 					p.writeLog("upload file login err:%+v", err)
 					continue
 				}
-				resourceUUID, err = file.UploadFile(accountInfo, fi, r.FileName)
+				resourceUUID, err = file.UploadFile(p.importTask.Cookie, p.importTask.ImportTeamUUID, fi, r.FileName)
 				if err != nil || resourceUUID == "" {
 					log.Println("upload file err", err, resourceUUID)
 					continue
@@ -264,14 +259,14 @@ func (p *Importer) uploadAttachments() error {
 		}
 		r.ResourceUUID = resourceUUID
 		line := utils.OutputJSON(r)
-		_, err = p.MapTagFile[services.ResourceTypeStringTaskAttachment].WriteString(string(line) + "\n")
+		_, err = p.MapTagFile[common.ResourceTypeStringTaskAttachment].WriteString(string(line) + "\n")
 		if err != nil {
 			p.writeLog("write error:%+v", err)
 			return err
 		}
 	}
-	filePath := p.MapTagFile[services.ResourceTypeStringTaskAttachment].Name()
-	if err := p.MapTagFile[services.ResourceTypeStringTaskAttachment].Close(); err != nil {
+	filePath := p.MapTagFile[common.ResourceTypeStringTaskAttachment].Name()
+	if err := p.MapTagFile[common.ResourceTypeStringTaskAttachment].Close(); err != nil {
 		fmt.Println("close file err", err)
 		return err
 	}
@@ -280,7 +275,7 @@ func (p *Importer) uploadAttachments() error {
 		fmt.Println("open file err", err)
 		return err
 	}
-	p.MapTagFile[services.ResourceTypeStringTaskAttachment] = openFile
+	p.MapTagFile[common.ResourceTypeStringTaskAttachment] = openFile
 	p.writeLog("[end upload attachments] cost: %s", time.Since(startTime))
 	return nil
 }
@@ -302,7 +297,8 @@ func (p *Importer) syncImportLog() error {
 	startTimeSyncLog := time.Now()
 	p.writeLog("[start sync import log]")
 	accountInfo := new(account.Account)
-	if err := accountInfo.Login(); err != nil {
+	if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+		p.writeLog("LoginONESAndSetAuth err%+v", err)
 		return err
 	}
 	retryFunc := func(accInfo *account.Account, perCount int) (length int) {
@@ -314,7 +310,7 @@ func (p *Importer) syncImportLog() error {
 		}
 		for j := 0; j < retryCount; j++ {
 			p.writeLog("retry count: %d", j)
-			if err := accInfo.Login(); err != nil {
+			if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
 				p.writeLog("login err:%+v", err)
 				continue
 			}
@@ -337,12 +333,8 @@ func (p *Importer) syncImportLog() error {
 		common.ImportStatusLabelInterrupted: true,
 	}
 
-	cacheInfo, err := cache.GetCacheInfo(p.importTask.Key)
-	if err != nil {
-		p.writeLog("[get cache fail]: %+v", err)
-		return err
-	}
 	for {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
 		retryFunc(accountInfo, getLogPerCount)
 		importStatus, err := accountInfo.GetImportStatus(p.resourceUUID)
 		if err != nil {
@@ -351,17 +343,15 @@ func (p *Importer) syncImportLog() error {
 		}
 		switch importStatus {
 		case common.ImportStatusLabelDone:
-			cacheInfo.ImportResult.Status = common.ImportStatusDone
+			importCache.ImportResult.Status = common.ImportStatusDone
 		case common.ImportStatusLabelFail:
-			cacheInfo.ImportResult.Status = common.ImportStatusFail
+			importCache.ImportResult.Status = common.ImportStatusFail
 		case common.ImportStatusLabelInterrupted:
-			cacheInfo.ImportResult.Status = common.ImportStatusCancel
-			services.StopImportSignal = true
+			importCache.ImportResult.Status = common.ImportStatusCancel
+			importCache.StopImportSignal = true
 		}
 		if needUpdateStatus[importStatus] {
-			if err := cache.SetCacheInfo(p.importTask.Key, cacheInfo); err != nil {
-				p.writeLog("[set cache fail]: %+v", err)
-			}
+			common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
 			retryFunc(accountInfo, getLogAtLastCount)
 			break
 		}
@@ -376,10 +366,16 @@ func (p *Importer) sendStartImportNotice() error {
 	startTime := time.Now()
 	p.writeLog("[start sendStartImportNotice]")
 	accountInfo := new(account.Account)
-	if err := accountInfo.Login(); err != nil {
+	if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+		p.writeLog("LoginONESAndSetAuth err%+v", err)
 		return err
 	}
-	info, err := file.PrepareUploadInfo(accountInfo.Cache.BackupName, file.LabelJiraImport, file.EntityTypeJiraLabel, accountInfo)
+	cookieValue, err := ones.DecryptCookieValueByCookie(p.importTask.Cookie)
+	if err != nil {
+		return err
+	}
+
+	info, err := file.PrepareUploadInfo(p.importTask.BackupName, file.LabelJiraImport, file.EntityTypeJiraLabel, p.importTask.URL, p.importTask.ImportTeamUUID, cookieValue.GenAuthHeader())
 	if err != nil {
 		p.writeLog("prepare upload info err:%s", err)
 		return err
@@ -401,7 +397,9 @@ func (p *Importer) sendStartImportNotice() error {
 		p.writeLog("confirm import err:%s", err)
 		return err
 	}
-	services.ImportBatchTaskUUID = batchTaskUUID
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	importCache.ImportBatchTaskUUID = batchTaskUUID
+	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
 	p.writeLog("[end sendStartImportNotice] cost: %s", time.Since(startTime))
 	return nil
 }
@@ -410,7 +408,8 @@ func (p *Importer) sendData() error {
 	startTime := time.Now()
 	p.writeLog("[start send data]")
 	accountInfo := new(account.Account)
-	if err := accountInfo.Login(); err != nil {
+	if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+		p.writeLog("LoginONESAndSetAuth err%+v", err)
 		return err
 	}
 
@@ -421,8 +420,8 @@ func (p *Importer) sendData() error {
 		}
 		for j := 0; j < retryCount; j++ {
 			p.writeLog("retry count: %d", j)
-			if err := accountInfo.Login(); err != nil {
-				p.writeLog("login err:%+v", err)
+			if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+				p.writeLog("LoginONESAndSetAuth err%+v", err)
 				continue
 			}
 			if err := accountInfo.SendImportData(resourceTypeString, data); err != nil {
@@ -434,11 +433,12 @@ func (p *Importer) sendData() error {
 		return nil
 	}
 
-	for _, tag := range services.MapOutputFile {
-		if tag == services.ResourceTypeStringTaskAttachmentTmp || tag == services.ResourceTypeStringTaskAttachment {
+	for _, tag := range common.MapOutputFile {
+		if tag == common.ResourceTypeStringTaskAttachmentTmp || tag == common.ResourceTypeStringTaskAttachment {
 			continue
 		}
-		if services.CheckIsStop() {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		if importCache.CheckIsStop() {
 			p.writeLog("importer stop")
 			break
 		}
@@ -484,7 +484,8 @@ func (p *Importer) sendAttachmentsData() error {
 	startTime := time.Now()
 	p.writeLog("[start send attachments]")
 	accountInfo := new(account.Account)
-	if err := accountInfo.Login(); err != nil {
+	if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
+		p.writeLog("login err:%+v", err)
 		return err
 	}
 
@@ -495,7 +496,7 @@ func (p *Importer) sendAttachmentsData() error {
 		}
 		for j := 0; j < retryCount; j++ {
 			p.writeLog("retry count: %d", j)
-			if err := accountInfo.Login(); err != nil {
+			if err := ones.LoginONESAndSetAuth(p.importTask.Cookie); err != nil {
 				p.writeLog("login err:%+v", err)
 				continue
 			}
@@ -508,7 +509,7 @@ func (p *Importer) sendAttachmentsData() error {
 		return nil
 	}
 
-	tag := services.ResourceTypeStringTaskAttachment
+	tag := common.ResourceTypeStringTaskAttachment
 
 	fi := p.MapTagFile[tag]
 	fileScanner := bufio.NewScanner(fi)
@@ -521,7 +522,8 @@ func (p *Importer) sendAttachmentsData() error {
 		if len(line) == 0 {
 			break
 		}
-		if services.CheckIsStop() {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		if importCache.CheckIsStop() {
 			p.writeLog("importer stop")
 			break
 		}
@@ -570,7 +572,7 @@ func (p *Importer) outputFileWriteToRead() error {
 }
 
 func (p *Importer) setCache(importErr error) error {
-	cacheInfo, e := cache.GetCacheInfo(p.importTask.Key)
+	cacheInfo, e := common.GetCacheInfo(p.importTask.Key)
 	if e != nil {
 		return e
 	}
@@ -583,37 +585,38 @@ func (p *Importer) setCache(importErr error) error {
 		cacheInfo.ImportResult.Status = status
 	}
 	cacheInfo.ImportResult.DoneTime = time.Now().Unix()
-	return cache.SetCacheInfo(p.importTask.Key, cacheInfo)
+	return common.SetCacheInfo(p.importTask.Key, cacheInfo)
 }
 
 func (p *Importer) setCountCache(tag string, count int64) error {
-	cacheInfo, e := cache.GetCacheInfo(p.importTask.Key)
+	cacheInfo, e := common.GetCacheInfo(p.importTask.Key)
 	if e != nil {
 		return e
 	}
 	switch tag {
-	case services.ResourceTypeStringProject:
+	case common.ResourceTypeStringProject:
 		cacheInfo.ImportScope.ProjectCount = count
-	case services.ResourceTypeStringTask:
+	case common.ResourceTypeStringTask:
 		cacheInfo.ImportScope.IssueCount = count
-	case services.ResourceTypeStringUser:
+	case common.ResourceTypeStringUser:
 		cacheInfo.ImportScope.MemberCount = count
-	case services.ResourceTypeStringTaskAttachmentTmp:
+	case common.ResourceTypeStringTaskAttachmentTmp:
 		cacheInfo.ImportScope.AttachmentCount = count
-	case services.ResourceTypeStringTaskAttachment:
+	case common.ResourceTypeStringTaskAttachment:
 		cacheInfo.ImportScope.AttachmentSize = count
 	}
-	if err := cache.SetCacheInfo(p.importTask.Key, cacheInfo); err != nil {
+	if err := common.SetCacheInfo(p.importTask.Key, cacheInfo); err != nil {
 		return err
 	}
-	cache.SetExpectTimeCache(p.importTask.Key)
+	common.SetExpectTimeCache(p.importTask.Key)
 	return nil
 }
 
 func (p *Importer) runBatch(tag string, f func() ([]byte, error)) {
 	p.writeLog("start resolve: %s", tag)
 	for {
-		if services.CheckIsStop() {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		if importCache.CheckIsStop() {
 			p.writeLog("stop signal: %s", tag)
 			log.Println("importer stop")
 			break
@@ -642,7 +645,8 @@ func (p *Importer) runBatch(tag string, f func() ([]byte, error)) {
 func (p *Importer) runContinueBatch(tag string, f func() ([]byte, bool, error)) {
 	p.writeLog("start resolve: %s", tag)
 	for {
-		if services.CheckIsStop() {
+		importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+		if importCache.CheckIsStop() {
 			p.writeLog("stop signal: %s", tag)
 			log.Println("importer stop")
 			break
@@ -671,7 +675,8 @@ func (p *Importer) runContinueBatch(tag string, f func() ([]byte, bool, error)) 
 }
 
 func (p *Importer) runOnce(tag string, f func() ([]byte, error)) {
-	if services.CheckIsStop() {
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	if importCache.CheckIsStop() {
 		p.writeLog("stop signal: %s", tag)
 		return
 	}
@@ -726,12 +731,12 @@ func (p *Importer) initOutputFile() error {
 	if err := p.initPath(outputPath); err != nil {
 		return err
 	}
-	info, err := cache.GetCacheInfo(p.importTask.Key)
+	info, err := common.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
 	p.MapTagFile = make(map[string]*os.File)
-	for _, tag := range services.MapOutputFile {
+	for _, tag := range common.MapOutputFile {
 		path := fmt.Sprintf("%s/%s.json", outputPath, tag)
 		file, err := os.Create(path)
 		if err != nil {
@@ -741,7 +746,7 @@ func (p *Importer) initOutputFile() error {
 		//services.MapOutputFile[tag] = path
 	}
 	//info.MapOutputFilePath = services.MapOutputFile
-	return cache.SetCacheInfo(p.importTask.Key, info)
+	return common.SetCacheInfo(p.importTask.Key, info)
 }
 func (p *Importer) initPath(outputPath string) error {
 	if utils.CheckPathExist(outputPath) {

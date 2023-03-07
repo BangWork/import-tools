@@ -14,6 +14,9 @@ type ImportTask struct {
 	SelectedProjectIDs map[string]bool       `json:"selected_project_ids"`
 	BuiltinIssueTypes  []BuiltinIssueTypeMap `json:"builtin_issue_types"`
 	MapFilePath        map[string]string
+	Cookie             string
+	BackupName         string
+	URL                string
 }
 
 type ThirdResourceIDMap struct {

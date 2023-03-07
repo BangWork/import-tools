@@ -2,16 +2,14 @@ package serve
 
 import (
 	"fmt"
-
 	"github.com/bangwork/import-tools/serve/services/cookie"
 
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/sync"
 	"github.com/bangwork/import-tools/serve/services/log"
 )
 
 func Init() {
-	onStart(cache.InitCacheFile)
+	//onStart(cache.InitCacheVar)
 	onStart(log.InitLogDir)
 	onStart(sync.InitResolverFactory)
 	onStart(cookie.InitCookieMap)

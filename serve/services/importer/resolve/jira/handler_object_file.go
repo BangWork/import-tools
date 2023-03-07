@@ -10,8 +10,6 @@ import (
 
 	"github.com/bangwork/import-tools/serve/common"
 
-	"github.com/bangwork/import-tools/serve/services"
-
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
 
 	jira "github.com/bangwork/import-tools/serve/services/importer/resolve"
@@ -55,6 +53,10 @@ func (o *handlerObjectFile) createFile() error {
 	return nil
 }
 
+func (o *handlerObjectFile) checkIsStop() bool {
+	return common.ImportCacheMap.Get(o.ImportTask.Cookie).StopResolveSignal
+}
+
 func (o *handlerObjectFile) scan() error {
 	if err := o.createFile(); err != nil {
 		return err
@@ -68,7 +70,7 @@ func (o *handlerObjectFile) scan() error {
 		if e == nil {
 			break
 		}
-		if services.StopResolveSignal {
+		if o.checkIsStop() {
 			return common.Errors(common.StopResolve, nil)
 		}
 		if e.Tag == "data" {

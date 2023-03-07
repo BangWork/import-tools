@@ -5,30 +5,31 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/bangwork/import-tools/serve/services/account"
-
-	"github.com/bangwork/import-tools/serve/services"
-
 	"github.com/bangwork/import-tools/serve/common"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/constants"
 	"github.com/bangwork/import-tools/serve/services/importer/sync"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
 )
 
-func StartResolve(account *account.Account) {
+func StartResolve(cookie, userUUID, localHome, backupName string) {
 	defer func() {
 		if p := recover(); p != nil {
 			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
 		}
 	}()
-	services.StopResolveSignal = false
+	cacheInfo := common.ImportCacheMap.Get(cookie)
+	cacheInfo.BackupName = backupName
+	cacheInfo.LocalHome = localHome
+	cacheInfo.StopResolveSignal = false
+	common.ImportCacheMap.Set(cookie, cacheInfo)
 	task := &types.ImportTask{
-		UserUUID:          account.AuthHeader[common.UserID],
+		UserUUID:          userUUID,
 		ImportType:        constants.ImportTypeJira,
-		LocalFilePath:     common.GenBackupFilePath(account.LocalHome, account.BackupName),
-		AttachmentsPath:   common.GenAttachmentFilePath(account.LocalHome),
+		LocalFilePath:     common.GenBackupFilePath(localHome, backupName),
+		AttachmentsPath:   common.GenAttachmentFilePath(localHome),
 		BuiltinIssueTypes: nil,
+		Cookie:            cookie,
+		BackupName:        backupName,
 	}
 
 	if err := sync.NewImporter(task).Resolve(); err != nil {
@@ -36,8 +37,10 @@ func StartResolve(account *account.Account) {
 	}
 }
 
-func StopResolve() error {
-	services.StopResolveSignal = true
+func StopResolve(cookie string) error {
+	cacheInfo := common.ImportCacheMap.Get(cookie)
+	cacheInfo.StopResolveSignal = true
+	common.ImportCacheMap.Set(cookie, cacheInfo)
 	return nil
 }
 
@@ -45,31 +48,31 @@ func StartImport(key string, projectIDs []string, builtinIssueTypeMap []types.Bu
 	defer func() {
 		if p := recover(); p != nil {
 			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
-			cacheInfo, err := cache.GetCacheInfo(key)
+			cacheInfo, err := common.GetCacheInfo(key)
 			if err != nil {
 				log.Println("get cache fail", err)
 				return
 			}
-			cacheInfo.ImportResult = &cache.ImportResult{
+			cacheInfo.ImportResult = &common.ImportResult{
 				Status: common.ImportStatusFail,
 			}
-			if err = cache.SetCacheInfo(key, cacheInfo); err != nil {
+			if err = common.SetCacheInfo(key, cacheInfo); err != nil {
 				return
 			}
 		}
 	}()
 
-	cacheInfo, err := cache.GetCacheInfo(key)
+	cacheInfo, err := common.GetCacheInfo(key)
 	if err != nil {
 		log.Println("get cache fail", err)
 		return
 	}
-	cacheInfo.ImportResult = &cache.ImportResult{
+	cacheInfo.ImportResult = &common.ImportResult{
 		StartTime: time.Now().Unix(),
 		Status:    common.ImportStatusInProgress,
 		TeamName:  cacheInfo.TeamName,
 	}
-	cacheInfo.ImportScope = &cache.ResolveResult{
+	cacheInfo.ImportScope = &common.ResolveResult{
 		JiraVersion:     cacheInfo.ResolveResult.JiraVersion,
 		ProjectCount:    int64(len(projectIDs)),
 		IssueCount:      common.Calculating,
@@ -77,11 +80,11 @@ func StartImport(key string, projectIDs []string, builtinIssueTypeMap []types.Bu
 		AttachmentSize:  common.Calculating,
 		AttachmentCount: common.Calculating,
 	}
-	if err := cache.SetCacheInfo(key, cacheInfo); err != nil {
+	if err := common.SetCacheInfo(key, cacheInfo); err != nil {
 		log.Println("set cache fail", err)
 		return
 	}
-	cache.SetExpectTimeCache(key)
+	common.SetExpectTimeCache(key)
 	mapProjectID := map[string]bool{}
 	for _, id := range projectIDs {
 		mapProjectID[id] = true

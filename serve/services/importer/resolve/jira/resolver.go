@@ -29,8 +29,6 @@ import (
 	statusModel "github.com/bangwork/import-tools/serve/models/status"
 	userModel "github.com/bangwork/import-tools/serve/models/user"
 	utilsModel "github.com/bangwork/import-tools/serve/models/utils"
-	"github.com/bangwork/import-tools/serve/services"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/constants"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
@@ -48,7 +46,7 @@ type JiraResolver struct {
 	hoursPerDay             string
 	jiraSubTaskLinkID       string
 	jiraSprintCustomFieldID string
-	resolveResult           cache.ResolveResult
+	resolveResult           common.ResolveResult
 
 	beganMap map[string]bool
 
@@ -443,12 +441,10 @@ func (p *JiraResolver) prepareProjectIssueTypeMap() error {
 	if err != nil {
 		return err
 	}
-	cacheInfo, err := cache.GetCacheInfo(p.importTask.Key)
-	if err != nil {
-		return err
-	}
-	cacheInfo.ProjectIssueTypeMap = projectIssueTypeMap
-	return cache.SetCacheInfo(p.importTask.Key, cacheInfo)
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	importCache.ProjectIssueTypeMap = projectIssueTypeMap
+	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
+	return nil
 }
 
 func (p *JiraResolver) initIssueTypeMap() {
@@ -460,6 +456,14 @@ func (p *JiraResolver) initIssueTypeMap() {
 	}
 }
 
+func (p *JiraResolver) checkIsStop() bool {
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	if importCache.StopResolveSignal {
+		return true
+	}
+	return false
+}
+
 func (p *JiraResolver) InitImportFile() error {
 	file, err := os.Open(p.importTask.LocalFilePath)
 	if err != nil {
@@ -467,7 +471,7 @@ func (p *JiraResolver) InitImportFile() error {
 	}
 	defer file.Close()
 
-	if services.StopResolveSignal {
+	if p.checkIsStop() {
 		return nil
 	}
 
@@ -483,7 +487,7 @@ func (p *JiraResolver) InitImportFile() error {
 		return err
 	}
 
-	if services.StopResolveSignal {
+	if p.checkIsStop() {
 		return nil
 	}
 	serverID, daysPerWeek, hoursPerDay := handler.ResolveResult.JiraServerID, handler.daysPerWeek, handler.hoursPerDay
@@ -493,7 +497,7 @@ func (p *JiraResolver) InitImportFile() error {
 	if err != nil {
 		return err
 	}
-	if services.StopResolveSignal {
+	if p.checkIsStop() {
 		return nil
 	}
 	mapFilePathMap[common.TagObjectFile] = objectFilePath
@@ -506,19 +510,16 @@ func (p *JiraResolver) InitImportFile() error {
 	return nil
 }
 
-func (p *JiraResolver) setCache() error {
-	info, err := cache.GetCacheInfo(p.importTask.Key)
-	if err != nil {
-		return err
-	}
+func (p *JiraResolver) setCache() {
 	result := p.resolveResult
-	info.ResolveResult = &result
-	info.MapFilePath = p.mapTagFilePath
-	info.HoursPerDay = p.hoursPerDay
-	info.DaysPerWeek = p.daysPerWeek
-	info.ResolveStatus = common.ResolveStatusDone
-	info.ResolveDoneTime = time.Now().Unix()
-	return cache.SetCacheInfo(p.importTask.Key, info)
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	importCache.ResolveResult = &result
+	importCache.MapFilePath = p.mapTagFilePath
+	importCache.HoursPerDay = p.hoursPerDay
+	importCache.DaysPerWeek = p.daysPerWeek
+	importCache.ResolveStatus = common.ResolveStatusDone
+	importCache.ResolveDoneTime = time.Now().Unix()
+	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
 }
 
 func (p *JiraResolver) initAttributes() {
@@ -3018,8 +3019,8 @@ func (p *JiraResolver) TotalAttachmentSize() int64 {
 	return p.totalAttachmentSize
 }
 
-func (p *JiraResolver) Clear() error {
-	return p.setCache()
+func (p *JiraResolver) Clear() {
+	p.setCache()
 }
 
 func (p *JiraResolver) getStatusCategory(category string) (string, bool) {

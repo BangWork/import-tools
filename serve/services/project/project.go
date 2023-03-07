@@ -11,7 +11,6 @@ import (
 	pinyin "github.com/mozillazg/go-pinyin"
 
 	"github.com/bangwork/import-tools/serve/common"
-	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/utils/xml"
 )
@@ -27,7 +26,7 @@ type ProjectRes struct {
 }
 
 func GetProjectList(key string) (*ProjectRes, error) {
-	list, err := cache.GetCacheInfo(key)
+	list, err := common.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
 	}

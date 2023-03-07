@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bangwork/import-tools/serve/services/cache"
+	"github.com/bangwork/import-tools/serve/common"
 
 	"golang.org/x/net/html"
 )
@@ -80,7 +80,7 @@ func isWhitespace(s string) bool {
 type XmlScanner struct {
 	decoder *xml.Decoder
 	rootTag string
-	cache.ResolveResult
+	common.ResolveResult
 	HoursPerDay string
 	DaysPerWeek string
 }

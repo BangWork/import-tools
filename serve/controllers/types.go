@@ -30,12 +30,8 @@ type GetIssueTypeRequest struct {
 }
 
 type ResolveProgressResponse struct {
-	MultiTeam    bool   `json:"multi_team"`
-	TeamName     string `json:"team_name"`
-	OrgName      string `json:"org_name"`
 	StartTime    int64  `json:"start_time"`
 	Status       int    `json:"status"`
 	ExpectedTime int64  `json:"expected_time"`
 	SpentTime    int64  `json:"spent_time"`
-	BackupName   string `json:"backup_name"`
 }
