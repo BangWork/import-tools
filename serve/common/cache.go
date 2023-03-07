@@ -72,8 +72,6 @@ type ResolveResult struct {
 	AttachmentCount int64  `json:"attachment_count"`
 	AttachmentSize  int64  `json:"attachment_size"`
 	JiraServerID    string `json:"jira_server_id"`
-
-	DiskSetPopUps bool `json:"disk_set_pop_ups"`
 }
 
 type ImportResult struct {

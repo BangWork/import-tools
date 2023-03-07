@@ -108,6 +108,9 @@ func StartResolve(c *gin.Context) {
 	userUUID := c.GetString("userUUID")
 	cookie := getCookie(c)
 	//onesUrl := c.GetString("onesUrl")
+	if req.JiraLocalHome == "" {
+		req.JiraLocalHome = common.GetJiraLocalHome()
+	}
 	go importer.StartResolve(cookie, userUUID, req.JiraLocalHome, req.BackupName)
 
 	RenderJSON(c, nil, nil)

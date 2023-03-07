@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"fmt"
 	"log"
 	"runtime/debug"
 	"time"
@@ -17,10 +18,14 @@ func StartResolve(cookie, userUUID, localHome, backupName string) {
 			log.Printf("[importer] err: %s\n%s", p, debug.Stack())
 		}
 	}()
+	if len(cookie) == 0 || len(userUUID) == 0 || len(localHome) == 0 || len(backupName) == 0 {
+		panic(fmt.Sprintf("params err：%s/%s/%s/%s", cookie, userUUID, localHome, backupName))
+	}
 	cacheInfo := common.ImportCacheMap.Get(cookie)
 	cacheInfo.BackupName = backupName
 	cacheInfo.LocalHome = localHome
 	cacheInfo.StopResolveSignal = false
+	cacheInfo.ResolveStartTime = time.Now().Unix()
 	common.ImportCacheMap.Set(cookie, cacheInfo)
 	task := &types.ImportTask{
 		UserUUID:          userUUID,

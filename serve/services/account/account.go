@@ -123,7 +123,6 @@ type ImportHistory struct {
 
 type ResolveResultResponse struct {
 	*common.ResolveResult `json:"resolve_result"`
-	ImportHistory         []*ImportHistory `json:"import_history"`
 }
 
 func (r *Account) SetCurrentCache(c *common.Cache) {
