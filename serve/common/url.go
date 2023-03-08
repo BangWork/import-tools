@@ -23,6 +23,10 @@ func GenAttachmentFilePath(localHome string) string {
 	return fmt.Sprintf("%s/data/attachments", localHome)
 }
 
+func GenProjectAttachmentFilePath(localHome, projectOriginalKey string) string {
+	return fmt.Sprintf("%s/data/attachments/%s", localHome, projectOriginalKey)
+}
+
 func GenPrivatePath(shareDiskPath string) string {
 	return fmt.Sprintf("%s/%s", shareDiskPath, ShareDiskPathPrivate)
 }

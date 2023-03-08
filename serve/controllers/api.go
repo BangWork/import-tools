@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bangwork/import-tools/serve/services/file"
+
 	"github.com/bangwork/import-tools/serve/common"
 	common2 "github.com/bangwork/import-tools/serve/models/common"
-	"github.com/bangwork/import-tools/serve/models/ones"
 	"github.com/bangwork/import-tools/serve/services"
-	"github.com/bangwork/import-tools/serve/services/account"
 	"github.com/bangwork/import-tools/serve/services/auth"
 	"github.com/bangwork/import-tools/serve/services/config"
 	"github.com/bangwork/import-tools/serve/services/importer"
@@ -155,28 +155,9 @@ func ResolveResult(c *gin.Context) {
 	h := getONESHeader(c)
 	orgUUID := getOrgUUID(c)
 	url := getONESUrl(c)
-	importCache := common.ImportCacheMap.Get(cookie)
-	if importCache.ResolveResult != nil && importCache.ResolveResult.JiraVersion == "" {
-		importCache.ResolveResult.JiraVersion = "Cloud"
-	}
-	resp := new(account.ResolveResultResponse)
-	resp.ResolveResult = importCache.ResolveResult
 
-	orgConfig, err := ones.GetOrgConfig(url, orgUUID, h)
-	if err != nil {
-		RenderJSON(c, err, nil)
-		return
-	}
-	resp.ResolveResult.ONESDiskCapacity = orgConfig.FileDiskCapacity
-	resp.ResolveResult.ONESFileStorage = orgConfig.FileStorage
-
-	attachmentSize, err := utils.GetDirSize(common.GenAttachmentFilePath(importCache.LocalHome))
-	if err != nil {
-		RenderJSON(c, err, nil)
-		return
-	}
-	resp.ResolveResult.ONESDiskAvailable = common.CheckDiskAvailable(attachmentSize, orgConfig.FileDiskCapacity)
-	RenderJSON(c, nil, resp)
+	info, err := file.GetONESDiskInfo(url, orgUUID, cookie, h)
+	RenderJSON(c, err, info)
 }
 
 func TeamList(c *gin.Context) {
@@ -191,6 +172,22 @@ func ProjectList(c *gin.Context) {
 	cookie := getCookie(c)
 	list, err := project.GetProjectList(cookie)
 	RenderJSON(c, err, list)
+}
+
+func CheckProjectDisk(c *gin.Context) {
+	cookie := getCookie(c)
+	h := getONESHeader(c)
+	orgUUID := getOrgUUID(c)
+	url := getONESUrl(c)
+
+	req := make([]string, 0)
+	if err := c.BindJSON(&req); err != nil {
+		return
+	}
+	available, err := file.CheckProjectDiskAvailable(url, orgUUID, cookie, h, req)
+	RenderJSON(c, err, map[string]bool{
+		"ones_disk_available": available,
+	})
 }
 
 type SaveProjectListReq struct {

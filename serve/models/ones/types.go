@@ -1,5 +1,11 @@
 package ones
 
+import "github.com/bangwork/import-tools/serve/common"
+
+type ResolveResultResponse struct {
+	*common.ResolveResult `json:"resolve_result"`
+}
+
 type FileConfig struct {
 	FileStorage      string `json:"file_storage"`
 	FileDiskCapacity int64  `json:"file_disk_capacity"`

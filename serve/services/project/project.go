@@ -16,13 +16,14 @@ import (
 )
 
 type Project struct {
-	ID         string `json:"id"`
-	Key        string `json:"key"`
-	Name       string `json:"name"`
-	Assign     string `json:"assign"`
-	Category   string `json:"category"`
-	IssueCount int    `json:"issue_count"`
-	Type       string `json:"type"`
+	ID          string `json:"id"`
+	Key         string `json:"key"`
+	OriginalKey string `json:"original_key"`
+	Name        string `json:"name"`
+	Assign      string `json:"assign"`
+	Category    string `json:"category"`
+	IssueCount  int    `json:"issue_count"`
+	Type        string `json:"type"`
 }
 
 type Response struct {
@@ -55,6 +56,7 @@ func GetProjectList(cookie string) (*Response, error) {
 		data.Name = xml.GetAttributeValue(reader, "name")
 		data.Type = xml.GetAttributeValue(reader, "projecttype")
 		data.Key = xml.GetAttributeValue(reader, "key")
+		data.OriginalKey = xml.GetAttributeValue(reader, "originalkey")
 		data.IssueCount = xml.GetAttributeValueInt(reader, "counter")
 		assign, found := importCache.ProjectAssignMap[data.ID]
 		if !found {

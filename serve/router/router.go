@@ -73,6 +73,7 @@ func Run(port int) {
 	api.GET("/resolve/result", middlewares.CheckLogin, controllers.ResolveResult)
 	api.GET("/team_list", middlewares.CheckLogin, controllers.TeamList)
 	api.GET("/project_list", middlewares.CheckLogin, controllers.ProjectList)
+	api.POST("/check_disk", middlewares.CheckLogin, controllers.CheckProjectDisk)
 
 	api.Run(fmt.Sprintf(":%d", port))
 }

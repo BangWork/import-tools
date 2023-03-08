@@ -121,10 +121,6 @@ type ImportHistory struct {
 	} `json:"import_list"`
 }
 
-type ResolveResultResponse struct {
-	*common.ResolveResult `json:"resolve_result"`
-}
-
 func (r *Account) SetCurrentCache(c *common.Cache) {
 	r.Cache = c
 }
