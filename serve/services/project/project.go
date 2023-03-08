@@ -16,21 +16,22 @@ import (
 )
 
 type Project struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID         string `json:"id"`
+	Key        string `json:"key"`
+	Name       string `json:"name"`
+	Assign     string `json:"assign"`
+	Category   string `json:"category"`
+	IssueCount int    `json:"issue_count"`
+	Type       string `json:"type"`
 }
 
-type ProjectRes struct {
-	ProjectList []*Project  `json:"projects"`
-	Cache       interface{} `json:"cache"`
+type Response struct {
+	ProjectList []*Project `json:"projects"`
 }
 
-func GetProjectList(key string) (*ProjectRes, error) {
-	list, err := common.GetCacheInfo(key)
-	if err != nil {
-		return nil, err
-	}
-	v, found := list.MapFilePath[common.TagProject]
+func GetProjectList(cookie string) (*Response, error) {
+	importCache := common.ImportCacheMap.Get(cookie)
+	v, found := importCache.MapFilePath[common.TagProject]
 	if !found {
 		return nil, common.Errors(common.NotFoundError, nil)
 	}
@@ -52,6 +53,19 @@ func GetProjectList(key string) (*ProjectRes, error) {
 		data := new(Project)
 		data.ID = xml.GetAttributeValue(reader, "id")
 		data.Name = xml.GetAttributeValue(reader, "name")
+		data.Type = xml.GetAttributeValue(reader, "projecttype")
+		data.Key = xml.GetAttributeValue(reader, "key")
+		data.IssueCount = xml.GetAttributeValueInt(reader, "counter")
+		assign, found := importCache.ProjectAssignMap[data.ID]
+		if !found {
+			log.Println("ProjectAssignMap not found", data.ID)
+		}
+		data.Assign = assign
+		category, found := importCache.ProjectCategoryMap[data.ID]
+		if !found {
+			log.Println("ProjectCategoryMap not found", data.ID)
+		}
+		data.Category = category
 		res = append(res, data)
 	}
 	pinyinArgs := pinyin.NewArgs()
@@ -74,8 +88,7 @@ func GetProjectList(key string) (*ProjectRes, error) {
 		return false
 	})
 
-	return &ProjectRes{
+	return &Response{
 		ProjectList: res,
-		Cache:       list.ProjectIDs,
 	}, nil
 }

@@ -52,6 +52,8 @@ type Cache struct {
 	DaysPerWeek         string              `json:"days_per_week"`
 	HoursPerDay         string              `json:"hours_per_day"`
 	ProjectIssueTypeMap map[string][]string `json:"project_issue_type_map"`
+	ProjectAssignMap    map[string]string
+	ProjectCategoryMap  map[string]string
 
 	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
 	ProjectIDs   []string                    `json:"project_ids"`

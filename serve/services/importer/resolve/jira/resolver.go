@@ -56,6 +56,8 @@ type JiraResolver struct {
 	jiraTaskKeyIDMap                        map[string]string // jira issue key => jira issue id
 	jiraUserEmailMap                        map[string]string // jira email => jira user id
 	jiraUserNameIDMap                       map[string]string // jira user key => jira user id
+	jiraUserKeyDisplayNameMap               map[string]string // jira user key => jira user display name
+	jiraProjectAssignMap                    map[string]string // jira project id => jira project assign display name
 	jiraLowerUserNameUserKeyMap             map[string]string // jira lower user name => jira user key
 	jiraUIDNameMap                          map[string]string // jira user id => jira user name
 	jiraProjectIDNameMap                    map[string]string // jira project id => jira project name
@@ -403,6 +405,7 @@ func (p *JiraResolverFactory) InitImportFile(importTask *types.ImportTask) (reso
 	resolver := &JiraResolver{
 		importTask: importTask,
 	}
+	resolver.initAttributes()
 	err := resolver.InitImportFile()
 	if err != nil {
 		return nil, err
@@ -427,13 +430,115 @@ func (p *JiraResolverFactory) InitImportFile(importTask *types.ImportTask) (reso
 }
 
 func (p *JiraResolver) PrepareResolve() error {
-	if err := p.prepareProjectIssueTypeMap(); err != nil {
+	if err := p.prepareProjectIssueTypeMapFirst(); err != nil {
+		return err
+	}
+	if err := p.prepareProjectAssignMapFirst(); err != nil {
+		return err
+	}
+	if err := p.prepareProjectCategoryMapFirst(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JiraResolver) prepareProjectIssueTypeMap() error {
+func (p *JiraResolver) prepareProjectAssignMapFirst() error {
+	if err := p.prepareApplicationUser(); err != nil {
+		return err
+	}
+	if err := p.prepareUserKeyDisplayNameMap(); err != nil {
+		return err
+	}
+	if err := p.resolvePrepareProjectAssign(); err != nil {
+		return err
+	}
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	importCache.ProjectAssignMap = p.jiraProjectAssignMap
+	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
+	return nil
+}
+func (p *JiraResolver) prepareProjectCategoryMapFirst() error {
+	if err := p.prepareNodeAssociationFirst(); err != nil {
+		return err
+	}
+
+	projectCategoryNameMap := make(map[string]string)
+	projectCategoryIDNameMap := p.prepareProjectCategoryFirst()
+	for projectID, categoryID := range p.jiraCategoryProjectAssociation {
+		name, found := projectCategoryIDNameMap[categoryID]
+		if !found {
+			fmt.Println("not found projectCategoryIDNameMap", projectID, categoryID)
+			continue
+		}
+		projectCategoryNameMap[projectID] = name
+	}
+	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
+	importCache.ProjectCategoryMap = projectCategoryNameMap
+	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
+	return nil
+}
+
+func (p *JiraResolver) prepareProjectCategoryFirst() map[string]string {
+	res := make(map[string]string)
+	for {
+		element, err := p.nextElement("ProjectCategory")
+		if element == nil {
+			break
+		}
+		if err != nil {
+			log.Printf("get project element fail")
+			break
+		}
+		name := getAttributeValue(element, "name")
+		optionID := getAttributeValue(element, "id")
+		if name == "" || optionID == "" {
+			continue
+		}
+		res[optionID] = name
+	}
+	return res
+}
+
+func (p *JiraResolver) prepareNodeAssociationFirst() error {
+	for {
+		element, e := p.nextElement("NodeAssociation")
+		if element == nil || e != nil {
+			return e
+		}
+
+		var o = element
+		sourceNodeId := getAttributeValue(o, "sourceNodeId")
+		sinkNodeId := getAttributeValue(o, "sinkNodeId")
+		//associationType := getAttributeValue(o, "associationType")
+		sourceNodeEntity := getAttributeValue(o, "sourceNodeEntity")
+		sinkNodeEntity := getAttributeValue(o, "sinkNodeEntity")
+		key := fmt.Sprintf("%s:%s", sourceNodeEntity, sinkNodeEntity)
+		switch key {
+		case "Project:ProjectCategory":
+			p.jiraCategoryProjectAssociation[sourceNodeId] = sinkNodeId
+		}
+	}
+}
+
+func (p *JiraResolver) resolvePrepareProjectAssign() error {
+	for {
+		element, err := p.nextElement("Project")
+		if element == nil || err != nil {
+			break
+		}
+		id := getAttributeValue(element, "id")
+		lead := getAttributeValue(element, "lead")
+		userKey, found := p.jiraLowerUserNameUserKeyMap[lead]
+		if !found {
+			fmt.Println("not found user key", lead, id)
+			continue
+		}
+		p.jiraProjectAssignMap[id] = p.jiraUserKeyDisplayNameMap[userKey]
+	}
+	return nil
+}
+
+func (p *JiraResolver) prepareProjectIssueTypeMapFirst() error {
 	if err := p.resolvePrepareConfigurationContext(); err != nil {
 		return err
 	}
@@ -444,6 +549,22 @@ func (p *JiraResolver) prepareProjectIssueTypeMap() error {
 	importCache := common.ImportCacheMap.Get(p.importTask.Cookie)
 	importCache.ProjectIssueTypeMap = projectIssueTypeMap
 	common.ImportCacheMap.Set(p.importTask.Cookie, importCache)
+	return nil
+}
+
+func (p *JiraResolver) prepareUserKeyDisplayNameMap() error {
+	for {
+		element, err := p.nextElement("User")
+		if element == nil || err != nil {
+			break
+		}
+		displayName := getAttributeValue(element, "displayName")
+		lowerUserName := getAttributeValue(element, "lowerUserName")
+		userKey, found := p.jiraLowerUserNameUserKeyMap[lowerUserName]
+		if found {
+			p.jiraUserKeyDisplayNameMap[userKey] = displayName
+		}
+	}
 	return nil
 }
 
@@ -562,6 +683,8 @@ func (p *JiraResolver) initAttributes() {
 	p.beganMap = make(map[string]bool)
 	p.jiraUserEmailMap = make(map[string]string)
 	p.jiraUserNameIDMap = make(map[string]string)
+	p.jiraUserKeyDisplayNameMap = make(map[string]string)
+	p.jiraProjectAssignMap = make(map[string]string)
 	p.jiraUserGroupNameIDMap = make(map[string]string)
 	p.jiraUserGroupIDNameMap = make(map[string]string)
 	p.jiraGlobalProjectRoleNameIDMap = make(map[string]string)

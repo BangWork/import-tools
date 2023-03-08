@@ -156,7 +156,7 @@ func StopResolve(c *gin.Context) {
 func ResolveResult(c *gin.Context) {
 	cookie := getCookie(c)
 	importCache := common.ImportCacheMap.Get(cookie)
-	if importCache.ResolveResult.JiraVersion == "" {
+	if importCache.ResolveResult != nil && importCache.ResolveResult.JiraVersion == "" {
 		importCache.ResolveResult.JiraVersion = "Cloud"
 	}
 	resp := new(account.ResolveResultResponse)
@@ -173,8 +173,8 @@ func TeamList(c *gin.Context) {
 }
 
 func ProjectList(c *gin.Context) {
-	key := c.Param("key")
-	list, err := project.GetProjectList(key)
+	cookie := getCookie(c)
+	list, err := project.GetProjectList(cookie)
 	RenderJSON(c, err, list)
 }
 

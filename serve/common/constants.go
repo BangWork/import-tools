@@ -51,4 +51,7 @@ const (
 
 	InstallAreaAsia    = "Asia"
 	InstallAreaAmerica = "America"
+
+	ProjectTypeSoftware = "software"
+	ProjectTypeBusiness = "business"
 )
