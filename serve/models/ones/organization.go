@@ -45,3 +45,22 @@ func getOrgPermission(url, orgUUID string, header map[string]string) (*Stamps, e
 	}
 	return stampsData, nil
 }
+
+func GetOrgConfig(url, orgUUID string, header map[string]string) (*FileConfig, error) {
+	uri := fmt.Sprintf(fileConfigUri, orgUUID)
+	url = common.GenApiUrl(url, uri)
+	resp, err := utils.GetWithHeader(url, header)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	respData := new(FileConfig)
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(data, &respData); err != nil {
+		return nil, err
+	}
+	return respData, nil
+}

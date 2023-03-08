@@ -1,5 +1,10 @@
 package ones
 
+type FileConfig struct {
+	FileStorage      string `json:"file_storage"`
+	FileDiskCapacity int64  `json:"file_disk_capacity"`
+}
+
 type Stamps struct {
 	OrgPermissionRules PermissionRules `json:"org_permission_rules"`
 }

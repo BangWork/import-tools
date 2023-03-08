@@ -7,21 +7,18 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bangwork/import-tools/serve/services/config"
-
-	"github.com/bangwork/import-tools/serve/services/team"
-
-	common2 "github.com/bangwork/import-tools/serve/models/common"
-
-	"github.com/bangwork/import-tools/serve/services/auth"
-
 	"github.com/bangwork/import-tools/serve/common"
+	common2 "github.com/bangwork/import-tools/serve/models/common"
+	"github.com/bangwork/import-tools/serve/models/ones"
 	"github.com/bangwork/import-tools/serve/services"
 	"github.com/bangwork/import-tools/serve/services/account"
+	"github.com/bangwork/import-tools/serve/services/auth"
+	"github.com/bangwork/import-tools/serve/services/config"
 	"github.com/bangwork/import-tools/serve/services/importer"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/services/log"
 	"github.com/bangwork/import-tools/serve/services/project"
+	"github.com/bangwork/import-tools/serve/services/team"
 	"github.com/bangwork/import-tools/serve/utils"
 	"github.com/bangwork/import-tools/serve/utils/timestamp"
 	"github.com/gin-gonic/gin"
@@ -155,12 +152,30 @@ func StopResolve(c *gin.Context) {
 
 func ResolveResult(c *gin.Context) {
 	cookie := getCookie(c)
+	h := getONESHeader(c)
+	orgUUID := getOrgUUID(c)
+	url := getONESUrl(c)
 	importCache := common.ImportCacheMap.Get(cookie)
 	if importCache.ResolveResult != nil && importCache.ResolveResult.JiraVersion == "" {
 		importCache.ResolveResult.JiraVersion = "Cloud"
 	}
 	resp := new(account.ResolveResultResponse)
 	resp.ResolveResult = importCache.ResolveResult
+
+	orgConfig, err := ones.GetOrgConfig(url, orgUUID, h)
+	if err != nil {
+		RenderJSON(c, err, nil)
+		return
+	}
+	resp.ResolveResult.ONESDiskCapacity = orgConfig.FileDiskCapacity
+	resp.ResolveResult.ONESFileStorage = orgConfig.FileStorage
+
+	attachmentSize, err := utils.GetDirSize(common.GenAttachmentFilePath(importCache.LocalHome))
+	if err != nil {
+		RenderJSON(c, err, nil)
+		return
+	}
+	resp.ResolveResult.ONESDiskAvailable = common.CheckDiskAvailable(attachmentSize, orgConfig.FileDiskCapacity)
 	RenderJSON(c, nil, resp)
 }
 

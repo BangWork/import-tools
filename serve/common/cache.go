@@ -74,6 +74,10 @@ type ResolveResult struct {
 	AttachmentCount int64  `json:"attachment_count"`
 	AttachmentSize  int64  `json:"attachment_size"`
 	JiraServerID    string `json:"jira_server_id"`
+
+	ONESFileStorage   string `json:"ones_file_storage"`
+	ONESDiskCapacity  int64  `json:"ones_disk_capacity"`
+	ONESDiskAvailable bool   `json:"ones_disk_available"`
 }
 
 type ImportResult struct {
