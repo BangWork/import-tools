@@ -41,10 +41,7 @@ const IssueMapPage = () => {
     saveData().then(() => {
       const finishSelect = map(jiraList, (item) => ({
         id: item.third_issue_type_id,
-        type:
-          select[item.third_issue_type_id] === zeroNumber
-            ? 0
-            : select[item.third_issue_type_id] || item.ones_detail_type,
+        type: select[item.third_issue_type_id] ? select[item.third_issue_type_id] : 0,
       }));
 
       navigate('/page/import_pack/init_password', {

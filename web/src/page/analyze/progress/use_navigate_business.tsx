@@ -44,6 +44,7 @@ const useNavigateBusiness = () => {
 
           if (res.body.status === AnalyzeStatusEnum.fail) {
             onFail(t('analyzeProgress.fail.normalDesc', { name: res.body.backup_name }));
+            throw new Error('Analyze fail');
           }
         })
         .catch((error) => {
