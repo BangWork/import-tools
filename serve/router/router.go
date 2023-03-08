@@ -44,9 +44,6 @@ func Run(port int) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	api.POST("/check_path_exist", controllers.CheckPathExist)
-
-	api.GET("/project_list", controllers.ProjectList)
 	api.POST("/project_list/save", controllers.SaveProjectList)
 	api.POST("/choose_team", controllers.ChooseTeam)
 	//api.POST("/issue_type_list", controllers.IssueTypeList)
@@ -75,6 +72,7 @@ func Run(port int) {
 	api.POST("/resolve/stop", middlewares.CheckLogin, controllers.StopResolve)
 	api.GET("/resolve/result", middlewares.CheckLogin, controllers.ResolveResult)
 	api.GET("/team_list", middlewares.CheckLogin, controllers.TeamList)
+	api.GET("/project_list", middlewares.CheckLogin, controllers.ProjectList)
 
 	api.Run(fmt.Sprintf(":%d", port))
 }
