@@ -44,14 +44,13 @@ const GlobalOutlinedStyled = styled(Help)`
 `;
 
 const LangBox = styled.div`
-  width: 100px;
+  padding-right: 20px;
   border-right: 1px solid #eaeaea;
 `;
 
 const LangContentPopoverItem = styled.div`
   cursor: pointer;
   padding: 5px 10px;
-
   &:hover {
     background: #f5f5f5;
   }

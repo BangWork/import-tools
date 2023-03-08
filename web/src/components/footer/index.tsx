@@ -3,7 +3,7 @@ import type { ButtonProps } from 'antd';
 import { memo, ReactNode, FC } from 'react';
 import { t } from 'i18next';
 import styled from 'styled-components';
-
+import { useNavigate } from 'react-router';
 export interface FooterType {
   fun?: (...args: any[]) => void;
   text?: string;
@@ -13,7 +13,7 @@ export interface FooterType {
   htmlType?: ButtonProps['htmlType'];
 }
 export interface FooterProps {
-  handleCancleMigrate?: FooterType;
+  handleCancelMigrate?: FooterType;
   handleBack?: FooterType;
   handleNext?: FooterType;
   children?: string | ReactNode;
@@ -28,18 +28,22 @@ const Box = styled.div<Pick<FooterProps, 'width'>>`
 `;
 
 const Footer: FC<FooterProps> = memo((props) => {
-  const { handleBack, handleNext, handleCancleMigrate, children, width, className } = props;
+  const navigate = useNavigate();
+  const handleHome = () => {
+    navigate('/page/home');
+  };
+  const { handleBack, handleNext, handleCancelMigrate, children, width, className } = props;
   return (
     <Box className={className} width={width}>
-      {handleCancleMigrate ? (
+      {handleCancelMigrate ? (
         <Button
-          type={handleCancleMigrate.type}
+          type={handleCancelMigrate.type}
           className="oac-mr-2"
-          onClick={handleCancleMigrate.fun}
-          loading={handleCancleMigrate.isLoading}
-          disabled={handleCancleMigrate.isDisabled}
+          onClick={handleCancelMigrate.fun || handleHome}
+          loading={handleCancelMigrate.isLoading}
+          disabled={handleCancelMigrate.isDisabled}
         >
-          {t(handleCancleMigrate.text || 'common.canclemigrate')}
+          {t(handleCancelMigrate.text || 'common.cancelMigrate')}
         </Button>
       ) : null}
       {handleBack ? (

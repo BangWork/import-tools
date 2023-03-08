@@ -13,12 +13,12 @@ const analyze = {
       },
       step2: {
         title: '填写 Jira 备份包信息',
-        desc: '向下滚动到文件路径部分，将 File Paths > Location of JIRA Local Home 路径复制并粘贴到以下输入框中。',
+        desc: '1.1 向下滚动到文件路径部分，将 File Paths > Location of JIRA Local Home 路径复制并粘贴到以下输入框中。',
         link: '查看默认 Jira 本地文件路径',
       },
     },
     form: {
-      desc: '输入 Location of JIRA Local Home，点击“获取 Jira 备份包”，路径正确将可以选择导入的 Jira 备份包。',
+      desc: '1.2 点击“获取 Jira 备份包”，路径正确将可以选择导入的 Jira 备份包。',
       localHome: {
         label: 'Location of Jira Local Home',
         get: '获取 Jira 备份包',

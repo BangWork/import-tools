@@ -1,13 +1,15 @@
 import { memo, ReactNode } from 'react';
 import type { FC } from 'react';
-import { Progress, Typography } from 'antd';
-import { FileOutlined } from '@ant-design/icons';
-import type { ProgressProps } from 'antd/es/progress';
+import { Progress } from '@ones-design/core';
 import styled from 'styled-components';
 
-export interface BusinessProgressProps extends ProgressProps {
+export interface BusinessProgressProps {
   /** top message */
-  message?: string | ReactNode;
+  title?: string | ReactNode;
+  statusText?: string | ReactNode;
+  status?: 'success' | 'active' | 'fail';
+  percentDescription?: string | ReactNode;
+  percentTimeText?: string | ReactNode;
   bottomMessage: string | ReactNode;
   /** left time of bottom */
   leftTime?: number;
@@ -16,40 +18,80 @@ export interface BusinessProgressProps extends ProgressProps {
   percent?: number;
 }
 
-const FileOutlinedStyled = styled(FileOutlined)`
-  font-size: 26px;
-  color: #1890ff;
+const ProgressBoxStyled = styled.div`
+  padding: 10px 20px;
+  height: 108px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #dedede;
+  border-radius: 3px;
+`;
+
+const TitleStyled = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 500;
+`;
+
+const StatusStyled = styled.div`
+  padding: 0 5px;
+  margin-left: 10px;
+  font-weight: 400;
+  font-size: 12px;
+  height: 20px;
+  line-height: 18px;
+  border-radius: 10px;
+  border: 1px solid #dedede;
 `;
 
 const ProgressStyled = styled(Progress)`
-  width: 300px;
+  width: 150px;
   height: 8px;
   line-height: 8px;
-  margin: 0;
+  margin: 0 20px;
 `;
+
 const Message = styled.div`
-  width: 300px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 20px;
-  color: #303030;
 `;
-
 const BusinessProgress: FC<BusinessProgressProps> = memo((props) => {
-  const { message = '', percent = 0, bottomMessage } = props;
-
+  const {
+    title = '',
+    status,
+    statusText,
+    percent = 0,
+    percentDescription,
+    percentTimeText,
+    bottomMessage,
+  } = props;
+  const statusMap = {
+    success: '#24B47E',
+    active: '#F0A100',
+    fail: '#E52727',
+  };
   return (
-    <div className="flex items-center justify-center">
-      <FileOutlinedStyled className="mr-4" />
-      <div className="flex flex-col justify-center">
-        <Message>
-          <Typography.Text ellipsis={{ tooltip: message }}>{message}</Typography.Text>
-        </Message>
-        <ProgressStyled percent={percent} showInfo={false} />
-        <Message>
-          <Typography.Text ellipsis={{ tooltip: bottomMessage }}>{bottomMessage}</Typography.Text>
-        </Message>
+    <ProgressBoxStyled>
+      <TitleStyled>
+        {title}
+        <StatusStyled style={{ borderColor: statusMap[status], color: statusMap[status] }}>
+          {statusText}
+        </StatusStyled>
+      </TitleStyled>
+      <div className="oac-flex oac-items-center">
+        {percentDescription}
+        {status !== 'fail' ? (
+          <ProgressStyled percent={percent} showInfo={false} />
+        ) : (
+          <ProgressStyled percent={percent} showInfo={false} status="exception" />
+        )}
+        {percentTimeText}
       </div>
-    </div>
+      <Message>{bottomMessage}</Message>
+    </ProgressBoxStyled>
   );
 });
 

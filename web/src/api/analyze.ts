@@ -17,6 +17,12 @@ export const submitEnvironmentApi = ({ localHome, backupName, url, email, passwo
     password,
   });
 
+export const loginApi = ({ url, email, password }) =>
+  pureRequest.post('/login', {
+    url,
+    email,
+    password
+  })
 export const getProjectsApi = (): Promise<{ body: ProjectType[]; code: number }> =>
   Request.get('/project_list');
 

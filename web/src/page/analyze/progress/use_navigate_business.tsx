@@ -1,10 +1,4 @@
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ExclamationCircleFilled,
-} from '@ant-design/icons';
-import { useEffect, useState } from 'react';
-import { message, Modal } from 'antd';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRafInterval } from 'ahooks';
@@ -20,7 +14,6 @@ const TIME = 5000;
 const useNavigateBusiness = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [messageApi, contextHolder] = message.useMessage();
   const [info, setInfo] = useState<Partial<AnalyzeInfoType>>({});
   const [loading, setLoading] = useState(true);
 
@@ -29,12 +22,7 @@ const useNavigateBusiness = () => {
   };
 
   const onFail = (msg) => {
-    Modal.error({
-      title: t('analyzeProgress.fail.title'),
-      content: msg,
-      okText: t('common.ok'),
-      onOk: handleBackPack,
-    });
+    return '11';
   };
 
   const cancelInterval = useRafInterval(
@@ -60,61 +48,25 @@ const useNavigateBusiness = () => {
     { immediate: true }
   );
 
-  useEffect(() => {
-    if (info?.status === AnalyzeStatusEnum.done) {
-      navigate('/page/analyze/result', { replace: true });
-    }
+  const handleNext = () => {
+    navigate('/page/analyze/result', { replace: true });
+  };
 
-    // Jira package was never analyze, need to go back to first page
-    if (info?.status === AnalyzeStatusEnum.none) {
-      handleBackPack();
-    }
-  }, [info.status]);
+  const handleBack = () => {
+    navigate('/page/analyze/pack', { replace: true });
+  };
 
   const handleModalOk = () => {
-    messageApi.open({
-      type: 'loading',
-      content: t('analyzeProgress.cancel.loading'),
-      duration: 0,
-    });
-
-    cancelAnalyzeApi()
-      .then(() => {
-        messageApi.destroy();
-        Modal.success({
-          title: t('analyzeProgress.cancel.success'),
-          icon: <CheckCircleOutlined />,
-          okText: t('common.back'),
-          okType: 'primary',
-          onOk: handleBackPack,
-        });
-      })
-      .catch(() => {
-        messageApi.destroy();
-        Modal.error({
-          title: t('analyzeProgress.cancel.fail'),
-          icon: <CloseCircleOutlined />,
-          okText: t('common.ok'),
-          okType: 'primary',
-        });
-      });
+    cancelAnalyzeApi();
   };
 
   const handleCancel = () => {
-    Modal.confirm({
-      title: t('analyzeProgress.cancel.text'),
-      icon: <ExclamationCircleFilled />,
-      content: t('analyzeProgress.cancel.desc'),
-      okText: t('common.ok'),
-      okType: 'danger',
-      cancelText: t('common.cancel'),
-      onOk: handleModalOk,
-    });
+    return 'aaa';
   };
 
   return {
-    handleCancel,
-    contextHolder,
+    handleBack,
+    handleNext,
     info,
     loading,
   };

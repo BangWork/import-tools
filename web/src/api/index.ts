@@ -10,6 +10,7 @@ import type {
 } from './type';
 import {
   submitEnvironmentApi,
+  loginApi,
   cancelAnalyzeApi,
   checkPathApi,
   chooseTeamApi,
@@ -35,6 +36,7 @@ import {
 export {
   // analyze
   submitEnvironmentApi,
+  loginApi,
   cancelAnalyzeApi,
   checkPathApi,
   chooseTeamApi,

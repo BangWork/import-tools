@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { Layout, ConfigProvider } from 'antd';
+import { Layout, ConfigProvider } from '@ones-design/core';
 
 import AutoRouter from '@/router';
 import { redirectRoutes } from '@/router/routes';
