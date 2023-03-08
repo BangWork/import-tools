@@ -1,6 +1,8 @@
 package sync
 
 import (
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/services/importer/constants"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve/jira"
@@ -28,7 +30,11 @@ func createResolver(importTask *types.ImportTask) (resolve.ResourceResolver, err
 func InitImportFile(importTask *types.ImportTask) (resolve.ResourceResolver, error) {
 	factory := getResolverFactory(importTask.ImportType)
 	if factory != nil {
-		return factory.InitImportFile(importTask)
+		res, err := factory.InitImportFile(importTask)
+		if err != nil {
+			return nil, errors.Trace(err)
+		}
+		return res, nil
 	}
 	return nil, nil
 }

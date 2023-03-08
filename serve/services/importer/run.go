@@ -5,6 +5,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/services/account"
 
 	"github.com/bangwork/import-tools/serve/services"
@@ -32,6 +34,7 @@ func StartResolve(account *account.Account) {
 	}
 
 	if err := sync.NewImporter(task).Resolve(); err != nil {
+		log.Printf("resolve failed: %+v\n", errors.Trace(err))
 		return
 	}
 }

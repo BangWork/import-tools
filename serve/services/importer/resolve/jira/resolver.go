@@ -407,19 +407,20 @@ func (p *JiraResolverFactory) InitImportFile(importTask *types.ImportTask) (reso
 	}
 	err := resolver.InitImportFile()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	log.Println("start calculate attachments size")
 	attachmentSize, err := utils.GetDirSize(importTask.AttachmentsPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	log.Println("end calculate attachments size")
 	resolver.resolveResult.AttachmentSize = attachmentSize
 	for tag, file := range resolver.mapTagFilePath {
 		fi, err := os.Open(file)
 		if err != nil {
-			log.Printf("open file fail: %s", err)
+			log.Println("open file fail", errors.Trace(err))
+			continue
 		}
 		scanner := resolve.NewXmlScanner(fi, entityRootTag)
 		resolver.tagFilesMap[tag] = scanner
@@ -463,7 +464,7 @@ func (p *JiraResolver) initIssueTypeMap() {
 func (p *JiraResolver) InitImportFile() error {
 	file, err := os.Open(p.importTask.LocalFilePath)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	defer file.Close()
 
@@ -473,14 +474,14 @@ func (p *JiraResolver) InitImportFile() error {
 
 	entityFileReader, activeObjectsFileReader, err := p.readersFromFile(file.Name())
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	defer entityFileReader.Close()
 	defer activeObjectsFileReader.Close()
 
 	tagFilesMap, mapFilePathMap, handler, err := processedEntityFile(p.importTask, entityFileReader)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	if services.StopResolveSignal {
@@ -491,7 +492,7 @@ func (p *JiraResolver) InitImportFile() error {
 
 	objectFilePath, err := processedObjectFile(p.importTask, activeObjectsFileReader)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	if services.StopResolveSignal {
 		return nil

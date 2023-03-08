@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"sync"
 
 	"github.com/juju/errors"
@@ -114,7 +114,7 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	filePath := path.Join(common.GetCachePath(), cacheFile)
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
@@ -139,7 +139,7 @@ func GenCacheKey(addr string) string {
 const ConsCacheKey = "__cache_key__"
 
 func GetCacheKey() (string, error) {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", errors.Trace(err)
@@ -154,7 +154,7 @@ func GetCacheKey() (string, error) {
 }
 
 func SaveCacheKey(key string) error {
-	filePath := fmt.Sprintf("%s/%s", common.Path, cacheFile)
+	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Trace(err)
@@ -186,16 +186,15 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		return nil, errors.New("cache key not found")
 	}
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Printf("open file error: %s, %s", filePath, err)
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, errors.Trace(err)
 	}
 
 	d := map[string]string{}
 	if err := json.Unmarshal(b, &d); err != nil {
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, errors.Trace(err)
 	}
 	s, ok := d[key]
 	if !ok {
@@ -205,7 +204,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	c := new(Cache)
 	err = json.Unmarshal([]byte(s), &c)
 	if err != nil {
-		return nil, common.Errors(common.ServerError, nil)
+		return nil, errors.Trace(err)
 	}
 	return c, nil
 }
@@ -227,35 +226,30 @@ func SetCacheInfo(key string, cache *Cache) error {
 		return errors.New("cache key not found")
 	}
 
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Printf("open file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
 
 	m := map[string]string{}
 	if err := json.Unmarshal(b, &m); err != nil {
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
 
 	cb, err := json.Marshal(cache)
 	if err != nil {
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
 	m[key] = string(cb)
 
 	b, err = json.Marshal(m)
 	if err != nil {
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
 
 	err = ioutil.WriteFile(filePath, b, 0644)
-	if err != nil {
-		log.Printf("write file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
-	}
-	return nil
+	return errors.Trace(err)
 }
 
 func SetExpectTimeCache(key string) {

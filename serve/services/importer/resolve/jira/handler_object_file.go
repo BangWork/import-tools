@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/common"
 
 	"github.com/bangwork/import-tools/serve/services"
@@ -34,7 +36,7 @@ func processedObjectFile(importTask *types.ImportTask, reader io.ReadCloser) (st
 	}
 	err := handler.scan()
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	return handler.fileName(), nil
 }

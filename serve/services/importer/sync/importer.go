@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/juju/errors"
+
 	"github.com/bangwork/import-tools/serve/services/file"
 
 	"github.com/bangwork/import-tools/serve/services/account"
@@ -53,32 +55,29 @@ func (p *Importer) Resolve() error {
 	startT := time.Now()
 	log.Println("[start InitImportFile]")
 	if err := p.initXmlPath(); err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	resolver, err := InitImportFile(p.importTask)
 	if err != nil {
-		log.Println("init import file err", err)
+		log.Printf("init import file err: %+v", errors.Trace(err))
+
 		info, err := cache.GetCacheInfo(p.importTask.Key)
 		if err != nil {
-			log.Println("get cache fail", err)
-			return err
+			return errors.Trace(err)
 		}
 		info.ResolveStatus = common.ResolveStatusFail
 		if err := cache.SetCacheInfo(p.importTask.Key, info); err != nil {
-			log.Println("set cache fail", err)
-			return err
+			return errors.Trace(err)
 		}
-		log.Printf("create resolver fail:%s; stopResolveSignal:%t", err, services.StopResolveSignal)
-		return err
+		return errors.Trace(err)
 	}
 	if err := resolver.PrepareResolve(); err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	log.Printf("[end InitImportFile] cost: %s", time.Since(startT))
 	if err := resolver.Clear(); err != nil {
-		return err
+		return errors.Trace(err)
 	}
-
 	return nil
 }
 
