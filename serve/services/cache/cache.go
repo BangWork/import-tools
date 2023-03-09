@@ -201,6 +201,12 @@ func GetCacheInfo(key string) (*Cache, error) {
 		return new(Cache), nil
 	}
 
+	b, err = base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	s = string(b)
+
 	c := new(Cache)
 	err = json.Unmarshal([]byte(s), &c)
 	if err != nil {
@@ -241,7 +247,7 @@ func SetCacheInfo(key string, cache *Cache) error {
 	if err != nil {
 		return errors.Trace(err)
 	}
-	m[key] = string(cb)
+	m[key] = base64.StdEncoding.EncodeToString(cb)
 
 	b, err = json.Marshal(m)
 	if err != nil {
