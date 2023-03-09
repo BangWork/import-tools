@@ -1,4 +1,4 @@
-import { Alert, Button, Form, Input, Modal } from 'antd';
+import { Alert, Button, Form, Input } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';

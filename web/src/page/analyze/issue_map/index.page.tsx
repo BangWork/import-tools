@@ -15,7 +15,6 @@ const IssueMapPage = () => {
   const boxSize = useSize(boxRef);
   const location = useLocation();
   const { loading, columns, select, jiraList } = useTableBusiness();
-  const zeroNumber = 0;
 
   const handleBack = () => {
     saveData().then(() => {
