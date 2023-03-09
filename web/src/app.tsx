@@ -37,6 +37,7 @@ const NormalLayoutRoutes = () => (
 const Main = () => {
   const currentLang = getCurrentLang(i18n);
   const local = getAntDesignLang(currentLang);
+  console.log(local);
 
   return (
     <ConfigProvider locale={local}>
