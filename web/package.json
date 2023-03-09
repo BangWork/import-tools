@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "npm run lint-check && tsc && vite build",
     "report": "tsc && vite build --mode report",
-    "preview": "vite preview",
+    "preview": "npm run build && vite preview",
     "format": "prettier --check --write ./src",
     "lint-check": "npx eslint --ext .tsx,ts,.jsx,.js src/"
   },
