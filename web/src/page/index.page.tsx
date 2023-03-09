@@ -48,7 +48,7 @@ const Page = () => {
         navigate(targetUrl, { replace: true });
       })
       .catch(() => {
-        navigate(importProgressUrl, { replace: true });
+        navigate(analyzeUrlMap[AnalyzeStatusEnum.none], { replace: true });
       });
   }, []);
 
