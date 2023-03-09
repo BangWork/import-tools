@@ -42,6 +42,7 @@ const TeamPage = () => {
   };
 
   const handleNext = () => {
+    window.localStorage.setItem('teamUUID', teamUUID);
     const selectTeam = find(location?.state?.import_history, { team_uuid: teamUUID });
     chooseTeamApi(teamUUID, selectTeam.team_name).then(() => {
       navigate('/page/analyze/import_project', {
@@ -155,6 +156,18 @@ const TeamPage = () => {
     </Button>
   );
 
+  const getInitiaValue = () => {
+    let result = '';
+
+    options.forEach((e) => {
+      if (e.value === window.localStorage.getItem('teamUUID')) {
+        result = e.value;
+      }
+    });
+
+    return result || head(options)?.value || '';
+  };
+
   return (
     <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
       <ModalContent
@@ -179,7 +192,7 @@ const TeamPage = () => {
             style={{ width: '220px' }}
             label={t('teamPage.form.label')}
             rules={[{ required: true }]}
-            initialValue={head(options)?.value || ''}
+            initialValue={getInitiaValue()}
           >
             <SelectStyled options={options} placeholder={t('teamPage.form.placeholder')} />
           </Form.Item>
