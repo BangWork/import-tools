@@ -17,8 +17,11 @@ const QuestionCircleOutlinedStyled = styled(QuestionCircleOutlined)`
   color: #909090;
 `;
 
+const INIT_LOCAL_HOME = '/var/atlassian/application-data/jira/';
+
 const AnalyzePage = () => {
   const { t } = useTranslation();
+
   const navigate = useNavigate();
   const [showServerError, setShowServerError] = useState(false);
   const [showPackItem, setShowPackItem] = useState(false);
@@ -38,6 +41,13 @@ const AnalyzePage = () => {
     if (showPackItem) {
       setShowPackItem(false);
     }
+
+    //
+    const openBackup = window.sessionStorage.getItem('openBackup');
+    if (localHome && openBackup) {
+      handleCheckPath();
+      window.sessionStorage.setItem('openBackup', '');
+    }
   }, [localHome]);
 
   useEffect(() => {
@@ -50,7 +60,7 @@ const AnalyzePage = () => {
     form.validateFields().then(() => {
       const { localHome, backupName } = res;
       window.localStorage.setItem('backupName', backupName);
-
+      window.sessionStorage.setItem('openBackup', '1');
       navigate('/page/analyze/environment', {
         state: {
           localHome,
@@ -158,7 +168,7 @@ const AnalyzePage = () => {
                 description: (
                   <div>
                     <div>
-                      {t('backupPage.guide.step2.desc')} <br></br>
+                      {t('backupPage.guide.step2.desc')}
                       <a
                         href="https://confluence.atlassian.com/adminjiraserver/jira-application-home-directory-938847746.html#:~:text=If%20Jira%20was%20installed%20using,data%2FJIRA%20(on%20Linux"
                         target="_blank"
@@ -173,7 +183,7 @@ const AnalyzePage = () => {
                         <div>
                           <Form.Item
                             name="localHome"
-                            initialValue="/var/atlassian/application-data/jira/"
+                            initialValue={INIT_LOCAL_HOME}
                             validateStatus={showServerError ? 'error' : undefined}
                             help={
                               showServerError

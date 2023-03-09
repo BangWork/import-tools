@@ -26,12 +26,12 @@ export default defineConfig(({ mode }) => {
     build: {
       chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
-      minify: 'terser', // 「terserOptions」need to set terser
+      minify: 'false', // 「terserOptions」need to set terser
       terserOptions: {
         compress: {
           // remove console in production
-          drop_console: true,
-          drop_debugger: true,
+          drop_console: false,
+          drop_debugger: false,
         },
       },
     },
