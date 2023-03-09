@@ -46,8 +46,8 @@ func getOrgPermission(url, orgUUID string, header map[string]string) (*Stamps, e
 	return stampsData, nil
 }
 
-func GetOrgConfig(url, orgUUID string, header map[string]string) (*FileConfig, error) {
-	uri := fmt.Sprintf(fileConfigUri, orgUUID)
+func GetOrgConfig(url string, header map[string]string) (*FileConfig, error) {
+	uri := fileConfigUri
 	url = common.GenApiUrl(url, uri)
 	resp, err := utils.GetWithHeader(url, header)
 	if err != nil {

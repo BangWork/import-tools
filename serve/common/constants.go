@@ -1,6 +1,10 @@
 package common
 
 const (
+	CurrentVersion = "3.x.x"
+)
+
+const (
 	DefaultHTTPPort = 5000
 
 	AuthToken     = "ones-auth-token"
@@ -54,4 +58,47 @@ const (
 
 	ProjectTypeSoftware = "software"
 	ProjectTypeBusiness = "business"
+)
+
+const (
+	ResourceTypeStringUser                   = "user"
+	ResourceTypeStringUserGroup              = "user_group"
+	ResourceTypeStringUserGroupMember        = "user_group_member"
+	ResourceTypeStringDepartment             = "department"
+	ResourceTypeStringUserDepartments        = "user_departments"
+	ResourceTypeStringGlobalProjectRole      = "global_project_role"
+	ResourceTypeStringGlobalProjectField     = "global_project_field"
+	ResourceTypeStringIssueType              = "issue_type"
+	ResourceTypeStringProject                = "project"
+	ResourceTypeStringProjectIssueType       = "project_issue_type"
+	ResourceTypeStringProjectRole            = "project_role"
+	ResourceTypeStringProjectRoleMember      = "project_role_member"
+	ResourceTypeStringGlobalPermission       = "global_permission"
+	ResourceTypeStringProjectPermission      = "project_permission"
+	ResourceTypeStringProjectFieldValue      = "project_field_value"
+	ResourceTypeStringTaskStatus             = "task_status"
+	ResourceTypeStringTaskField              = "task_field"
+	ResourceTypeStringTaskFieldOption        = "task_field_option"
+	ResourceTypeStringIssueTypeField         = "issue_type_field"
+	ResourceTypeStringIssueTypeLayout        = "issue_type_layout"
+	ResourceTypeStringProjectIssueTypeField  = "project_issue_type_field"
+	ResourceTypeStringProjectIssueTypeLayout = "project_issue_type_layout"
+	ResourceTypeStringProjectSprintField     = "project_sprint_field"
+	ResourceTypeStringPriority               = "priority"
+	ResourceTypeStringConfig                 = "config"
+	ResourceTypeStringTaskLinkType           = "task_link_type"
+	ResourceTypeStringWorkflow               = "workflow"
+	ResourceTypeStringSprint                 = "sprint"
+	ResourceTypeStringSprintFieldValue       = "sprint_field_value"
+	ResourceTypeStringTask                   = "task"
+	ResourceTypeStringTaskFieldValue         = "task_field_value"
+	ResourceTypeStringTaskWatcher            = "task_watcher"
+	ResourceTypeStringTaskWorkLog            = "task_work_log"
+	ResourceTypeStringTaskComment            = "task_comment"
+	ResourceTypeStringTaskRelease            = "task_release"
+	ResourceTypeStringTaskLink               = "task_link"
+	ResourceTypeStringNotification           = "notification"
+	ResourceTypeStringTaskAttachmentTmp      = "task_attachment_tmp"
+	ResourceTypeStringTaskAttachment         = "task_attachment"
+	ResourceTypeStringChangeItem             = "change_item"
 )

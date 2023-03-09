@@ -10,25 +10,26 @@ import (
 
 func CheckLogin(c *gin.Context) {
 	s, err := c.Cookie(common.LoginCookieName)
+	//s = "aaaaaaaaa"
 	if err != nil {
-		controllers.RenderJSON(c, common.Errors(common.LoginCookieExpireError, err), nil)
+		controllers.RenderJSONAndStop(c, common.Errors(common.LoginCookieExpireError, err), nil)
 		return
 	}
 	cookieValue := cookie.ExpireMap.Get(s)
 	if len(cookieValue) == 0 {
-		controllers.RenderJSON(c, common.Errors(common.LoginCookieExpireError, nil), nil)
+		controllers.RenderJSONAndStop(c, common.Errors(common.LoginCookieExpireError, nil), nil)
 		return
 	}
 	cookieInfo, err := ones.DecryptCookieValue(cookieValue)
 	if err != nil {
-		controllers.RenderJSON(c, common.Errors(common.ServerError, err), nil)
+		controllers.RenderJSONAndStop(c, common.Errors(common.ServerError, err), nil)
 		return
 	}
 	c.Set("cookie", s)
 	c.Set("userUUID", cookieInfo.ONESUserUUID)
 	c.Set("orgUUID", cookieInfo.LoginResponse.Org.UUID)
 	c.Set("url", cookieInfo.URL)
-	c.Set("header", map[string]string{
+	c.Set("onesHeader", map[string]string{
 		common.AuthToken: cookieInfo.ONESAuthToken,
 		common.UserID:    cookieInfo.ONESUserUUID,
 	})

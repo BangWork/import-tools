@@ -26,6 +26,7 @@ const (
 	ServerError            = "ServerError"
 	NetworkError           = "NetworkError"
 	LoginCookieExpireError = "LoginCookieExpireError"
+	ONESVersionError       = "ONESVersionError"
 )
 
 var ErrorCodeMap = map[string]int{
@@ -39,6 +40,7 @@ var ErrorCodeMap = map[string]int{
 	AccountError:                      http.StatusBadRequest,
 	ServerError:                       http.StatusInternalServerError,
 	NetworkError:                      http.StatusInternalServerError,
+	ONESVersionError:                  http.StatusInternalServerError,
 }
 
 type Err struct {

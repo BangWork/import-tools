@@ -15,8 +15,11 @@ const (
 	// organization
 	importLogUri     = "organization/%s/importer/log/%s/%d"
 	importHistoryUri = "organization/%s/importer/history"
-	fileConfigUri    = "organization/%s/file_config"
 	stampsUri        = "organization/%s/stamps/data"
+
+	// common
+	fileConfigUri   = "importer/file_config"
+	checkVersionUri = "importer/check_version/%s"
 
 	// login
 	loginUri = "auth/v2/login"
@@ -26,5 +29,3 @@ const (
 	superAdministrator         = "super_administrator"
 	singleUser                 = "single_user"
 )
-
-

@@ -9,7 +9,7 @@ import (
 )
 
 func getONESHeader(c *gin.Context) (r map[string]string) {
-	h, exist := c.Get("header")
+	h, exist := c.Get("onesHeader")
 	if !exist {
 		log.Println("header not exist")
 		return
@@ -57,4 +57,29 @@ func RenderJSON(c *gin.Context, err error, obj interface{}) {
 	log.Printf("ERROR: %+v", r)
 	c.JSON(http.StatusOK, r)
 	c.Next()
+}
+
+func RenderJSONAndStop(c *gin.Context, err error, obj interface{}) {
+	if err == nil {
+		r := gin.H{
+			"code": http.StatusOK,
+		}
+		if obj != nil {
+			r["body"] = obj
+		}
+		c.JSON(http.StatusOK, r)
+		c.Abort()
+		return
+	}
+	res := err.(*common.Err)
+	r := gin.H{
+		"code":     res.Code,
+		"err_code": res.ErrCode,
+	}
+	if res.Body != nil {
+		r["body"] = res.Body
+	}
+	log.Printf("ERROR: %+v", r)
+	c.JSON(http.StatusOK, r)
+	c.Abort()
 }

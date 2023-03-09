@@ -3,8 +3,8 @@ package common
 import "fmt"
 
 const (
-	//projectApiPrefix = "/"
-	projectApiPrefix = "/project/api/project/"
+	projectApiPrefix = "/"
+	//projectApiPrefix = "/project/api/project/"
 )
 
 func GenApiUrl(url, uri string) string {

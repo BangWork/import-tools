@@ -153,10 +153,9 @@ func StopResolve(c *gin.Context) {
 func ResolveResult(c *gin.Context) {
 	cookie := getCookie(c)
 	h := getONESHeader(c)
-	orgUUID := getOrgUUID(c)
 	url := getONESUrl(c)
 
-	info, err := file.GetONESDiskInfo(url, orgUUID, cookie, h)
+	info, err := file.GetONESDiskInfo(url, cookie, h)
 	RenderJSON(c, err, info)
 }
 
@@ -177,14 +176,13 @@ func ProjectList(c *gin.Context) {
 func CheckProjectDisk(c *gin.Context) {
 	cookie := getCookie(c)
 	h := getONESHeader(c)
-	orgUUID := getOrgUUID(c)
 	url := getONESUrl(c)
 
 	req := make([]string, 0)
 	if err := c.BindJSON(&req); err != nil {
 		return
 	}
-	available, err := file.CheckProjectDiskAvailable(url, orgUUID, cookie, h, req)
+	available, err := file.CheckProjectDiskAvailable(url, cookie, h, req)
 	RenderJSON(c, err, map[string]bool{
 		"ones_disk_available": available,
 	})

@@ -42,12 +42,17 @@ func Login(req *services.LoginRequest) (string, error) {
 		return "", e
 	}
 
+	if e := checkONESVersion(req.URL, header); e != nil {
+		return "", e
+	}
+
 	cacheInfo.LoginResponse = respBody
 	cookie := cacheInfo.GenCookie()
 	cookieValue, err := cacheInfo.GenCookieValue()
 	if err != nil {
 		return "", common.Errors(common.ServerError, err)
 	}
+	//cookie = "aaaaaaaaa"
 	cookie2.ExpireMap.Put(cookie, cookieValue)
 	return cookie, nil
 }
@@ -75,6 +80,11 @@ func checkLoginPermission(r *ones.LoginResponse, url string, header map[string]s
 		return common.Errors(common.NotSuperAdministratorError, nil)
 	}
 	return nil
+}
+
+func checkONESVersion(url string, header map[string]string) error {
+	_, err := ones.CheckONESVersion(url, header)
+	return err
 }
 
 func Logout(cookie string) {
