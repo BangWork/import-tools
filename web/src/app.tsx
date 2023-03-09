@@ -34,13 +34,12 @@ const NormalLayoutRoutes = () => (
   </Layout>
 );
 
-const Main = () => {
-  const currentLang = getCurrentLang(i18n);
-  const local = getAntDesignLang(currentLang);
-  console.log(local);
+const currentLang = getCurrentLang(i18n);
+const local = getAntDesignLang(currentLang);
 
+const Main = () => {
   return (
-    <ConfigProvider locale={local}>
+    <ConfigProvider locale={local.default || local}>
       <GlobalStyle />
       <HashRouter>
         <NormalLayoutRoutes />
