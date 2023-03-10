@@ -17,7 +17,7 @@ const QuestionCircleOutlinedStyled = styled(QuestionCircleOutlined)`
   color: #909090;
 `;
 
-const INIT_LOCAL_HOME = '/var/atlassian/application-data/jira/';
+const INIT_LOCAL_HOME = '/var/atlassian/application-data/jira';
 
 const AnalyzePage = () => {
   const { t } = useTranslation();
