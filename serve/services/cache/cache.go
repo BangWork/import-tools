@@ -138,7 +138,13 @@ func GenCacheKey(addr string) string {
 
 const ConsCacheKey = "__cache_key__"
 
+var _CacheKey string
+
 func GetCacheKey() (string, error) {
+	if _CacheKey != "" {
+		return _CacheKey, nil
+	}
+
 	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -150,10 +156,16 @@ func GetCacheKey() (string, error) {
 		return "", errors.Trace(err)
 	}
 
-	return d[ConsCacheKey], nil
+	_CacheKey = d[ConsCacheKey]
+	return _CacheKey, nil
 }
 
 func SaveCacheKey(key string) error {
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
+	_CacheKey = key
+
 	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -184,7 +196,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 		}
 	}
 	if key == "" {
-		return nil, errors.New("cache key not found")
+		return nil, nil
 	}
 	filePath := path.Join(common.GetCachePath(), cacheFile)
 	b, err := ioutil.ReadFile(filePath)
