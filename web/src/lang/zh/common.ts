@@ -18,8 +18,11 @@ const common = {
   use: '使用',
   unUse: '不使用',
   more: '更多',
+  cancelMigrate: '取消迁移',
 
   noMatch: '对不起，您访问的页面不存在。',
+
+  emptyData:'暂无数据',
 
   fileUnit: {
     0: 'Byte',

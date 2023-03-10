@@ -66,26 +66,49 @@ const analyze = {
   },
   analyzeProgress: {
     title: '解析 Jira 备份包',
-    timeMessage: '预计{{totalTime}}分钟，已解析{{leftTime}}分钟',
+    timeMessage: '预计{{totalTime}}分钟，剩余{{leftTime}}分钟',
     tip: {
-      environment: '1、导入环境：{{name}}',
-      time: '2、开始解析时间：{{time}}',
+      environment: '解析数据包将占用大量 Jira、ONES 服务器资源，建议你在低峰期开始解析。',
+
     },
-    cancel: {
-      text: '取消解析',
-      success: '取消解析成功',
-      fail: '取消解析失败',
-      loading: '取消解析中...',
-      desc: '取消解析将返回「填写 Jira 备份包信息」页面，是否确定？',
+    backupMessage: {
+      title: 'Jira 备份包信息',
+      status: {
+        active: '解析中',
+        success: '解析完成',
+        fail: '解析失败',
+      },
+      analyzeProgress: '解析进度',
+      analyzeBackupName: 'Jira backup name:',
+      analyzeTime: '解析时间:',
+      analyzeEnvironment: 'ONES environment:',
+      analyzeFail:'解析失败，Jira 备份包数据格式错误，请重新上传'
+
+
     },
-    status: {
-      doing: '解析中',
+    analyzeResult: {
+      title: '解析结果',
+      jiraBackupResult: '2.1 Jirab备份包解析结果',
+      onesTeamResult: '2.2 ONES团队信息解析结果',
+      localStorage: '本地磁盘存储，磁盘容量大小: {{memory}} GB',
+      localStorageSupport: 'ONES 服务器磁盘容量支持迁移',
+      localStorageNotSupport: ' ONES 服务器磁盘容量不足全量导入，请扩充容量',
+      localStorageRule: '  了解迁移磁盘规则',
     },
-    fail: {
-      title: '解析失败！',
-      normalDesc: '「{{name}}」解析失败！请导入正确的 Jira 数据包。',
-      onExistDesc: '「{{name}}」不存在，解析失败！',
+    tableTitle: {
+      version: 'Jira 版本',
+      projects: '项目数量',
+      works: '工作项数量',
+      members: '成员数量',
+      fileSize: '附件总大小',
+      files: '附件数量',
+      id: 'Jira 服务器 ID',
+      team: 'ONES 团队信息',
+      status: '迁移状态',
+      time: '迁移时间',
+
     },
+
   },
   analyzeResult: {
     title: '解析结果',

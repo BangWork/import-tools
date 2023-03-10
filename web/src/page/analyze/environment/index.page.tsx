@@ -8,6 +8,8 @@ import FrameworkContent from '@/components/framework_content';
 import Footer from '@/components/footer';
 import { loginApi } from '@/api';
 
+import { getCookieValue } from '@/utils/unit';
+
 import { ERROR_MAP, COOKIENAME } from './config';
 
 const EnvironmentPage = () => {
@@ -64,7 +66,11 @@ const EnvironmentPage = () => {
   }, [email, password]);
 
   useEffect(() => {
+    console.log('aaa', getCookieValue(COOKIENAME));
+
     if (getCookieValue(COOKIENAME)) {
+      console.log(getCookieValue(COOKIENAME));
+
       setIsLogin(true);
     }
   }, []);
@@ -73,11 +79,6 @@ const EnvironmentPage = () => {
     navigate('/page/analyze/pack', {
       replace: true,
     });
-  };
-
-  const getCookieValue = (name: string) => {
-    const result = document.cookie.match('(^|[^;]+)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return result ? result.pop() : '';
   };
 
   const onFinish = (res) => {

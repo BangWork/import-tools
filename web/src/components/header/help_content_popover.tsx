@@ -30,8 +30,6 @@ const HelpContentPopover: FC<HelpContentPopoverProps> = memo((props) => {
     {
       text: 'common.help.import',
       onClick: () => {
-        console.log(window.location.origin);
-
         downloadFile(`${window.location.origin}/public/import_list.csv`, 'import_list');
       },
     },

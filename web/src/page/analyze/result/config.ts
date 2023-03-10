@@ -3,7 +3,6 @@ import { getFileUnit } from '@/utils/unit';
 
 export const getCurrentDescConfig = (resolve_result) => {
   const fileSize = getFileUnit(resolve_result?.attachment_size || 0, true);
-  console.log(fileSize);
 
   const currentDescConfig = [
     {
