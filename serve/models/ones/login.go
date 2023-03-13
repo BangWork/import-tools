@@ -81,6 +81,7 @@ type CookieCacheInfo struct {
 	ONESUserUUID   string `json:"ones_user_uuid"`
 	ONESAuthToken  string `json:"ones_auth_token"`
 	*LoginResponse `json:"login_response"`
+	Language       string `json:"language"`
 }
 
 func (c *CookieCacheInfo) GenCookie() string {

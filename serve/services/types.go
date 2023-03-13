@@ -30,17 +30,20 @@ type QueueStruct struct {
 }
 
 type IssueTypeListResponse struct {
-	JiraList []*JiraIssueType `json:"jira_list"`
-	ONESList []*ONESIssueType `json:"ones_list"`
+	MigratedList     []*MigratedList     `json:"migrated_list"`
+	ReadyMigrateList []*ReadyMigrateList `json:"ready_migrate_list"`
 }
 
-type JiraIssueType struct {
-	IssueTypeID    string `json:"third_issue_type_id"`
-	IssueTypeName  string `json:"third_issue_type_name"`
-	ONESDetailType int    `json:"ones_detail_type"`
+type MigratedList struct {
+	IssueTypeID       string `json:"third_issue_type_id"`
+	IssueTypeName     string `json:"third_issue_type_name"`
+	ONESIssueTypeName string `json:"ones_issue_type_name"`
+	Action            string `json:"action"`
 }
 
-type ONESIssueType struct {
-	Name       string `json:"name"`
-	DetailType int    `json:"detail_type"`
+type ReadyMigrateList struct {
+	IssueTypeID   string `json:"third_issue_type_id"`
+	IssueTypeName string `json:"third_issue_type_name"`
+	Type          int    `json:"type"`
+	Available     bool   `json:"available"`
 }

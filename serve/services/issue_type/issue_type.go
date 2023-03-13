@@ -1,12 +1,13 @@
 package issue_type
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"sort"
 
-	"github.com/gin-contrib/i18n"
+	"github.com/juju/errors"
+
+	"github.com/bangwork/import-tools/serve/models/ones"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
@@ -37,69 +38,94 @@ var (
 	}
 )
 
-func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
-	cacheInfo, err := common.GetCacheInfo(key)
+func GetUnBoundIssueTypes(cookie, url, teamUUID string, h map[string]string) ([]*ones.UnBoundIssueTypes, error) {
+	list, err := ones.GetUnBoundIssueTypes(url, teamUUID, h)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	issueTypeFile, found := cacheInfo.MapFilePath[common.TagIssueType]
+	//c, err := ones.DecryptCookieValueByCookie(cookie)
+	//if err != nil {
+	//	return nil, errors.Trace(err)
+	//}
+	//name := "ONES custom issue type"
+	//switch c.Language {
+	//case ones.LanguageTagChinese:
+	//	name = "ONES 自定义工作项类型"
+	//}
+	//list = append(list, &ones.UnBoundIssueTypes{
+	//	DetailType: common.IssueTypeDetailTypeCustom,
+	//	Name:       name,
+	//})
+	sort.SliceStable(list, func(i, j int) bool {
+		return list[i].DetailType < list[j].DetailType
+	})
+	return list, nil
+}
+
+func GetIssueTypeList(url, teamUUID, cookie string, h map[string]string, projectIDs []string) (*services.IssueTypeListResponse, error) {
+	importCache := common.ImportCacheMap.Get(cookie)
+	issueTypes := make(map[string]bool)
+	for _, pid := range projectIDs {
+		for _, issueTypeID := range importCache.ProjectIssueTypeMap[pid] {
+			issueTypes[issueTypeID] = true
+		}
+	}
+	mapBind, err := ones.MapThirdIssueTypeBind(url, teamUUID, h)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	issueTypeFile, found := importCache.MapFilePath[common.TagIssueType]
 	if !found {
-		return nil, common.Errors(common.NotFoundError, nil)
+		return nil, errors.Trace(common.Errors(common.NotFoundError, nil))
 	}
 	file, err := os.Open(issueTypeFile)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
-	mapBind := map[string]int{}
-	for _, v := range typeList.JiraList {
-		mapBind[v.IssueTypeID] = v.ONESDetailType
-	}
 	xmlReader := resolve.NewXmlScanner(file, common.TagEntityRoot)
-	jiraList := make([]*services.JiraIssueType, 0)
+	migratedList := make([]*services.MigratedList, 0)
+	readyMigrateList := make([]*services.ReadyMigrateList, 0)
 	for {
 		reader, err := xml.NextElementFromReader(xmlReader)
 		if err != nil {
 			log.Printf("NextElementFromReader error, %+v", err)
-			return nil, err
+			return nil, errors.Trace(err)
 		}
 		if reader == nil {
 			break
 		}
-		data := new(services.JiraIssueType)
+		data := new(services.MigratedList)
 		data.IssueTypeID = xml.GetAttributeValue(reader, "id")
 		data.IssueTypeName = xml.GetAttributeValue(reader, "name")
+		style := xml.GetAttributeValue(reader, "style")
 		if !issueTypes[data.IssueTypeID] {
 			continue
 		}
+		issueTypeTaskType := ones.IssueTypeStandardTaskType
+		if style == ones.JiraSubTaskStyle {
+			issueTypeTaskType = ones.IssueTypeSubTaskType
+		}
 
-		detailType, found := mapBind[data.IssueTypeID]
+		bind, found := mapBind[data.IssueTypeID]
 		if found {
-			data.ONESDetailType = detailType
+			data.ONESIssueTypeName = bind.ONESIssueTypeName
+			data.Action = "map"
+			if bind.ONESDetailType == -1 {
+				data.Action = "create"
+			}
+			migratedList = append(migratedList, data)
+		} else {
+			readyMigrateList = append(readyMigrateList, &services.ReadyMigrateList{
+				IssueTypeID:   data.IssueTypeID,
+				IssueTypeName: data.IssueTypeName,
+				Type:          issueTypeTaskType,
+			})
 		}
-		jiraList = append(jiraList, data)
-	}
-	typeList.ONESList = append(typeList.ONESList, &services.ONESIssueType{
-		DetailType: common.IssueTypeDetailTypeCustom,
-		Name:       i18n.MustGetMessage("issue_type_custom"),
-	})
-
-	ONESList := typeList.ONESList
-	mapONESList := make(map[int]*services.ONESIssueType)
-	for _, issueType := range ONESList {
-		if issueType.DetailType != 0 {
-			issueType.Name = i18n.MustGetMessage(fmt.Sprintf("issue_type_detail_type_%d", issueType.DetailType))
-		}
-		mapONESList[issueType.DetailType] = issueType
 	}
 
 	resp := new(services.IssueTypeListResponse)
-	for _, detailType := range sortList {
-		resp.ONESList = append(resp.ONESList, mapONESList[detailType])
-	}
-	sort.SliceStable(jiraList, func(i, j int) bool {
-		return jiraList[i].ONESDetailType > jiraList[j].ONESDetailType
-	})
-	resp.JiraList = jiraList
+	resp.MigratedList = migratedList
+	resp.ReadyMigrateList = readyMigrateList
 	return resp, nil
 }

@@ -51,6 +51,21 @@ type ImportHistory struct {
 	} `json:"import_list"`
 }
 
+type BindIssueType struct {
+	IssueTypeID       string `json:"third_issue_type_id"`
+	IssueTypeName     string `json:"third_issue_type_name"`
+	ONESDetailType    int    `json:"ones_detail_type"`
+	ONESIssueTypeUUID string `json:"ones_issue_type_uuid"`
+	ONESIssueTypeName string `json:"ones_issue_type_name"`
+}
+
+type UnBoundIssueTypes struct {
+	UUID       string `json:"uuid"`
+	Name       string `json:"name"`
+	DetailType int    `json:"detail_type"`
+	Type       int    `json:"type"`
+}
+
 type LoginResponse struct {
 	User  User         `json:"user"`
 	Org   Organization `json:"org"`

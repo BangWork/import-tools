@@ -9,8 +9,6 @@ import (
 
 	"github.com/bangwork/import-tools/serve/services"
 
-	"github.com/bangwork/import-tools/serve/services/issue_type"
-
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/utils"
 )
@@ -296,8 +294,8 @@ func (r *Account) ConfirmImport(reqBody *services.ConfirmImportRequest) (string,
 //	}
 //
 //	res := new(services.IssueTypeListResponse)
-//	res.JiraList = thirdIssueTypesBind
-//	res.ONESList = issueTypes
+//	res.MigratedList = thirdIssueTypesBind
+//	res.ReadyMigrateList = issueTypes
 //
 //	return res, nil
 //}
@@ -409,7 +407,7 @@ func (r *Account) checkTeamPermission() (bool, error) {
 //	return resp, nil
 //}
 
-func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
+func (r *Account) getThirdIssueTypeBind() ([]*services.MigratedList, error) {
 	uri := fmt.Sprintf(thirdIssueTypeBindUri, r.Cache.ImportTeamUUID)
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
@@ -417,7 +415,7 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	res := make([]*services.JiraIssueType, 0)
+	res := make([]*services.MigratedList, 0)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -428,33 +426,33 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 	return res, nil
 }
 
-func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
-	uri := fmt.Sprintf(issueTypeListUri, r.Cache.ImportTeamUUID)
-	url := common.GenApiUrl(r.URL, uri)
-	resp, err := utils.GetWithHeader(url, r.AuthHeader)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	type issueTypeResp struct {
-		IssueTypes []*services.ONESIssueType `json:"issue_types"`
-	}
-	res := new(issueTypeResp)
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if err = json.Unmarshal(data, &res); err != nil {
-		return nil, err
-	}
-	filterRes := make([]*services.ONESIssueType, 0)
-	for _, v := range res.IssueTypes {
-		if issue_type.SupportDetailType[v.DetailType] {
-			filterRes = append(filterRes, v)
-		}
-	}
-	return filterRes, nil
-}
+//func (r *Account) getIssueTypeList() ([]*services.ReadyMigrateList, error) {
+//	uri := fmt.Sprintf(issueTypeListUri, r.Cache.ImportTeamUUID)
+//	url := common.GenApiUrl(r.URL, uri)
+//	resp, err := utils.GetWithHeader(url, r.AuthHeader)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer resp.Body.Close()
+//	type issueTypeResp struct {
+//		IssueTypes []*services.ReadyMigrateList `json:"issue_types"`
+//	}
+//	res := new(issueTypeResp)
+//	data, err := ioutil.ReadAll(resp.Body)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if err = json.Unmarshal(data, &res); err != nil {
+//		return nil, err
+//	}
+//	filterRes := make([]*services.ReadyMigrateList, 0)
+//	for _, v := range res.IssueTypes {
+//		if issue_type.SupportDetailType[v.DetailType] {
+//			filterRes = append(filterRes, v)
+//		}
+//	}
+//	return filterRes, nil
+//}
 
 func (r *Account) getImportHistory() ([]*ImportHistory, error) {
 	uri := fmt.Sprintf("%s", fmt.Sprintf(importHistoryUri, r.Cache.OrgUUID))

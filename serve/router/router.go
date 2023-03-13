@@ -76,7 +76,8 @@ func Run(port int) {
 	api.GET("/project_list", middlewares.CheckLogin, controllers.ProjectList)
 	api.POST("/history_config/project", middlewares.CheckLogin, controllers.SetProjectHistoryConfig)
 	api.POST("/check_disk", middlewares.CheckLogin, controllers.CheckProjectDisk)
-	//api.POST("/issue_type_list", controllers.IssueTypeList)
+	api.POST("/ones/team/:teamUUID/issue_type_list", middlewares.CheckLogin, controllers.IssueTypeList)
+	api.GET("/ones/team/:teamUUID/unbound_issue_types", middlewares.CheckLogin, controllers.UnBoundONESIssueType)
 
 	api.Run(fmt.Sprintf(":%d", port))
 }

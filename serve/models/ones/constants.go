@@ -11,6 +11,7 @@ const (
 	issueTypeListUri       = "team/%s/issue_types"
 	thirdIssueTypeBindUri  = "team/%s/third_issue_type_bind"
 	listPermissionRulesUri = "team/%s/lite_context_permission_rules"
+	unboundIssueTypesUri   = "team/%s/importer/unbound_issue_types"
 
 	// organization
 	importLogUri       = "organization/%s/importer/log/%s/%d"
@@ -34,4 +35,13 @@ const (
 
 const (
 	orgConfigTypeEnum = 1015
+)
+
+const (
+	LanguageTagEnglish = "en"
+	LanguageTagChinese = "zh"
+
+	JiraSubTaskStyle          = "jira_subtask"
+	IssueTypeStandardTaskType = 0
+	IssueTypeSubTaskType      = 1
 )

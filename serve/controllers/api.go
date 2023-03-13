@@ -7,15 +7,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bangwork/import-tools/serve/services/file"
-
 	"github.com/bangwork/import-tools/serve/common"
 	common2 "github.com/bangwork/import-tools/serve/models/common"
 	"github.com/bangwork/import-tools/serve/services"
 	"github.com/bangwork/import-tools/serve/services/auth"
 	"github.com/bangwork/import-tools/serve/services/config"
+	"github.com/bangwork/import-tools/serve/services/file"
 	"github.com/bangwork/import-tools/serve/services/importer"
 	"github.com/bangwork/import-tools/serve/services/importer/types"
+	"github.com/bangwork/import-tools/serve/services/issue_type"
 	"github.com/bangwork/import-tools/serve/services/log"
 	"github.com/bangwork/import-tools/serve/services/project"
 	"github.com/bangwork/import-tools/serve/services/team"
@@ -208,6 +208,16 @@ func CheckProjectDisk(c *gin.Context) {
 	})
 }
 
+func UnBoundONESIssueType(c *gin.Context) {
+	h := getONESHeader(c)
+	url := getONESUrl(c)
+	teamUUID := getTeamUUID(c)
+	cookie := getCookie(c)
+
+	res, err := issue_type.GetUnBoundIssueTypes(cookie, url, teamUUID, h)
+	RenderJSON(c, err, res)
+}
+
 type SaveProjectListReq struct {
 	Key        string   `json:"key"`
 	ProjectIDs []string `json:"project_ids"`
@@ -248,36 +258,20 @@ func ChooseTeam(c *gin.Context) {
 	RenderJSON(c, err, nil)
 }
 
-//func IssueTypeList(c *gin.Context) {
-//	req := make([]string, 0)
-//	if err := c.BindJSON(&req); err != nil {
-//		return
-//	}
-//	acc := new(account.Account)
-//	cacheInfo, err := cache.GetCacheInfo(req.Key)
-//	if err != nil {
-//		RenderJSON(c, err, nil)
-//		return
-//	}
-//	acc.SetCurrentCache(cacheInfo)
-//	typeList, err := acc.GetIssueTypeList()
-//	if err != nil {
-//		RenderJSON(c, err, nil)
-//		return
-//	}
-//
-//	issueTypes := make(map[string]bool)
-//	for _, pid := range req.ProjectIDs {
-//		for _, issueTypeID := range cacheInfo.ProjectIssueTypeMap[pid] {
-//			issueTypes[issueTypeID] = true
-//		}
-//	}
-//	list, err := issue_type.GetIssueTypeList(req.Key, typeList, issueTypes)
-//	RenderJSON(c, err, map[string]interface{}{
-//		"issue_types":    list,
-//		"issue_type_map": cacheInfo.IssueTypeMap,
-//	})
-//}
+func IssueTypeList(c *gin.Context) {
+	projectIDs := make([]string, 0)
+	if err := c.BindJSON(&projectIDs); err != nil {
+		return
+	}
+
+	url := getONESUrl(c)
+	teamUUID := getTeamUUID(c)
+	h := getONESHeader(c)
+	cookie := getCookie(c)
+
+	list, err := issue_type.GetIssueTypeList(url, teamUUID, cookie, h, projectIDs)
+	RenderJSON(c, err, list)
+}
 
 type SaveIssueTypeListReq struct {
 	Key          string                      `json:"key"`

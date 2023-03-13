@@ -24,6 +24,10 @@ func getOrgUUID(c *gin.Context) (r string) {
 	return c.GetString("orgUUID")
 }
 
+func getTeamUUID(c *gin.Context) (r string) {
+	return c.Param("teamUUID")
+}
+
 func getCookie(c *gin.Context) (r string) {
 	return c.GetString("cookie")
 }

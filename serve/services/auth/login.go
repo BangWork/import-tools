@@ -3,6 +3,9 @@ package auth
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
+
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/models/ones"
@@ -16,7 +19,7 @@ func Login(req *services.LoginRequest) (string, error) {
 	}
 	resp, err := ones.LoginONES(req.URL, req.Email, req.Password)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	defer resp.Body.Close()
 	cacheInfo := new(ones.CookieCacheInfo)
@@ -25,13 +28,14 @@ func Login(req *services.LoginRequest) (string, error) {
 	cacheInfo.Password = req.Password
 	cacheInfo.ONESUserUUID = resp.Header.Get(common.UserID)
 	cacheInfo.ONESAuthToken = resp.Header.Get(common.AuthToken)
+	cacheInfo.Language = getCookieLanguage(resp.Cookies())
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	respBody := new(ones.LoginResponse)
 	if err = json.Unmarshal(data, &respBody); err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	header := map[string]string{
@@ -39,22 +43,31 @@ func Login(req *services.LoginRequest) (string, error) {
 		common.AuthToken: cacheInfo.ONESAuthToken,
 	}
 	if e := checkLoginPermission(respBody, req.URL, header); e != nil {
-		return "", e
+		return "", errors.Trace(e)
 	}
 
 	if e := checkONESVersion(req.URL, header); e != nil {
-		return "", e
+		return "", errors.Trace(e)
 	}
 
 	cacheInfo.LoginResponse = respBody
 	cookie := cacheInfo.GenCookie()
 	cookieValue, err := cacheInfo.GenCookieValue()
 	if err != nil {
-		return "", common.Errors(common.ServerError, err)
+		return "", errors.Trace(common.Errors(common.ServerError, err))
 	}
 	//cookie = "aaaaaaaaa"
 	cookie2.ExpireMap.Put(cookie, cookieValue)
 	return cookie, nil
+}
+
+func getCookieLanguage(input []*http.Cookie) string {
+	for _, v := range input {
+		if v.Name == "language" {
+			return v.Value
+		}
+	}
+	return ones.LanguageTagEnglish
 }
 
 func checkLoginPermission(r *ones.LoginResponse, url string, header map[string]string) error {
