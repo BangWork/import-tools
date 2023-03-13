@@ -13,9 +13,11 @@ const (
 	listPermissionRulesUri = "team/%s/lite_context_permission_rules"
 
 	// organization
-	importLogUri     = "organization/%s/importer/log/%s/%d"
-	importHistoryUri = "organization/%s/importer/history"
-	stampsUri        = "organization/%s/stamps/data"
+	importLogUri       = "organization/%s/importer/log/%s/%d"
+	importHistoryUri   = "organization/%s/importer/history"
+	stampsUri          = "organization/%s/stamps/data"
+	getOrgConfigUri    = "organization/%s/org_config/%d"
+	updateOrgConfigUri = "organization/%s/org_config/update"
 
 	// common
 	fileConfigUri   = "importer/file_config"
@@ -28,4 +30,8 @@ const (
 	administerOrganization     = "administer_organization"
 	superAdministrator         = "super_administrator"
 	singleUser                 = "single_user"
+)
+
+const (
+	orgConfigTypeEnum = 1015
 )

@@ -173,6 +173,26 @@ func ProjectList(c *gin.Context) {
 	RenderJSON(c, err, list)
 }
 
+func ProjectHistoryConfig(c *gin.Context) {
+	orgUUID := getOrgUUID(c)
+	h := getONESHeader(c)
+	url := getONESUrl(c)
+	list, err := config.GetHistoryProjectConfig(url, orgUUID, h)
+	RenderJSON(c, err, list)
+}
+
+func SetProjectHistoryConfig(c *gin.Context) {
+	orgUUID := getOrgUUID(c)
+	h := getONESHeader(c)
+	url := getONESUrl(c)
+	projectIDs := make([]string, 0)
+	if err := c.BindJSON(&projectIDs); err != nil {
+		return
+	}
+	err := config.SetHistoryProjectConfig(url, orgUUID, h, projectIDs)
+	RenderJSON(c, err, nil)
+}
+
 func CheckProjectDisk(c *gin.Context) {
 	cookie := getCookie(c)
 	h := getONESHeader(c)
@@ -229,7 +249,7 @@ func ChooseTeam(c *gin.Context) {
 }
 
 //func IssueTypeList(c *gin.Context) {
-//	req := new(GetIssueTypeRequest)
+//	req := make([]string, 0)
 //	if err := c.BindJSON(&req); err != nil {
 //		return
 //	}

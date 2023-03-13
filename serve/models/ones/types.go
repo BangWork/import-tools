@@ -24,6 +24,19 @@ type PermissionRule struct {
 	UserDomainParam string `json:"user_domain_param"`
 }
 
+type OrgConfigResponse struct {
+	JiraInfo string `json:"jira_info"`
+}
+
+type JiraInfoStruct struct {
+	SelectedProjectIDs []string `json:"selected_project_ids"`
+}
+
+type UpdateOrgConfigRequest struct {
+	ConfigType int               `json:"config_type"`
+	ConfigData OrgConfigResponse `json:"config_data"`
+}
+
 type loginErrorResponse struct {
 	RetryCount int `json:"retry_count"`
 }

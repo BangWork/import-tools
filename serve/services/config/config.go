@@ -2,7 +2,9 @@ package config
 
 import (
 	"github.com/bangwork/import-tools/serve/common"
+	"github.com/bangwork/import-tools/serve/models/ones"
 	"github.com/bangwork/import-tools/serve/utils"
+	"github.com/juju/errors"
 )
 
 type UserJiraConfig struct {
@@ -30,4 +32,24 @@ func GetUserJiraConfig(cookie string) (*UserJiraConfig, error) {
 		r.BackupList = res
 	}
 	return r, nil
+}
+
+func GetHistoryProjectConfig(url, orgUUID string, h map[string]string) ([]string, error) {
+	jiraConfigInfo, err := ones.GetJiraConfigInfo(orgUUID, url, h)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if jiraConfigInfo.SelectedProjectIDs == nil {
+		return []string{}, nil
+	}
+	return jiraConfigInfo.SelectedProjectIDs, nil
+}
+
+func SetHistoryProjectConfig(url, orgUUID string, h map[string]string, projectIDs []string) error {
+	jiraConfigInfo, err := ones.GetJiraConfigInfo(orgUUID, url, h)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	jiraConfigInfo.SelectedProjectIDs = projectIDs
+	return ones.SetJiraConfigInfo(orgUUID, url, h, jiraConfigInfo)
 }

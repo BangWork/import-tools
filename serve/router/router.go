@@ -21,7 +21,7 @@ import (
 var FS embed.FS
 
 func Run(port int) {
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	api := gin.Default()
 	api.Use(middlewares.Recovery(), middlewares.Logger())
 	api.Use(GinI18nLocalize())
@@ -72,8 +72,11 @@ func Run(port int) {
 	api.POST("/resolve/stop", middlewares.CheckLogin, controllers.StopResolve)
 	api.GET("/resolve/result", middlewares.CheckLogin, controllers.ResolveResult)
 	api.GET("/team_list", middlewares.CheckLogin, controllers.TeamList)
+	api.GET("/history_config/project", middlewares.CheckLogin, controllers.ProjectHistoryConfig)
 	api.GET("/project_list", middlewares.CheckLogin, controllers.ProjectList)
+	api.POST("/history_config/project", middlewares.CheckLogin, controllers.SetProjectHistoryConfig)
 	api.POST("/check_disk", middlewares.CheckLogin, controllers.CheckProjectDisk)
+	//api.POST("/issue_type_list", controllers.IssueTypeList)
 
 	api.Run(fmt.Sprintf(":%d", port))
 }
