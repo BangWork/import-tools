@@ -32,6 +32,7 @@ const TopRightBanner = styled.div`
   display: flex;
   align-items: center;
   color: #606060;
+  cursor: pointer;
 `;
 const HelpStyled = styled(Help)`
   font-size: 21px;
@@ -80,7 +81,6 @@ const Header = memo(() => {
   }, [selected]);
 
   const handleLangSelected = (key) => {
-    console.log('key', key);
     setSelected(key);
     setOpen(false);
   };
@@ -124,7 +124,7 @@ const Header = memo(() => {
             }
             onVisibleChange={handleOpenPopoverChange}
           >
-            {t(selected)}
+            <span style={{ fontWeight: '500' }}>{t(selected)}</span>
             {!isPopoverOpen ? (
               <ChevronDown className={'oac-ml-2'} />
             ) : (

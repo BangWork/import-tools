@@ -19,6 +19,15 @@ const common = {
   unUse: '不使用',
   more: '更多',
   cancelMigrate: '取消迁移',
+  continueMigrate: '继续迁移',
+
+  nonONESTeamAdministratorAccount: '非 ONES 团队管理员帐号',
+  nonONESOrganizationAdministratorAccount: '非 ONES 组织管理员帐号',
+  nonTeamTips: '当前帐号非 ONES 团队管理员帐号，无法取消解析。点击确定后，相关迁移配置保存并登出帐号，建议你恢复 ONES 权限后再次登录。',
+  nonOrganizationTips: '当前帐号非 ONES 组织管理员帐号，无法取消解析。点击确定后，相关迁移配置保存并登出帐号，建议你恢复 ONES 权限后再次登录。',
+
+
+  cancelMigrateTip: '取消迁移后，相关迁移配置会被清除，并退出当前帐号回到工具首页。是否取消迁移？',
 
   noMatch: '对不起，您访问的页面不存在。',
 

@@ -3,5 +3,3 @@ export const ERROR_MAP = {
   NotSuperAdministratorError: 'environment.serverError.team',
   NotOrganizationAdministratorError: 'environment.serverError.organize',
 };
-
-export const COOKIENAME = 'IMPORTTOOLS';

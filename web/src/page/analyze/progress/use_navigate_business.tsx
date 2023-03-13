@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRafInterval } from 'ahooks';
 
@@ -48,12 +47,15 @@ const useNavigateBusiness = () => {
   };
 
   const handleBack = () => {
-    cancelAnalyze();
-    navigate('/page/analyze/pack', { replace: true });
+    cancelAnalyzeApi().then(() => {
+      navigate('/page/analyze/pack', { replace: true });
+    });
   };
 
-  const cancelAnalyze = () => {
-    cancelAnalyzeApi();
+  const handleCancelMigrate = () => {
+    cancelAnalyzeApi().then(() => {
+      navigate('/page/home', { replace: true });
+    });
   };
 
   return {
@@ -61,7 +63,7 @@ const useNavigateBusiness = () => {
     handleNext,
     info,
     resultData,
-    cancelAnalyze,
+    handleCancelMigrate,
   };
 };
 

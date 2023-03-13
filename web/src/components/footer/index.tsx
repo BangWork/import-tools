@@ -4,6 +4,9 @@ import { memo, ReactNode, FC } from 'react';
 import { t } from 'i18next';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router';
+
+import { Modal } from '@ones-design/core';
+import { loginApi } from '@/api/';
 export interface FooterType {
   fun?: (...args: any[]) => void;
   text?: string;
@@ -29,9 +32,53 @@ const Box = styled.div<Pick<FooterProps, 'width'>>`
 
 const Footer: FC<FooterProps> = memo((props) => {
   const navigate = useNavigate();
+  const handleToConfirm = () => {
+    const url = window.localStorage.getItem('url') || '';
+    const email = window.localStorage.getItem('email') || '';
+    const password = window.localStorage.getItem('password') || '';
+    loginApi({
+      url,
+      email,
+      password,
+    })
+      .then((res) => {
+        Modal.error({
+          title: t('common.cancelMigrate'),
+          content: t('common.cancelMigrateTip'),
+          okText: t('common.cancelMigrate'),
+          onOk: handleHome,
+          cancelText: t('common.continueMigrate'),
+          onCancel: () => {
+            return null;
+          },
+        });
+      })
+      .catch((e) => {
+        const { err_code } = e;
+
+        if (err_code === 'NotSuperAdministratorError') {
+          Modal.warning({
+            title: t('common.nonONESTeamAdministratorAccount'),
+            content: t('common.nonTeamTips'),
+            okText: t('common.ok'),
+            onOk: handleHome,
+          });
+        }
+        if (err_code === 'NotOrganizationAdministratorError') {
+          Modal.warning({
+            title: t('nonONESOrganizationAdministratorAccount'),
+            content: t('nonOrganizationTips'),
+            okText: t('common.ok'),
+            onOk: handleHome,
+          });
+        }
+      });
+  };
+
   const handleHome = () => {
     navigate('/page/home');
   };
+
   const { handleBack, handleNext, handleCancelMigrate, children, width, className } = props;
   return (
     <Box className={className} width={width}>
@@ -39,7 +86,7 @@ const Footer: FC<FooterProps> = memo((props) => {
         <Button
           type={handleCancelMigrate.type}
           className="oac-mr-2"
-          onClick={handleCancelMigrate.fun || handleHome}
+          onClick={handleCancelMigrate.fun || handleToConfirm}
           loading={handleCancelMigrate.isLoading}
           disabled={handleCancelMigrate.isDisabled}
         >

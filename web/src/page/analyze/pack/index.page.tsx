@@ -131,7 +131,7 @@ const AnalyzePage = () => {
   }, 500);
 
   const handleBack = () => {
-    navigate('/page/home');
+    navigate('/page/analyze/environment');
   };
   return (
     <Form form={form} layout="vertical" onFinish={handleFinish} className={'oac-h-full oac-w-full'}>
@@ -213,7 +213,7 @@ const AnalyzePage = () => {
                   <div>
                     <Form.Item
                       name="localHome"
-                      initialValue="/var/atlassian/application-data/jira/"
+                      initialValue="/var/atlassian/application-data/jira"
                       validateStatus={showServerError ? 'error' : undefined}
                       help={
                         showServerError ? t('backupPage.form.localHome.serverError') : undefined

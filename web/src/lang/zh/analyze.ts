@@ -1,4 +1,47 @@
 const analyze = {
+  environment: {
+    title: '填写导入的 ONES 环境信息',
+    tip: {
+      message1: '1. 为了确保你的正式环境下的 ONES 环境不会受到非必要的影响，建议你准备一个 ONES 测试环境，在此测试环境下完成一次数据迁移测试。验收通过后，在正式环境下进行正式的迁移。',
+      message2: '2.请向相关运维人员获取部署 ONES 服务域名/IP，仅 ONES 管理员可以执行 Jira 数据迁移。',
+    },
+    url: {
+      label: 'ONES 服务域名/IP',
+      emptyError: '请输入 ONES 服务域名/IP',
+      serverError: '请输入正确的 ONES 服务域名/IP',
+      placeholder: 'eg：http://ones.com OR https://ones.com',
+    },
+    email: {
+      label: 'ONES 邮箱',
+      emptyError: '请输入邮箱',
+    },
+    password: {
+      label: 'ONES 密码',
+      emptyError: '密码不能为空',
+    },
+    serverError: {
+      count: {
+        title: '请输入正确的帐号或密码',
+        desc: '请到 ONES 环境下验证正确的帐号和密码，10分钟后再重新登录此工具',
+      },
+      account: '请输入正确的帐号或密码',
+      team: '此 ONES 帐号非团队管理员，请重新填写',
+      organize: '此 ONES 帐号非组织管理员，请重新填写',
+
+      version: {
+        title: '请更新 ONES 环境版本',
+        desc1: 'Jira 迁移工具不支持当前的 ONES 版本，请联系 ONES 迁移团队，协助安装合适的 ONES 版本。',
+        desc2:'了解 Jira 迁移工具适用范围',
+      }
+    },
+    startButton: '开始解析',
+    isLogin: {
+      title: 'Log in to ONES',
+      profile: '头像',
+      ip: 'ONES domain/IP',
+      email:'ONES account email',
+    }
+  },
   backupPage: {
     guide: {
       alert: {
@@ -33,37 +76,7 @@ const analyze = {
       tip: '需选择导入的 Jira 备份包',
     },
   },
-  environment: {
-    title: '填写导入的 ONES 环境信息',
-    tip: {
-      message1: '1、请向相关运维人员获取部署 ONES 服务域名/IP',
-      message2: '2、导入者账号需为管理员',
-    },
-    url: {
-      label: 'ONES 服务域名/IP',
-      emptyError: '请输入 ONES 服务域名/IP',
-      serverError: '请输入正确的 ONES 服务域名/IP',
-      placeholder: 'eg：http://ones.com OR https://ones.com',
-    },
-    email: {
-      label: 'ONES 邮箱（导入者）',
-      emptyError: '请输入邮箱',
-    },
-    password: {
-      label: 'ONES 密码（导入者）',
-      emptyError: '密码不能为空',
-    },
-    serverError: {
-      count: {
-        title: '请输入正确的帐号或密码',
-        desc: '请到 ONES 环境下验证正确的帐号和密码，10分钟后再重新登录此工具',
-      },
-      account: '请输入正确的帐号或密码',
-      team: '此 ONES 帐号非团队管理员，请重新填写',
-      organize: '此 ONES 帐号非组织管理员，请重新填写',
-    },
-    startButton: '开始解析',
-  },
+
   analyzeProgress: {
     title: '解析 Jira 备份包',
     timeMessage: '预计{{totalTime}}分钟，剩余{{leftTime}}分钟',

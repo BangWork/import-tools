@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 const ContentBox = styled.div`
   width: 473px;
-  height: 261px;
+  height: 195px;
   border: 1px solid #e8e8e8;
   padding: 20px;
   display: flex;
@@ -23,24 +23,28 @@ const RightBox = styled.div`
 `;
 
 const RightText = styled.div`
-  height: 161px;
+  height: 95px;
   margin-bottom: 15px;
+  color: #606060;
 `;
 const TitleBox = styled.div`
   weight: 500;
   font-size: 16px;
   line-height: 24px;
+  margin-bottom: 5px;
+  color: #303030;
 `;
 
 const TextBox = (props) => {
-  const { title, descriptionText, icon, children, className } = props;
+  const { title, descriptionText1, descriptionText2, icon, children, className } = props;
   return (
     <ContentBox className={className}>
       <LeftIcon>{icon}</LeftIcon>
       <RightBox>
         <RightText>
           <TitleBox>{title}</TitleBox>
-          <div>{descriptionText}</div>
+          <div>{descriptionText1}</div>
+          {descriptionText2 ? <div>{descriptionText2}</div> : null}
         </RightText>
         <>{children}</>
       </RightBox>

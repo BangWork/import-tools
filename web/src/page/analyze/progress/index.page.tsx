@@ -30,7 +30,7 @@ const FailAnalyzeDescription = styled.div`
 `;
 const ProgressPage = () => {
   const { t } = useTranslation();
-  const { handleNext, handleBack, info, resultData, cancelAnalyze } = useNavigateBusiness();
+  const { handleNext, handleBack, info, resultData, handleCancelMigrate } = useNavigateBusiness();
 
   const percent = useMemo(() => {
     if (info.spent_time && info.expected_time) {
@@ -164,7 +164,7 @@ const ProgressPage = () => {
       title={t('analyzeProgress.title')}
       footer={
         <Footer
-          handleCancelMigrate={{}}
+          handleCancelMigrate={{ fun: handleCancelMigrate }}
           handleBack={{ fun: handleBack }}
           handleNext={{ fun: handleNext }}
         ></Footer>

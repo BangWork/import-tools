@@ -17,7 +17,3 @@ export const getFileUnit = (fileSize: number, needNumber = true, startUnit = 0) 
   return getFileUnit(size.div(1024), needNumber, startUnit + 1);
 };
 
-export  const getCookieValue = (name: string) => {
-  const result = document.cookie.match('(^|[^;]+)\\s*' + name + '\\s*=\\s*([^;]+)');
-  return result ? result.pop() : '';
-};
