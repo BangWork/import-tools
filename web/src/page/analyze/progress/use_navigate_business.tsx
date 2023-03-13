@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useRafInterval } from 'ahooks';
 
-import { getAnalyzeProgressInfoApi, cancelAnalyzeApi, AnalyzeStatusEnum } from '@/api';
+import {
+  getAnalyzeProgressInfoApi,
+  cancelAnalyzeApi,
+  AnalyzeStatusEnum,
+  getResultApi,
+} from '@/api';
 import type { AnalyzeInfoType } from '@/api';
 
 const TIME = 5000;
@@ -12,35 +16,25 @@ const TIME = 5000;
  * Abnormal Judgment Tips
  */
 const useNavigateBusiness = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [info, setInfo] = useState<Partial<AnalyzeInfoType>>({});
-  const [loading, setLoading] = useState(true);
-
-  const handleBackPack = () => {
-    navigate('/page/analyze/pack', { replace: true });
-  };
-
-  const onFail = (msg) => {
-    return '11';
-  };
-
+  const [resultData, setResultData] = useState({});
   const cancelInterval = useRafInterval(
     () => {
       getAnalyzeProgressInfoApi()
         .then((res) => {
           setInfo(res.body);
-          console.log(res.body);
-          setLoading(false);
-
           if (res.body.status === AnalyzeStatusEnum.fail) {
-            onFail(t('analyzeProgress.fail.normalDesc', { name: res.body.backup_name }));
+            cancelInterval();
+          }
+          if (res.body.status === AnalyzeStatusEnum.done) {
+            cancelInterval();
+            getResultApi().then((res) => {
+              setResultData(res.body);
+            });
           }
         })
-        .catch((error) => {
-          if (error.code === 404) {
-            onFail(t('analyzeProgress.fail.onExistDesc', { name: error.body.backup_name }));
-          }
+        .catch(() => {
           cancelInterval();
         });
     },
@@ -53,22 +47,23 @@ const useNavigateBusiness = () => {
   };
 
   const handleBack = () => {
-    navigate('/page/analyze/pack', { replace: true });
+    cancelAnalyzeApi().then(() => {
+      navigate('/page/analyze/pack', { replace: true });
+    });
   };
 
-  const handleModalOk = () => {
-    cancelAnalyzeApi();
-  };
-
-  const handleCancel = () => {
-    return 'aaa';
+  const handleCancelMigrate = () => {
+    cancelAnalyzeApi().then(() => {
+      navigate('/page/home', { replace: true });
+    });
   };
 
   return {
     handleBack,
     handleNext,
     info,
-    loading,
+    resultData,
+    handleCancelMigrate,
   };
 };
 

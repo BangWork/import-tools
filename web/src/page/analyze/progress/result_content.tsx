@@ -1,46 +1,132 @@
 import { memo } from 'react';
 import type { FC } from 'react';
 import { Table } from '@ones-design/core';
-import { CheckmarkFilled } from '@ones-design/icons';
+import { CheckmarkFilled, Warning, Launch } from '@ones-design/icons';
 import { t } from 'i18next';
-interface columnsType {
-  title: string;
-  dataIndex?: string;
-  render?: (text: any, record: any, index: number) => React.ReactNode;
-  key: string;
-}
+
 interface ResultContentProgressProps {
-  backupColumns: columnsType[];
+  teamDataSource: any[];
   backupDataSource: any[];
   memory: string;
 }
+
+const backupColumns = [
+  {
+    dataIndex: 'version',
+    key: 'version',
+    title: t('analyzeProgress.tableTitle.version'),
+  },
+  {
+    dataIndex: 'projects',
+    key: 'projects',
+    title: t('analyzeProgress.tableTitle.projects'),
+  },
+  {
+    dataIndex: 'date',
+    key: 'date',
+    title: '创建日期',
+  },
+  {
+    dataIndex: 'works',
+    key: 'works',
+    title: t('analyzeProgress.tableTitle.works'),
+  },
+  {
+    dataIndex: 'members',
+    key: 'members',
+    title: t('analyzeProgress.tableTitle.members'),
+  },
+  {
+    dataIndex: 'fileSize',
+    key: 'fileSize',
+    title: t('analyzeProgress.tableTitle.fileSize'),
+  },
+  {
+    dataIndex: 'files',
+    key: 'files',
+    title: t('analyzeProgress.tableTitle.files'),
+  },
+  {
+    dataIndex: 'id',
+    key: 'id',
+    title: t('analyzeProgress.tableTitle.id'),
+  },
+];
+const teamColumns = [
+  {
+    render: (text, record) => {
+      return (
+        <div className="oac-flex oac-items-center">
+          <CheckmarkFilled fontSize="16" style={{ marginRight: '5px' }}></CheckmarkFilled>
+          <div>{record.user}</div>
+        </div>
+      );
+    },
+    key: 'team',
+    title: t('analyzeProgress.tableTitle.team'),
+  },
+  {
+    dataIndex: 'status',
+    key: 'status',
+    title: t('analyzeProgress.tableTitle.status'),
+  },
+  {
+    dataIndex: 'time',
+    key: 'time',
+    title: t('analyzeProgress.tableTitle.time'),
+  },
+  {
+    dataIndex: 'id',
+    key: 'id',
+    title: t('analyzeProgress.tableTitle.id'),
+  },
+];
 const ResultContent: FC<ResultContentProgressProps> = memo((props) => {
-  const { backupColumns, backupDataSource, memory } = props;
+  const { backupDataSource, memory, teamDataSource } = props;
   return (
     <div>
       <div>
-        <div style={{ fontWeight: '500', fontSize: '16px' }} className="oac-pb-1">
-          {t('title')}
+        <div style={{ fontWeight: '500', fontSize: '16px' }} className="oac-pt-4 oac-pb-1">
+          {t('analyzeProgress.analyzeResult.title')}
         </div>
-        <div className="oac-pb-2">{t('common.back')}</div>
+        <div className="oac-pb-2">{t('analyzeProgress.analyzeResult.jiraBackupResult')}</div>
         <Table
           columns={backupColumns}
           dataSource={backupDataSource}
           className="oac-overflow-auto"
-          style={{ maxHeight: '100px' }}
+          style={{ maxHeight: '72px', border: '1px solid #E5E5E5' }}
+          locale={{ emptyText: t('common.noData') }}
         ></Table>
       </div>
       <div className="oac-pt-4">
-        <div style={{ fontWeight: '500', fontSize: '16px' }}>{t('title')}</div>
-        <div>
-          {t('common.back') + t(memory)}
-          <CheckmarkFilled />
+        <div style={{ lineHeight: '22px' }}>
+          {t('analyzeProgress.analyzeResult.onesTeamResult')}
         </div>
+        {false ? (
+          <div className="oac-pb-2 oac-pl-2">
+            {t('analyzeProgress.analyzeResult.localStorage', { memory: memory })}
+            <CheckmarkFilled style={{ marginLeft: '10px' }} />{' '}
+            {t('analyzeProgress.analyzeResult.localStorageSupport')}
+          </div>
+        ) : (
+          <div className="oac-pb-2 oac-pl-2">
+            {t('analyzeProgress.analyzeResult.localStorage', { memory: memory })}
+            <Warning style={{ color: '#F0A100', marginLeft: '10px' }} />
+            <span style={{ color: '#F0A100' }}>
+              {t('analyzeProgress.analyzeResult.localStorageNotSupport')}
+            </span>
+            <a target="_blank" rel="noopener noreferrer">
+              {t('analyzeProgress.analyzeResult.localStorageRule')}
+              <Launch style={{ marginLeft: '5px' }} />
+            </a>
+          </div>
+        )}
         <Table
-          columns={backupColumns}
-          dataSource={backupDataSource}
+          columns={teamColumns}
+          dataSource={teamDataSource}
           className="oac-overflow-auto"
-          style={{ maxHeight: '100px' }}
+          style={{ maxHeight: '125px', border: '1px solid #E5E5E5' }}
+          locale={{ emptyText: t('common.emptyData') }}
         ></Table>
       </div>
     </div>

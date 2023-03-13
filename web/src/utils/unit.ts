@@ -16,3 +16,4 @@ export const getFileUnit = (fileSize: number, needNumber = true, startUnit = 0) 
 
   return getFileUnit(size.div(1024), needNumber, startUnit + 1);
 };
+

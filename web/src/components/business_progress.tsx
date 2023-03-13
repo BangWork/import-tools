@@ -5,12 +5,12 @@ import styled from 'styled-components';
 
 export interface BusinessProgressProps {
   /** top message */
-  title?: string | ReactNode;
-  statusText?: string | ReactNode;
+  title?: string;
+  statusText?: string;
   status?: 'success' | 'active' | 'fail';
   percentDescription?: string | ReactNode;
   percentTimeText?: string | ReactNode;
-  bottomMessage: string | ReactNode;
+  bottomMessage?: string | ReactNode;
   /** left time of bottom */
   leftTime?: number;
   /** total time of bottom */

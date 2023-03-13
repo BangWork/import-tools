@@ -8,7 +8,10 @@ import FrameworkContent from '@/components/framework_content';
 import Footer from '@/components/footer';
 import { loginApi } from '@/api';
 
-import { ERROR_MAP, COOKIENAME } from './config';
+import { isHasCookie } from '@/utils/getCookie';
+
+import { ERROR_MAP } from './config';
+import { Launch } from '@ones-design/icons';
 
 const EnvironmentPage = () => {
   const { t } = useTranslation();
@@ -37,13 +40,10 @@ const EnvironmentPage = () => {
     border-radius: 50px;
     overflow: hidden;
   `;
-  const handleBack = () => {
-    navigate('/page/home', {
-      replace: true,
-    });
-  };
 
-  const profile = window.localStorage.getItem('profile');
+  const profile = window.localStorage.getItem('profile') || '';
+  const loginUrl = window.localStorage.getItem('environmentUrl') || '';
+  const loginEmail = window.localStorage.getItem('environmentEmail') || '';
   const [isLogin, setIsLogin] = useState(false);
   useEffect(() => {
     const initUrl = window.localStorage.getItem('environmentUrl');
@@ -64,7 +64,7 @@ const EnvironmentPage = () => {
   }, [email, password]);
 
   useEffect(() => {
-    if (getCookieValue(COOKIENAME)) {
+    if (isHasCookie()) {
       setIsLogin(true);
     }
   }, []);
@@ -75,11 +75,15 @@ const EnvironmentPage = () => {
     });
   };
 
-  const getCookieValue = (name: string) => {
-    const result = document.cookie.match('(^|[^;]+)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return result ? result.pop() : '';
+  const handleBack = () => {
+    navigate('/page/home', {
+      replace: true,
+    });
   };
 
+  const handleConfirm = () => {
+    return;
+  };
   const onFinish = (res) => {
     const url = trim(res.url);
     const email = trim(res.email);
@@ -92,12 +96,30 @@ const EnvironmentPage = () => {
 
     form.validateFields().then(() => {
       window.localStorage.setItem('environmentUrl', url);
+      window.localStorage.setItem('environmentEmail', email);
+      window.localStorage.setItem('environmentPassword', password);
       loginApi({
         url,
         email,
         password,
       })
         .then((res) => {
+          Modal.warning({
+            title: t('environment.serverError.version.title'),
+            content: (
+              <div>
+                {t('environment.serverError.version.desc1')}
+                <a href="https://ones.ai" target="_blank" rel="noreferrer">
+                  {t('environment.serverError.version.desc2')}{' '}
+                  <Launch style={{ marginLeft: '5px' }} />
+                </a>
+              </div>
+            ),
+            onOk: () => {
+              handleBack();
+            },
+            okText: t('common.ok'),
+          });
           window.localStorage.setItem('profile', res?.body?.profile);
           handleNext();
         })
@@ -120,12 +142,33 @@ const EnvironmentPage = () => {
 
           if (err_code === 'AccountError' && retryCount > 2) {
             Modal.warning({
-              title: t('environment.serverError.count.title'),
-              content: t('environment.serverError.count.desc'),
+              title: t('environment.serverError.version.title'),
+              content: (
+                <div>
+                  {t('environment.serverError.version.desc1')}
+                  <a href="https://ones.ai" target="_blank" rel="noreferrer">
+                    {t('environment.serverError.version.desc2')}{' '}
+                    <Launch style={{ marginLeft: '5px' }} />
+                  </a>
+                </div>
+              ),
+              onOk: () => {
+                handleBack();
+              },
               okText: t('common.ok'),
-              onOk: handleBack,
             });
           }
+          if (err_code === 'ONESVersionError') {
+            Modal.warning({
+              title: t('environment.serverError.title'),
+              content: t('environment.serverError.desc'),
+              onOk: () => {
+                handleBack();
+              },
+              okText: t('common.ok'),
+            });
+          }
+
           if (msg) {
             toast.warning(t(msg));
           }
@@ -147,7 +190,7 @@ const EnvironmentPage = () => {
         title={t('environment.title')}
         footer={
           <Footer
-            handleCancelMigrate={{ fun: handleBack }}
+            handleCancelMigrate={{ fun: handleConfirm }}
             handleNext={{
               htmlType: 'submit',
               isDisabled: !canSubmit,
@@ -209,25 +252,23 @@ const EnvironmentPage = () => {
     </Form>
   ) : (
     <FrameworkContent
-      title={t('environment.title')}
-      footer={
-        <Footer handleCancelMigrate={{ fun: handleBack }} handleNext={{ fun: handleNext }}></Footer>
-      }
+      title={t('environment.isLogin.title')}
+      footer={<Footer handleCancelMigrate={{}} handleNext={{ fun: handleNext }}></Footer>}
     >
       <div className="oac-pt-2">
         <ContentBox>
-          <ContentLeftBox>{t('common.back')}</ContentLeftBox>
+          <ContentLeftBox>{t('environment.isLogin.profile')}</ContentLeftBox>
           <ProfileStyled>
             <img src={profile} style={{ width: '100%' }} />
           </ProfileStyled>
         </ContentBox>
         <ContentBox>
-          <ContentLeftBox>{t('common.back')}</ContentLeftBox>
-          <div>{t('common.back')}</div>
+          <ContentLeftBox>{t('environment.isLogin.ip')}</ContentLeftBox>
+          <div>{loginUrl}</div>
         </ContentBox>
         <ContentBox>
-          <ContentLeftBox>{t('common.back')}</ContentLeftBox>
-          <div>{t('common.back')}</div>
+          <ContentLeftBox>{t('environment.isLogin.email')}</ContentLeftBox>
+          <div>{loginEmail}</div>
         </ContentBox>
       </div>
     </FrameworkContent>
