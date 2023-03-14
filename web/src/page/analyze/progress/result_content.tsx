@@ -94,7 +94,7 @@ const ResultContent: FC<ResultContentProgressProps> = memo((props) => {
           columns={backupColumns}
           dataSource={backupDataSource}
           className="oac-overflow-auto"
-          style={{ maxHeight: '72px', border: '1px solid #E5E5E5' }}
+          style={{ height: '72px', border: '1px solid #E5E5E5' }}
           locale={{ emptyText: t('common.noData') }}
         ></Table>
       </div>
@@ -125,7 +125,7 @@ const ResultContent: FC<ResultContentProgressProps> = memo((props) => {
           columns={teamColumns}
           dataSource={teamDataSource}
           className="oac-overflow-auto"
-          style={{ maxHeight: '125px', border: '1px solid #E5E5E5' }}
+          style={{ border: '1px solid #E5E5E5', maxHeight: '141px' }}
           locale={{ emptyText: t('common.emptyData') }}
         ></Table>
       </div>

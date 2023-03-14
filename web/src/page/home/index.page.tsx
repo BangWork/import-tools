@@ -1,6 +1,4 @@
-import { Alert, Button } from '@ones-design/core';
-import { Checkbox } from 'antd';
-import { Modal } from '@ones-design/core';
+import { Alert, Button, Modal, Checkbox } from '@ones-design/core';
 import { Edit, Launch } from '@ones-design/icons';
 import { t } from 'i18next';
 import { memo, useState } from 'react';

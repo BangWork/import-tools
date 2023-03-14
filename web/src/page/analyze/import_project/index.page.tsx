@@ -1,90 +1,136 @@
 import { useState, useEffect } from 'react';
-import { Button, Transfer, Tooltip } from 'antd';
+import { Alert, Table, Checkbox } from '@ones-design/core';
+import FrameworkContent from '@/components/framework_content';
+import Footer from '@/components/footer';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { map } from 'lodash-es';
+import { useNavigate } from 'react-router-dom';
+import { containsSubstring } from '@/utils/containsSubstring';
+import { filter, map } from 'lodash-es';
 
 import { getProjectsApi } from '@/api';
-import { LOCAL_CONFIG, listStyle } from './config';
 
+let comparisonProjectData = [];
 const ImportProjectPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [targetKeys, setTargetKeys] = useState<string[]>([]);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [projects, setProjects] = useState<{ id: string; title: string }[]>([]);
 
+  const [selectedSet, setSelectedSet] = useState<Set<string>>(new Set());
+  const [projectData, setProjectData] = useState([]);
+
+  const columns = [
+    {
+      title: '',
+      dataIndex: 'selected',
+      key: 'selected',
+      width: '3%',
+      render: (_, record) => (
+        <Checkbox onChange={() => handleSelect(record)} checked={selectedSet.has(record.id)} />
+      ),
+    },
+    {
+      title: t('importProject.table.projectName'),
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: t('importProject.table.projectKey'),
+      dataIndex: 'projectKey',
+      key: 'projectKey',
+    },
+    {
+      title: t('importProject.table.leader'),
+      dataIndex: 'leader',
+      key: 'leader',
+    },
+    {
+      title: t('importProject.table.projectClassification'),
+      dataIndex: 'category',
+      key: 'category',
+    },
+    {
+      title: t('importProject.table.issueCount'),
+      dataIndex: 'issueCount',
+      key: 'issueCount',
+    },
+  ];
   const handleBack = () => {
-    navigate('/page/analyze/team', { replace: true, state: location?.state });
+    navigate('/page/analyze/team', { replace: true });
+  };
+
+  const handleSelect = (record) => {
+    if (selectedSet.has(record.id)) {
+      selectedSet.delete(record.id);
+    } else {
+      selectedSet.add(record.id);
+    }
+    setSelectedSet(new Set(selectedSet));
   };
 
   useEffect(() => {
-    if (!location?.state) {
-      handleBack();
-    }
-  }, [location]);
-
-  useEffect(() => {
     getProjectsApi().then((res) => {
-      setProjects(map(res.body, (item) => ({ id: item.id, title: item.name })));
+      comparisonProjectData = map(res.body, (item) => ({
+        name: item.name,
+        projectKey: item.key,
+        leader: item.assign,
+        category: item.category,
+        issueCount: item.issue_count,
+        type: item.type,
+      }));
+      setProjectData([...comparisonProjectData]);
     });
   }, []);
 
   const handleSubmit = () => {
     navigate('/page/analyze/issue_map', {
       replace: true,
-      state: {
-        ...(location?.state || {}),
-        projects: targetKeys,
-      },
+      state: {},
     });
   };
 
-  const handleChange = (newTargetKeys: string[]) => {
-    setTargetKeys(newTargetKeys);
+  const handleSearch = (e) => {
+    const projectDataValue = filter(comparisonProjectData, (item) => {
+      return (
+        containsSubstring(item.name, e.target.value) ||
+        containsSubstring(item.projectKey, e.target.value)
+      );
+    });
+    setProjectData(projectDataValue);
   };
 
-  const handleSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
-    setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
+  const handleDownload = () => {
+    console.log('download');
   };
 
-  const renderButton = () => (
-    <Button disabled={!targetKeys.length} className="ml-4" type="primary" onClick={handleSubmit}>
-      {t('common.nextStep')}
-    </Button>
-  );
-
+  const handleConfig = () => {
+    window.open('www.baidu.com', '_blank');
+  };
   return (
-    <div className="h-full w-full">
-      <div className="flex justify-between px-60">
-        <h2>{t('importProject.title')}</h2>
+    <FrameworkContent
+      title={t('importProject.title')}
+      search={{ fun: handleSearch, text: t('importProject.search') }}
+      download={{ fun: handleDownload }}
+      config={{ fun: handleConfig, text: t('importProject.noSupportMigrateProject') }}
+      footer={
+        <Footer
+          handleBack={{ fun: handleBack }}
+          handleNext={{ fun: handleSubmit }}
+          handleCancelMigrate={{}}
+        ></Footer>
+      }
+    >
+      <Alert>
+        <div>{t('importProject.desc1')}</div>
         <div>
-          <Button onClick={handleBack}>{t('common.back')}</Button>
-          {targetKeys.length ? (
-            renderButton()
-          ) : (
-            <Tooltip title={t('importProject.buttonTip')}>{renderButton()}</Tooltip>
-          )}
+          {t('importProject.desc2')}
+          <a target="_blank" rel="noopener noreferrer">
+            {t('importProject.link')}
+          </a>
         </div>
+      </Alert>
+      <div className="oac-pt-4">
+        <Table dataSource={projectData} columns={columns} rowKey="id" bordered={true} />
       </div>
-      <Transfer
-        dataSource={projects}
-        rowKey={(record) => record.id}
-        titles={[t('importProject.sourceTitle'), t('importProject.targetTitle')]}
-        targetKeys={targetKeys}
-        showSearch
-        className="mt-8 h-5/6 px-60 py-0"
-        locale={LOCAL_CONFIG}
-        selectedKeys={selectedKeys}
-        onChange={handleChange}
-        onSelectChange={handleSelectChange}
-        listStyle={listStyle}
-        render={(item) => item.title}
-        oneWay
-        style={{ marginBottom: 16 }}
-      />
-    </div>
+    </FrameworkContent>
   );
 };
 

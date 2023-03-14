@@ -58,6 +58,12 @@ const Message = styled.div`
   font-size: 12px;
   line-height: 20px;
 `;
+
+const statusMap = {
+  success: '#24B47E',
+  active: '#F0A100',
+  fail: '#E52727',
+};
 const BusinessProgress: FC<BusinessProgressProps> = memo((props) => {
   const {
     title = '',
@@ -68,11 +74,7 @@ const BusinessProgress: FC<BusinessProgressProps> = memo((props) => {
     percentTimeText,
     bottomMessage,
   } = props;
-  const statusMap = {
-    success: '#24B47E',
-    active: '#F0A100',
-    fail: '#E52727',
-  };
+
   return (
     <ProgressBoxStyled>
       <TitleStyled>

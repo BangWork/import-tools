@@ -26,16 +26,17 @@ export interface FooterProps {
 
 const Box = styled.div<Pick<FooterProps, 'width'>>`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   width: ${(props) => props?.width || 'full'};
 `;
 
 const Footer: FC<FooterProps> = memo((props) => {
   const navigate = useNavigate();
   const handleToConfirm = () => {
-    const url = window.localStorage.getItem('url') || '';
-    const email = window.localStorage.getItem('email') || '';
-    const password = window.localStorage.getItem('password') || '';
+    const url = window.localStorage.getItem('environmentUrl') || '';
+    const email = window.localStorage.getItem('environmentEmail') || '';
+    const password = window.localStorage.getItem('environmentPassword') || '';
+
     loginApi({
       url,
       email,
@@ -82,41 +83,43 @@ const Footer: FC<FooterProps> = memo((props) => {
   const { handleBack, handleNext, handleCancelMigrate, children, width, className } = props;
   return (
     <Box className={className} width={width}>
-      {handleCancelMigrate ? (
-        <Button
-          type={handleCancelMigrate.type}
-          className="oac-mr-2"
-          onClick={handleCancelMigrate.fun || handleToConfirm}
-          loading={handleCancelMigrate.isLoading}
-          disabled={handleCancelMigrate.isDisabled}
-        >
-          {t(handleCancelMigrate.text || 'common.cancelMigrate')}
-        </Button>
-      ) : null}
-      {handleBack ? (
-        <Button
-          type={handleBack.type}
-          className="oac-mr-2"
-          onClick={handleBack.fun}
-          loading={handleBack.isLoading}
-          disabled={handleBack.isDisabled}
-        >
-          {t(handleBack.text || 'common.back')}
-        </Button>
-      ) : null}
-      {handleNext ? (
-        <Button
-          htmlType={handleNext.htmlType}
-          type={handleNext.type || 'primary'}
-          className="oac-mr-4"
-          onClick={handleNext.fun}
-          loading={handleNext.isLoading}
-          disabled={handleNext.isDisabled}
-        >
-          {t(handleNext.text || 'common.nextStep')}
-        </Button>
-      ) : null}
-      <div>{children}</div>
+      <div className="oac-pl-4">{children}</div>
+      <div>
+        {handleCancelMigrate ? (
+          <Button
+            type={handleCancelMigrate.type}
+            className="oac-mr-2"
+            onClick={handleCancelMigrate.fun || handleToConfirm}
+            loading={handleCancelMigrate.isLoading}
+            disabled={handleCancelMigrate.isDisabled}
+          >
+            {t(handleCancelMigrate.text || 'common.cancelMigrate')}
+          </Button>
+        ) : null}
+        {handleBack ? (
+          <Button
+            type={handleBack.type}
+            className="oac-mr-2"
+            onClick={handleBack.fun}
+            loading={handleBack.isLoading}
+            disabled={handleBack.isDisabled}
+          >
+            {t(handleBack.text || 'common.back')}
+          </Button>
+        ) : null}
+        {handleNext ? (
+          <Button
+            htmlType={handleNext.htmlType}
+            type={handleNext.type || 'primary'}
+            className="oac-mr-4"
+            onClick={handleNext.fun}
+            loading={handleNext.isLoading}
+            disabled={handleNext.isDisabled}
+          >
+            {t(handleNext.text || 'common.nextStep')}
+          </Button>
+        ) : null}
+      </div>
     </Box>
   );
 });

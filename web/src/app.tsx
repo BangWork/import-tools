@@ -22,6 +22,7 @@ const FollowBox = styled.div`
 `;
 const Content = styled.div`
   width: 100%;
+
   overflow-y: auto;
   padding: 0 10px 10px 0;
 `;

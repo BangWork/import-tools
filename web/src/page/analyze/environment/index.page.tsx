@@ -19,6 +19,7 @@ const EnvironmentPage = () => {
   const [form] = Form.useForm();
   const [showServerError, setShowServerError] = useState(false);
   const [showAccountError, setShowAccountError] = useState(false);
+  const [account, setAccount] = useState(2);
   const url = Form.useWatch('url', form);
   const email = Form.useWatch('email', form);
   const password = Form.useWatch('password', form);
@@ -81,9 +82,6 @@ const EnvironmentPage = () => {
     });
   };
 
-  const handleConfirm = () => {
-    return;
-  };
   const onFinish = (res) => {
     const url = trim(res.url);
     const email = trim(res.email);
@@ -104,22 +102,6 @@ const EnvironmentPage = () => {
         password,
       })
         .then((res) => {
-          Modal.warning({
-            title: t('environment.serverError.version.title'),
-            content: (
-              <div>
-                {t('environment.serverError.version.desc1')}
-                <a href="https://ones.ai" target="_blank" rel="noreferrer">
-                  {t('environment.serverError.version.desc2')}{' '}
-                  <Launch style={{ marginLeft: '5px' }} />
-                </a>
-              </div>
-            ),
-            onOk: () => {
-              handleBack();
-            },
-            okText: t('common.ok'),
-          });
           window.localStorage.setItem('profile', res?.body?.profile);
           handleNext();
         })
@@ -135,6 +117,7 @@ const EnvironmentPage = () => {
           }
 
           if (err_code === 'AccountError' && retryCount <= 2) {
+            setAccount(3 - retryCount);
             setShowAccountError(true);
             form.scrollToField('email');
             return;
@@ -142,16 +125,8 @@ const EnvironmentPage = () => {
 
           if (err_code === 'AccountError' && retryCount > 2) {
             Modal.warning({
-              title: t('environment.serverError.version.title'),
-              content: (
-                <div>
-                  {t('environment.serverError.version.desc1')}
-                  <a href="https://ones.ai" target="_blank" rel="noreferrer">
-                    {t('environment.serverError.version.desc2')}{' '}
-                    <Launch style={{ marginLeft: '5px' }} />
-                  </a>
-                </div>
-              ),
+              title: t('environment.serverError.count.title'),
+              content: t('environment.serverError.count.desc1'),
               onOk: () => {
                 handleBack();
               },
@@ -160,8 +135,16 @@ const EnvironmentPage = () => {
           }
           if (err_code === 'ONESVersionError') {
             Modal.warning({
-              title: t('environment.serverError.title'),
-              content: t('environment.serverError.desc'),
+              title: t('environment.serverError.version.title'),
+              content: (
+                <div>
+                  {t('environment.serverError.version.desc1')}
+                  <a href="https://ones.ai" target="_blank" rel="noreferrer">
+                    {t('environment.serverError.version.desc2')}
+                    <Launch style={{ marginLeft: '5px' }} />
+                  </a>
+                </div>
+              ),
               onOk: () => {
                 handleBack();
               },
@@ -190,7 +173,7 @@ const EnvironmentPage = () => {
         title={t('environment.title')}
         footer={
           <Footer
-            handleCancelMigrate={{ fun: handleConfirm }}
+            handleCancelMigrate={{}}
             handleNext={{
               htmlType: 'submit',
               isDisabled: !canSubmit,
@@ -246,7 +229,11 @@ const EnvironmentPage = () => {
           >
             <Input.Password placeholder={t('common.placeholder')} />
           </FormItemStyled>
-          {showAccountError ? <Alert type="error" style={{ maxWidth: '570px' }}></Alert> : null}
+          {showAccountError ? (
+            <Alert type="error" style={{ maxWidth: '570px' }}>
+              {t('environment.accountError', { account: account })}
+            </Alert>
+          ) : null}
         </div>
       </FrameworkContent>
     </Form>

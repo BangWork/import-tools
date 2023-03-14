@@ -1,15 +1,15 @@
 const analyze = {
   environment: {
-    title: '填写导入的 ONES 环境信息',
+    title: '登录 ONES',
     tip: {
       message1: '1. 为了确保你的正式环境下的 ONES 环境不会受到非必要的影响，建议你准备一个 ONES 测试环境，在此测试环境下完成一次数据迁移测试。验收通过后，在正式环境下进行正式的迁移。',
-      message2: '2.请向相关运维人员获取部署 ONES 服务域名/IP，仅 ONES 管理员可以执行 Jira 数据迁移。',
+      message2: '2. 请向相关运维人员获取部署 ONES 服务域名/IP，仅 ONES 管理员可以执行 Jira 数据迁移。',
     },
     url: {
       label: 'ONES 服务域名/IP',
       emptyError: '请输入 ONES 服务域名/IP',
       serverError: '请输入正确的 ONES 服务域名/IP',
-      placeholder: 'eg：http://ones.com OR https://ones.com',
+      placeholder: '例：http://ones.com 或 https://ones.com',
     },
     email: {
       label: 'ONES 邮箱',
@@ -34,6 +34,7 @@ const analyze = {
         desc2:'了解 Jira 迁移工具适用范围',
       }
     },
+    accountError:'帐号或密码错误，你还有 {{count}} 次尝试机会',
     startButton: '开始解析',
     isLogin: {
       title: 'Log in to ONES',
@@ -43,10 +44,13 @@ const analyze = {
     }
   },
   backupPage: {
+    title:'选择 Jira 备份包',
     guide: {
       alert: {
-        desc: '请在 Jira 系统中获取 Jira 备份包路径，并完成以下信息配置。',
-        link: '了解如何获取 Jira 备份包路径',
+        desc1: '1. 请确保你在 Jira 系统中已备份 Jira 数据',
+        link1: '了解如何获取 Jira 备份包路径',
+        desc2: '2. 请在 Jira 系统中获取 Jira 备份包路径，并完成以下信息配置。',
+        link2: 'Find the location of the Jira home directory',
       },
       step1: {
         title: '获取备份包路径',
@@ -148,11 +152,20 @@ const analyze = {
     },
   },
   teamPage: {
-    title: '选择导入的 ONES 团队',
-    form: {
-      label: '导入的 ONES 团队',
-      placeholder: '选择 ONES 团队',
+    title: '选择 ONES 团队',
+    desc:'建议选择未迁移过 Jira 数据的团队进行迁移。不建议重复迁移，可能会导致部分 Jira 数据未能正常迁移。',
+    table: {
+      teamName: 'ONES 团队名称',
+      migrateStatus: '迁移状态',
+      jiraBackupName: 'Jira 备份包名称',
+      jiraVersion: 'Jira 版本',
+      jiraId: 'Jira 服务器 ID',
+      migrateTime: '迁移时间',
     },
+    selectZero: '已选 0 个',
+    selectTeam: '已选「{{teamName}}」团队',
+    toSelectTeam: '请选择一个 ONES 团队',
+    search: '搜索 ONES 团队',
     error: {
       packDiff: {
         title: 'Jira 备份包来源不同',
@@ -177,16 +190,26 @@ const analyze = {
       }
     },
     buttonTip: '需选择导入的 ONES 团队',
+
   },
   importProject: {
-    title: '选择导入的 Jira 项目',
-    sourceTitle: 'Jira 项目列表',
-    targetTitle: '导入 ONES 项目列表',
-    local: {
-      searchPlaceholder: '搜索项目名称',
-      itemUnit: '个',
+    title: '选择Jira 项目',
+    search: '搜索项目名称、Key、负责人',
+    noSupportMigrateProject: '不支持自助迁移的项目',
+    desc1: '1. Jira 迁移工具仅支持迁移 Jira software 项目，即项目类型为“software”“business”的 Jira 项目。',
+    desc2: '2. 不支持自助迁移的项目及其业务数据将不予迁移，如果你需要迁移此类数据，请咨询 ONES 迁移团队。',
+    link: '联系我们',
+    table: {
+      projectName: '项目名称',
+      projectKey: 'Key',
+      leader: '负责人',
+      projectClassification: '项目分类',
+      issueCount: '问题数量',
     },
-    buttonTip: '需选择导入的 Jira 项目',
+    selectZero: '已选 0 个',
+    selectProject: '已选「{{projectName}}」项目',
+    toSelectProject: '请选择一个 Jira 项目',
+
   },
   issueMap: {
     title: 'Jira 工作项映射为 ONES 工作项',

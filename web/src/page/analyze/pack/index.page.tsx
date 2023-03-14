@@ -137,9 +137,10 @@ const AnalyzePage = () => {
     <Form form={form} layout="vertical" onFinish={handleFinish} className={'oac-h-full oac-w-full'}>
       <FrameworkContent
         className=" oac-h-full oac-w-full "
-        title={t('common.nextStep')}
+        title={t('backupPage.title')}
         footer={
           <Footer
+            handleCancelMigrate={{}}
             handleBack={{
               fun: handleBack,
               text: 'common.back',
@@ -157,13 +158,24 @@ const AnalyzePage = () => {
           <div>
             <Alert type="info">
               <div>
-                {t('backupPage.guide.alert.desc')}
+                {t('backupPage.guide.alert.desc1')}
                 <a
                   href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {t('backupPage.guide.alert.link')}&nbsp;
+                  {t('backupPage.guide.alert.link1')}&nbsp;
+                  <Launch />
+                </a>
+              </div>
+              <div>
+                {t('backupPage.guide.alert.desc2')}
+                <a
+                  href="https://confluence.atlassian.com/jirakb/find-the-location-of-the-jira-home-directory-313466063.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('backupPage.guide.alert.link2')}&nbsp;
                   <Launch />
                 </a>
               </div>

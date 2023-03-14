@@ -16,6 +16,12 @@ export enum ImportStatusEnum {
 export interface ProjectType {
   id: string;
   name: string;
+  key: string;
+  orignial_key: string;
+  assign: string;
+  category: string;
+  type: string;
+  issue_count:number;
 }
 
 export interface JiraIssueType {

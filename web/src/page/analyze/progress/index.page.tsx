@@ -170,7 +170,7 @@ const ProgressPage = () => {
         ></Footer>
       }
     >
-      <div className=" oac-pr-4">
+      <div>
         <Alert type="info" className="oac-pb-4">
           {t('analyzeProgress.tip.environment', {
             name: info?.multi_team ? info?.org_name : info?.team_name,

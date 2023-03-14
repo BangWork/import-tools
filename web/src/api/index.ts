@@ -19,6 +19,7 @@ import {
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  getTeamListApi,
 } from './analyze';
 
 import {
@@ -45,6 +46,7 @@ export {
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  getTeamListApi,
 
   // import_pack
   getImportInfoApi,

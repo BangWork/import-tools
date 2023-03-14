@@ -49,5 +49,7 @@ export const cancelAnalyzeApi = () => pureRequest.post('/resolve/stop');
 export const getResultApi = (): Promise<{ body: ResultType; code: number }> =>
   Request.get('/resolve/result');
 
+export const getTeamListApi = (): Promise<{body:  any[]  ,code: number }> => pureRequest.get('/team_list');
+
 export const chooseTeamApi = (uuid: string, name: string) =>
   pureRequest.post('/choose_team', { team_uuid: uuid, team_name: name });
