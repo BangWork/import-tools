@@ -454,7 +454,7 @@ func DownloadLogFile(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	fileContentDisposition := fmt.Sprintf("attachment;filename=%s-import-log-%s.txt", timestamp.GetDateString(), info.ImportTeamUUID)
+	fileContentDisposition := fmt.Sprintf("attachment;filename=%s团队Jira迁移日志%s.txt", info.ImportTeamName, time.Now().Format("20060102"))
 	c.Header("Content-Type", "application/txt")
 	c.Header("Content-Disposition", fileContentDisposition)
 	c.Data(http.StatusOK, "", allLog)
