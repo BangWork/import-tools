@@ -184,7 +184,7 @@ func SaveProjectList(c *gin.Context) {
 	if cacheInfo.ProjectIDs == nil {
 		cacheInfo.ProjectIDs = map[string][]string{}
 	}
-	cacheInfo.ProjectIDs[cacheInfo.TeamUUID] = req.ProjectIDs
+	cacheInfo.ProjectIDs[cacheInfo.ImportTeamUUID] = req.ProjectIDs
 	err = cache.SetCacheInfo(req.Key, cacheInfo)
 	RenderJSON(c, err, nil)
 }
