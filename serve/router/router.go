@@ -44,8 +44,8 @@ func Run(port int) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
 
-	api.POST("/project_list/save", controllers.SaveProjectList)
-	api.POST("/choose_team", controllers.ChooseTeam)
+	//api.POST("/project_list/save", controllers.SaveProjectList)
+	//api.POST("/choose_team", controllers.ChooseTeam)
 	//api.POST("/issue_type_list", controllers.IssueTypeList)
 	api.POST("/issue_type_list/save", controllers.SaveIssueTypeList)
 
@@ -74,11 +74,12 @@ func Run(port int) {
 	api.GET("/team_list", middlewares.CheckLogin, controllers.TeamList)
 	api.GET("/history_config/project", middlewares.CheckLogin, controllers.ProjectHistoryConfig)
 	api.GET("/project_list", middlewares.CheckLogin, controllers.ProjectList)
-	api.POST("/history_config/project", middlewares.CheckLogin, controllers.SetProjectHistoryConfig)
+	api.POST("/history_config/project/save", middlewares.CheckLogin, controllers.SaveProjectHistoryConfig)
 	api.POST("/check_disk", middlewares.CheckLogin, controllers.CheckProjectDisk)
 	api.POST("/ones/team/:teamUUID/issue_type_list", middlewares.CheckLogin, controllers.IssueTypeList)
 	api.GET("/ones/team/:teamUUID/unbound_issue_types", middlewares.CheckLogin, controllers.UnBoundONESIssueType)
-
+	api.POST("/history_config/issue_type_map/save", middlewares.CheckLogin, controllers.SaveIssueTypeHistoryConfig)
+	api.GET("/history_config/issue_type_map", middlewares.CheckLogin, controllers.IssueTypeHistoryConfig)
 	api.Run(fmt.Sprintf(":%d", port))
 }
 

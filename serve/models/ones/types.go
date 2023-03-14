@@ -29,7 +29,14 @@ type OrgConfigResponse struct {
 }
 
 type JiraInfoStruct struct {
-	SelectedProjectIDs []string `json:"selected_project_ids"`
+	SelectedProjectIDs []string              `json:"selected_project_ids"`
+	IssueTypeMapConfig []*IssueTypeMapConfig `json:"issue_type_map_config"`
+}
+
+type IssueTypeMapConfig struct {
+	ThirdIssueTypeID  string `json:"third_issue_type_id"`
+	ONESIssueTypeUUID string `json:"ones_issue_type_uuid"`
+	Action            string `json:"action"`
 }
 
 type UpdateOrgConfigRequest struct {

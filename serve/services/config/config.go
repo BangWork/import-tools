@@ -53,3 +53,23 @@ func SetHistoryProjectConfig(url, orgUUID string, h map[string]string, projectID
 	jiraConfigInfo.SelectedProjectIDs = projectIDs
 	return ones.SetJiraConfigInfo(orgUUID, url, h, jiraConfigInfo)
 }
+
+func GetHistoryIssueTypeConfig(url, orgUUID string, h map[string]string) ([]*ones.IssueTypeMapConfig, error) {
+	jiraConfigInfo, err := ones.GetJiraConfigInfo(orgUUID, url, h)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if jiraConfigInfo.IssueTypeMapConfig == nil {
+		return nil, nil
+	}
+	return jiraConfigInfo.IssueTypeMapConfig, nil
+}
+
+func SetHistoryIssueTypeConfig(url, orgUUID string, h map[string]string, issueTypeMap []*ones.IssueTypeMapConfig) error {
+	jiraConfigInfo, err := ones.GetJiraConfigInfo(orgUUID, url, h)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	jiraConfigInfo.IssueTypeMapConfig = issueTypeMap
+	return ones.SetJiraConfigInfo(orgUUID, url, h, jiraConfigInfo)
+}

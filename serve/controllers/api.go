@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bangwork/import-tools/serve/models/ones"
+
 	"github.com/bangwork/import-tools/serve/common"
 	common2 "github.com/bangwork/import-tools/serve/models/common"
 	"github.com/bangwork/import-tools/serve/services"
@@ -181,7 +183,7 @@ func ProjectHistoryConfig(c *gin.Context) {
 	RenderJSON(c, err, list)
 }
 
-func SetProjectHistoryConfig(c *gin.Context) {
+func SaveProjectHistoryConfig(c *gin.Context) {
 	orgUUID := getOrgUUID(c)
 	h := getONESHeader(c)
 	url := getONESUrl(c)
@@ -190,6 +192,26 @@ func SetProjectHistoryConfig(c *gin.Context) {
 		return
 	}
 	err := config.SetHistoryProjectConfig(url, orgUUID, h, projectIDs)
+	RenderJSON(c, err, nil)
+}
+
+func IssueTypeHistoryConfig(c *gin.Context) {
+	orgUUID := getOrgUUID(c)
+	h := getONESHeader(c)
+	url := getONESUrl(c)
+	list, err := config.GetHistoryIssueTypeConfig(url, orgUUID, h)
+	RenderJSON(c, err, list)
+}
+
+func SaveIssueTypeHistoryConfig(c *gin.Context) {
+	orgUUID := getOrgUUID(c)
+	h := getONESHeader(c)
+	url := getONESUrl(c)
+	issueTypeMap := make([]*ones.IssueTypeMapConfig, 0)
+	if err := c.BindJSON(&issueTypeMap); err != nil {
+		return
+	}
+	err := config.SetHistoryIssueTypeConfig(url, orgUUID, h, issueTypeMap)
 	RenderJSON(c, err, nil)
 }
 
