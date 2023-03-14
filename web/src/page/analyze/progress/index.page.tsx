@@ -45,7 +45,7 @@ const ProgressPage = () => {
               className="mb-12"
               showIcon
               message={
-                <div className="p-2">
+                <div className="pr-2 pl-2">
                   <div>
                     {t('analyzeProgress.tip.environment', {
                       name: info?.multi_team ? info?.org_name : info?.team_name,

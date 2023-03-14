@@ -94,7 +94,7 @@ const InitPasswordPage = () => {
               },
             ]}
           >
-            <Input allowClear placeholder={t('initPassword.form.init.placeholder')} />
+            <Input allowClear autoFocus placeholder={t('initPassword.form.init.placeholder')} />
           </Form.Item>
           <Form.Item
             name="againPassword"

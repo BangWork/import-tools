@@ -62,7 +62,6 @@ const EnvironmentPage = () => {
         password,
       })
         .then(() => {
-
           navigate('/page/analyze/progress', {
             replace: true,
           });
@@ -117,7 +116,7 @@ const EnvironmentPage = () => {
             showIcon
             className="mb-4"
             message={
-              <div className="p-2">
+              <div className="pl-2 pr-2">
                 <div>{t('environment.tip.message1')}</div>
                 <div>{t('environment.tip.message2')}</div>
               </div>

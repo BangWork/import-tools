@@ -115,7 +115,7 @@ const AnalyzePage = () => {
         <Space direction="vertical" size="large">
           <Alert
             style={{ width: '1000px' }}
-            description={
+            message={
               <div>
                 {t('backupPage.guide.alert.desc')}
                 <a
@@ -182,6 +182,7 @@ const AnalyzePage = () => {
                       <div className="flex">
                         <div>
                           <Form.Item
+                            style={{ paddingTop: '8px' }}
                             name="localHome"
                             initialValue={INIT_LOCAL_HOME}
                             validateStatus={showServerError ? 'error' : undefined}
@@ -221,8 +222,7 @@ const AnalyzePage = () => {
                           ) : null}
                         </div>
                         <Button
-                          className="ml-8"
-                          style={{ marginTop: '30px' }}
+                          style={{ marginTop: '37px', marginLeft: '16px' }}
                           type="primary"
                           onClick={handleCheckPath}
                         >
@@ -238,8 +238,11 @@ const AnalyzePage = () => {
         </Space>
 
         {/* bottom button */}
-        <Divider />
-        <div className="mb-12">
+
+        <div
+          className="mb-12"
+          style={{ borderTop: '1px solid #eaeaea', marginTop: '-10px', paddingTop: '24px' }}
+        >
           {!backupName ? (
             <Tooltip title={t('backupPage.form.tip')}>{renderButton()}</Tooltip>
           ) : (
