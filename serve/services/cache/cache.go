@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -206,6 +207,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 
 	d := map[string]string{}
 	if err := json.Unmarshal(b, &d); err != nil {
+		fmt.Printf("cache content: %s\n", string(b))
 		return nil, errors.Trace(err)
 	}
 	s, ok := d[key]
