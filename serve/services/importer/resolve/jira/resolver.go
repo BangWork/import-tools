@@ -184,8 +184,7 @@ type JiraResolver struct {
 	nowTimeString string
 }
 
-type JiraResolverFactory struct {
-}
+type JiraResolverFactory struct{}
 
 var (
 	thirdIssueTypeFields = []*resolve.ThirdIssueTypeField{
@@ -203,6 +202,7 @@ var (
 		"Component/s",
 		fieldModel.PublishVersionFieldUUID,
 		"Environment",
+		customFieldReporter,
 	}
 	tabFields = map[string]string{
 		"issuelinks":   block.TabLabelRelatedContent,
@@ -219,6 +219,7 @@ var (
 		"components":                "Component/s",
 		customFieldReleaseStartDate: customFieldReleaseStartDate,
 		"environment":               "Environment",
+		"reporter":                  customFieldReporter,
 	}
 
 	// jira视图字段替换为ONES系统字段
@@ -239,7 +240,6 @@ var (
 		"priority":     "field012",
 		"duedate":      "field013",
 		"comment":      "",
-		"reporter":     "",
 		"sprint":       "field011",
 	}
 
@@ -408,19 +408,20 @@ func (p *JiraResolverFactory) InitImportFile(importTask *types.ImportTask) (reso
 	}
 	err := resolver.InitImportFile()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	log.Println("start calculate attachments size")
 	attachmentSize, err := utils.GetDirSize(importTask.AttachmentsPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	log.Println("end calculate attachments size")
 	resolver.resolveResult.AttachmentSize = attachmentSize
 	for tag, file := range resolver.mapTagFilePath {
 		fi, err := os.Open(file)
 		if err != nil {
-			log.Printf("open file fail: %s", err)
+			log.Println("open file fail", errors.Trace(err))
+			continue
 		}
 		scanner := resolve.NewXmlScanner(fi, entityRootTag)
 		resolver.tagFilesMap[tag] = scanner
@@ -444,12 +445,12 @@ func (p *JiraResolver) prepareProjectIssueTypeMap() error {
 	if err != nil {
 		return err
 	}
-	cacheInfo, err := cache.GetCacheInfo()
+	cacheInfo, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
 	cacheInfo.ProjectIssueTypeMap = projectIssueTypeMap
-	return cache.SetCacheInfo(cacheInfo)
+	return cache.SetCacheInfo(p.importTask.Key, cacheInfo)
 }
 
 func (p *JiraResolver) initIssueTypeMap() {
@@ -464,7 +465,7 @@ func (p *JiraResolver) initIssueTypeMap() {
 func (p *JiraResolver) InitImportFile() error {
 	file, err := os.Open(p.importTask.LocalFilePath)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	defer file.Close()
 
@@ -474,14 +475,14 @@ func (p *JiraResolver) InitImportFile() error {
 
 	entityFileReader, activeObjectsFileReader, err := p.readersFromFile(file.Name())
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	defer entityFileReader.Close()
 	defer activeObjectsFileReader.Close()
 
 	tagFilesMap, mapFilePathMap, handler, err := processedEntityFile(p.importTask, entityFileReader)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	if services.StopResolveSignal {
@@ -492,7 +493,7 @@ func (p *JiraResolver) InitImportFile() error {
 
 	objectFilePath, err := processedObjectFile(p.importTask, activeObjectsFileReader)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	if services.StopResolveSignal {
 		return nil
@@ -508,7 +509,7 @@ func (p *JiraResolver) InitImportFile() error {
 }
 
 func (p *JiraResolver) setCache() error {
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(p.importTask.Key)
 	if err != nil {
 		return err
 	}
@@ -519,7 +520,7 @@ func (p *JiraResolver) setCache() error {
 	info.DaysPerWeek = p.daysPerWeek
 	info.ResolveStatus = common.ResolveStatusDone
 	info.ResolveDoneTime = time.Now().Unix()
-	return cache.SetCacheInfo(info)
+	return cache.SetCacheInfo(p.importTask.Key, info)
 }
 
 func (p *JiraResolver) initAttributes() {
@@ -2356,6 +2357,7 @@ func (p *JiraResolver) NextTask() ([]byte, error) {
 
 	// convert resolution to field value
 	p.handleIssueResolution(o)
+	p.handleIssueReporter(o)
 	r.Summary = getAttributeValue(o, "summary")
 	r.Desc = getAttributeValue(o, "description")
 	creator := getAttributeValue(o, "creator")
@@ -2510,6 +2512,8 @@ func (p *JiraResolver) NextIssueType() ([]byte, error) {
 	// 系统工作项类型映射
 	if detailType, ok := p.issueTypeDetailTypeMap[r.ResourceID]; ok {
 		r.DetailType = detailType
+	} else {
+		r.DetailType = -1
 	}
 
 	return utils2.OutputJSON(r), nil
@@ -3175,6 +3179,13 @@ func (p *JiraResolver) getCustomField() ([]*resolve.ThirdTaskField, error) {
 		Name: customFieldEnvironment,
 		Type: fieldModel.FieldTypeMultiLineText,
 	})
+	fields = append(fields, &resolve.ThirdTaskField{
+		Base: resolve.Base{
+			ResourceID: customFieldReporter,
+		},
+		Name: customFieldReporter,
+		Type: fieldModel.FieldTypeUser,
+	})
 
 	for {
 		element, e := p.nextElement("CustomField")
@@ -3771,6 +3782,28 @@ func (p *JiraResolver) handleIssueKey(o *etree.Element) {
 	}
 	originalKey := fmt.Sprintf("%s-%s", p.jiraProjectIDOriginalKeyMap[projectID], number)
 	p.mapIssueIDWithOriginalKey[issueID] = originalKey
+}
+
+func (p *JiraResolver) handleIssueReporter(o *etree.Element) {
+	issueID := getAttributeValue(o, "id")
+	reporter := getAttributeValue(o, "reporter")
+	if reporter == "" {
+		return
+	}
+	reporterID, ok := p.jiraUserNameIDMap[reporter]
+	if !ok {
+		log.Printf("WARN: jira task reporter %s not found in jiraUserNameIDMap", reporter)
+	}
+	f := &resolve.ThirdTaskFieldValue{
+		Base: resolve.Base{
+			ResourceID: fmt.Sprintf("%s-%s", issueID, customFieldReporter),
+		},
+		TaskID:    issueID,
+		FieldID:   customFieldReporter,
+		FieldType: fieldModel.FieldTypeUser,
+		Value:     reporterID,
+	}
+	p.jiraCustomFieldValues = append(p.jiraCustomFieldValues, f)
 }
 
 func (p *JiraResolver) getVersion() (map[string]string, error) {

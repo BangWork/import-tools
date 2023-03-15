@@ -6,18 +6,19 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bangwork/import-tools/serve/utils/timestamp"
+	"github.com/gin-gonic/gin"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
 	"github.com/bangwork/import-tools/serve/services/account"
 	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer"
+	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/services/issue_type"
 	"github.com/bangwork/import-tools/serve/services/log"
 	"github.com/bangwork/import-tools/serve/services/project"
 	"github.com/bangwork/import-tools/serve/utils"
-	"github.com/gin-gonic/gin"
+	"github.com/bangwork/import-tools/serve/utils/timestamp"
 )
 
 func CheckPathExist(c *gin.Context) {
@@ -74,13 +75,22 @@ func StartResolve(c *gin.Context) {
 		return
 	}
 	go importer.StartResolve(data)
-	RenderJSON(c, nil, nil)
+
+	cache.SaveCacheKey(data.Key())
+	RenderJSON(c, nil, map[string]interface{}{
+		"key": data.Key(),
+	})
 }
 
 func ResolveProgress(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
+		return
+	}
+	if info == nil {
+		RenderJSON(c, nil, new(ResolveProgressResponse))
 		return
 	}
 	if len(info.BackupName) != 0 {
@@ -118,9 +128,17 @@ func StopResolve(c *gin.Context) {
 }
 
 func ResolveResult(c *gin.Context) {
-	res, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	res, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, res)
+		return
+	}
+	if res == nil {
+		RenderJSON(c, nil, map[string]interface{}{
+			"code": 404,
+			"msg":  "invalid key",
+		})
 		return
 	}
 
@@ -142,8 +160,33 @@ func ResolveResult(c *gin.Context) {
 }
 
 func ProjectList(c *gin.Context) {
-	list, err := project.GetProjectList()
+	key := c.Param("key")
+	list, err := project.GetProjectList(key)
 	RenderJSON(c, err, list)
+}
+
+type SaveProjectListReq struct {
+	Key        string   `json:"key"`
+	ProjectIDs []string `json:"project_ids"`
+}
+
+func SaveProjectList(c *gin.Context) {
+	req := new(SaveProjectListReq)
+	if err := c.BindJSON(&req); err != nil {
+		return
+	}
+
+	cacheInfo, err := cache.GetCacheInfo(req.Key)
+	if err != nil {
+		return
+	}
+
+	if cacheInfo.ProjectIDs == nil {
+		cacheInfo.ProjectIDs = map[string][]string{}
+	}
+	cacheInfo.ProjectIDs[cacheInfo.ImportTeamUUID] = req.ProjectIDs
+	err = cache.SetCacheInfo(req.Key, cacheInfo)
+	RenderJSON(c, err, nil)
 }
 
 func ChooseTeam(c *gin.Context) {
@@ -151,14 +194,14 @@ func ChooseTeam(c *gin.Context) {
 	if err := c.BindJSON(&data); err != nil {
 		return
 	}
-	res, err := cache.GetCacheInfo()
+	res, err := cache.GetCacheInfo(data.Key)
 	if err != nil {
 		RenderJSON(c, err, res)
 		return
 	}
 	res.ImportTeamUUID = data.TeamUUID
 	res.ImportTeamName = data.TeamName
-	err = cache.SetCacheInfo(res)
+	err = cache.SetCacheInfo(data.Key, res)
 	if err = log.InitTeamLogDir(data.TeamUUID); err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -172,7 +215,7 @@ func IssueTypeList(c *gin.Context) {
 		return
 	}
 	acc := new(account.Account)
-	cacheInfo, err := cache.GetCacheInfo()
+	cacheInfo, err := cache.GetCacheInfo(req.Key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -190,30 +233,38 @@ func IssueTypeList(c *gin.Context) {
 			issueTypes[issueTypeID] = true
 		}
 	}
-	list, err := issue_type.GetIssueTypeList(typeList, issueTypes)
-	RenderJSON(c, err, list)
+	list, err := issue_type.GetIssueTypeList(req.Key, typeList, issueTypes)
+	if err != nil {
+		RenderJSON(c, err, nil)
+		return
+	}
+	RenderJSON(c, nil, map[string]interface{}{
+		"issue_types":    list,
+		"issue_type_map": cacheInfo.IssueTypeMap[cacheInfo.TeamUUID],
+	})
 }
 
-func SetShardDisk(c *gin.Context) {
-	var data SetShareDiskRequest
-	if err := c.BindJSON(&data); err != nil {
+type SaveIssueTypeListReq struct {
+	Key          string                      `json:"key"`
+	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
+}
+
+func SaveIssueTypeList(c *gin.Context) {
+	req := new(SaveIssueTypeListReq)
+	if err := c.BindJSON(&req); err != nil {
 		return
 	}
-	if data.UseShareDisk {
-		exist := utils.CheckPathExist(data.Path)
-		if !exist {
-			RenderJSON(c, common.Errors(common.NotFoundError, nil), nil)
-			return
-		}
-	}
-	res, err := cache.GetCacheInfo()
+
+	cacheInfo, err := cache.GetCacheInfo(req.Key)
 	if err != nil {
-		RenderJSON(c, err, res)
 		return
 	}
-	res.ShareDiskPath = data.Path
-	res.UseShareDisk = data.UseShareDisk
-	err = cache.SetCacheInfo(res)
+
+	if cacheInfo.IssueTypeMap == nil {
+		cacheInfo.IssueTypeMap = map[string][]types.BuiltinIssueTypeMap{}
+	}
+	cacheInfo.IssueTypeMap[cacheInfo.TeamUUID] = req.IssueTypeMap
+	err = cache.SetCacheInfo(req.Key, cacheInfo)
 	RenderJSON(c, err, nil)
 }
 
@@ -237,13 +288,14 @@ func StartImport(c *gin.Context) {
 	}()
 
 	go func() {
-		importer.StartImport(data.ProjectIDs, data.IssueTypeMap, data.Password)
+		importer.StartImport(data.Key, data.ProjectIDs, data.IssueTypeMap, data.Password)
 	}()
 	RenderJSON(c, nil, nil)
 }
 
 func Reset(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -251,7 +303,7 @@ func Reset(c *gin.Context) {
 
 	info.ImportResult.Status = 0
 	info.ResolveStatus = 0
-	if err = cache.SetCacheInfo(info); err != nil {
+	if err = cache.SetCacheInfo(key, info); err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
@@ -262,14 +314,15 @@ func PauseImport(c *gin.Context) {
 	services.PauseImportSignal = true
 	services.StopImportSignal = false
 
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
 
 	info.ImportResult.Status = common.ImportStatusPause
-	if err = cache.SetCacheInfo(info); err != nil {
+	if err = cache.SetCacheInfo(key, info); err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
@@ -280,14 +333,16 @@ func PauseImport(c *gin.Context) {
 func ContinueImport(c *gin.Context) {
 	services.PauseImportSignal = false
 	services.StopImportSignal = false
-	info, err := cache.GetCacheInfo()
+
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
 
 	info.ImportResult.Status = common.ImportStatusInProgress
-	if err = cache.SetCacheInfo(info); err != nil {
+	if err = cache.SetCacheInfo(key, info); err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
@@ -297,13 +352,14 @@ func ContinueImport(c *gin.Context) {
 func StopImport(c *gin.Context) {
 	services.StopImportSignal = true
 	services.PauseImportSignal = false
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
 	info.ImportResult.Status = common.ImportStatusCancel
-	if err = cache.SetCacheInfo(info); err != nil {
+	if err = cache.SetCacheInfo(key, info); err != nil {
 		RenderJSON(c, err, nil)
 		return
 	}
@@ -316,7 +372,8 @@ func StopImport(c *gin.Context) {
 }
 
 func ImportProgress(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -355,7 +412,8 @@ func ImportProgress(c *gin.Context) {
 }
 
 func GetAllImportLog(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -366,7 +424,8 @@ func GetAllImportLog(c *gin.Context) {
 
 func GetImportLog(c *gin.Context) {
 	startLine := c.Param("start_line")
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, startLine)
 		return
@@ -381,7 +440,8 @@ func GetImportLog(c *gin.Context) {
 }
 
 func DownloadLogFile(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -394,14 +454,15 @@ func DownloadLogFile(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	fileContentDisposition := fmt.Sprintf("attachment;filename=%s-import-log-%s.txt", timestamp.GetDateString(), info.ImportTeamUUID)
+	fileContentDisposition := fmt.Sprintf("attachment;filename=%s团队Jira迁移日志%s.txt", info.ImportTeamName, time.Now().Format("20060102"))
 	c.Header("Content-Type", "application/txt")
 	c.Header("Content-Disposition", fileContentDisposition)
 	c.Data(http.StatusOK, "", allLog)
 }
 
 func DownloadCurrentLogFile(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return
@@ -421,7 +482,8 @@ func DownloadCurrentLogFile(c *gin.Context) {
 }
 
 func GetScope(c *gin.Context) {
-	info, err := cache.GetCacheInfo()
+	key := c.Param("key")
+	info, err := cache.GetCacheInfo(key)
 	if err != nil {
 		RenderJSON(c, err, nil)
 		return

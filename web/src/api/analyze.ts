@@ -8,7 +8,10 @@ import type {
   ResultType,
 } from './type';
 
-export const submitEnvironmentApi = ({ localHome, backupName, url, email, password }) =>
+export const submitEnvironmentApi = ({ localHome, backupName, url, email, password }): Promise<{
+  body: {key:string}
+  code: number;
+}> =>
   pureRequest.post('/resolve/start', {
     local_home: localHome,
     backup_name: backupName,
@@ -17,15 +20,24 @@ export const submitEnvironmentApi = ({ localHome, backupName, url, email, passwo
     password,
   });
 
-export const getProjectsApi = (): Promise<{ body: ProjectType[]; code: number }> =>
+export const getProjectsApi = (): Promise<{ body: {projects:ProjectType[],cache:any[] }; code: number; }> =>
   Request.get('/project_list');
+
+
+export const saveProjectsApi = ( project_ids:string[]) =>
+  pureRequest.post('/project_list/save', {
+    project_ids,
+  })
 
 export const getIssuesApi = (
   project_ids: string[]
 ): Promise<{
-  body: { jira_list: JiraIssueType[]; ones_list: OnesIssueType[] };
+  body: { issue_types: { jira_list: JiraIssueType[]; ones_list: OnesIssueType[] } ,issue_type_map:any[]};
   code: number;
 }> => Request.post('/issue_type_list', { project_ids });
+
+export const saveIssuesApi = (issue_type_map:any[]) =>
+  pureRequest.post('/issue_type_list/save',{issue_type_map:issue_type_map})
 
 export const checkPathApi = (path) =>
   pureRequest.post('/check_jira_path_exist', {
@@ -42,14 +54,6 @@ export const cancelAnalyzeApi = () => pureRequest.post('/resolve/stop');
 
 export const getResultApi = (): Promise<{ body: ResultType; code: number }> =>
   Request.get('/resolve/result');
-
-export const checkDiskPathApi = (path = '') =>
-  pureRequest.post('/check_path_exist', {
-    path,
-  });
-
-export const setDiskPathApi = (useShareDisk: boolean, path = '') =>
-  Request.post('/set_share_disk', { use_share_disk: useShareDisk, path });
 
 export const chooseTeamApi = (uuid: string, name: string) =>
   pureRequest.post('/choose_team', { team_uuid: uuid, team_name: name });

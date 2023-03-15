@@ -3,12 +3,11 @@ const importPack = {
     title: 'Set initial password',
     tip: {
       message1:
-        '1.An initial password is required for new users imported from Jira. They can also select "Forgot password?" to verify their account emails and reset passwords.',
+        'An initial password is required for new users imported from Jira. You can verify your account email and reset passwords when logging into ONES. ',
       message2:
-        "2.This password will only be displayed once and can't be changed. Please write it down.",
+        "This password will only be displayed once and can't be changed. Please write it down.",
     },
     form: {
-      tip: 'Imported data will be processed on the cloud',
       init: {
         label: 'Initial password',
         placeholder: '8–32 characters, including numbers and letters',
@@ -58,9 +57,9 @@ const importPack = {
       currentInfo: {
         title: 'Jira import scope',
         version: 'Version',
-        projects: 'Number of projects',
-        works: 'Number of issues',
-        members: 'Number of member',
+        projects: 'Projects',
+        works: 'Issues',
+        members: 'Members',
         fileSize: 'File size',
         files: 'Number of File',
       },
@@ -68,8 +67,8 @@ const importPack = {
     },
     errorModal: {
       miss: {
-        title: 'Jira 备份包不存在',
-        text: 'Jira 备份包不存在，取消导入！',
+        title: 'Jira backup does not exist',
+        text: 'Import aborted.Jira backup does not exist.',
       },
     },
     cancelModal: {

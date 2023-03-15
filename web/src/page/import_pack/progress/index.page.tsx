@@ -176,7 +176,7 @@ const ProgressPage = () => {
             showIcon
             className="mb-4 w-4/5"
             message={
-              <div className="p-2">
+              <div className="pl-2 pr-2">
                 <div>{t('progressPage.tip.environment', { name: info.team_name || '' })}</div>
                 <div>
                   {t('progressPage.tip.startTime', {

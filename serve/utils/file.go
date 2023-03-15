@@ -20,10 +20,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/rwcarlsen/goexif/exif"
 	_ "golang.org/x/image/webp"
 
 	"github.com/bangwork/import-tools/serve/common"
+	"github.com/rwcarlsen/goexif/exif"
 )
 
 type ExifValType struct {
@@ -116,7 +116,10 @@ func GetDirSize(path string) (int64, error) {
 		}
 		return err
 	})
-	return size, err
+	if err != nil {
+		return 0, err
+	}
+	return size, nil
 }
 
 func GetFileSize(filePath string) (int64, error) {
@@ -124,7 +127,10 @@ func GetFileSize(filePath string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	fi, _ := file.Stat()
+	fi, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
 	return fi.Size(), nil
 }
 
@@ -133,23 +139,22 @@ func GetFileModTime(filePath string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	fi, _ := file.Stat()
+	fi, err := file.Stat()
+	if err != nil {
+		return 0, err
+	}
 	return fi.ModTime().Unix(), nil
 }
 
 func CheckPathExist(path string) bool {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true
-	}
-	return false
+	return err == nil
 }
 
 func ListZipFile(path string) ([]string, error) {
-	files := make([]string, 0)
 	fileInfoList, err := ioutil.ReadDir(path)
 	if err != nil {
-		return files, common.Errors(common.NotFoundError, nil)
+		return []string{}, common.Errors(common.NotFoundError, nil)
 	}
 	sortFiles := make(ByModTime, 0)
 	for _, v := range fileInfoList {
@@ -158,6 +163,8 @@ func ListZipFile(path string) ([]string, error) {
 		}
 	}
 	sort.Sort(sortFiles)
+
+	files := make([]string, 0, len(sortFiles))
 	for _, v := range sortFiles {
 		files = append(files, v.Name())
 	}

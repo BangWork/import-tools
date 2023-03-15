@@ -8,6 +8,7 @@ import { downloadFile } from '@/utils/download';
 
 export interface HelpContentPopoverProps {
   onSelected: () => void;
+  label: string;
 }
 
 const HelpContentPopoverItem = styled.div`
@@ -23,14 +24,21 @@ const HelpContentPopoverItem = styled.div`
  * content popover of help
  */
 const HelpContentPopover: FC<HelpContentPopoverProps> = memo((props) => {
-  const { onSelected } = props;
+  const { onSelected, label } = props;
   const { t } = useTranslation();
-
+  const en = 'en';
   const HELP_LIST = [
     {
       text: 'common.help.import',
       onClick: () => {
-        downloadFile(`${window.location.origin}/public/import_list.csv`, 'import_list');
+        if (label === en) {
+          downloadFile(
+            `${window.location.origin}/public/mappingEn.xlsx`,
+            'Jira import mapping form'
+          );
+        } else {
+          downloadFile(`${window.location.origin}/public/mappingZh.xlsx`, 'Jira数据导入清单');
+        }
       },
     },
     {

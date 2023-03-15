@@ -3,11 +3,11 @@ const common = {
   loading: '加载中',
 
   help: {
-    import: 'Jira 数据导入清单',
-    document: '帮助手册',
+    import: '下载数据导入差异表',
+    document: '下载帮助手册',
     download: '下载 Jira 迁移日志',
   },
-
+  save:'保存',
   placeholder: '请输入',
   close: '关闭',
   finish: '完成',

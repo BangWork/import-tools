@@ -8,11 +8,12 @@ import (
 
 	"github.com/bangwork/import-tools/serve/utils"
 
+	pinyin "github.com/mozillazg/go-pinyin"
+
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/services/importer/resolve"
 	"github.com/bangwork/import-tools/serve/utils/xml"
-	pinyin "github.com/mozillazg/go-pinyin"
 )
 
 type Project struct {
@@ -20,8 +21,13 @@ type Project struct {
 	Name string `json:"name"`
 }
 
-func GetProjectList() ([]*Project, error) {
-	list, err := cache.GetCacheInfo()
+type ProjectRes struct {
+	ProjectList []*Project  `json:"projects"`
+	Cache       interface{} `json:"cache"`
+}
+
+func GetProjectList(key string) (*ProjectRes, error) {
+	list, err := cache.GetCacheInfo(key)
 	if err != nil {
 		return nil, err
 	}
@@ -68,5 +74,9 @@ func GetProjectList() ([]*Project, error) {
 		}
 		return false
 	})
-	return res, nil
+
+	return &ProjectRes{
+		ProjectList: res,
+		Cache:       list.ProjectIDs[list.ImportTeamUUID],
+	}, nil
 }

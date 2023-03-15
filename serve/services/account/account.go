@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bangwork/import-tools/serve/services"
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/services/issue_type"
 
@@ -166,7 +167,7 @@ func (r *Account) Login() error {
 	r.AuthHeader[common.AuthToken] = resp.Header.Get(common.AuthToken)
 	r.AuthHeader[common.UserID] = resp.Header.Get(common.UserID)
 
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(r.Key())
 	if err != nil {
 		return err
 	}
@@ -336,12 +337,12 @@ func (r *Account) GetIssueTypeList() (*services.IssueTypeListResponse, error) {
 
 	issueTypes, err := r.getIssueTypeList()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	thirdIssueTypesBind, err := r.getThirdIssueTypeBind()
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	res := new(services.IssueTypeListResponse)
@@ -404,8 +405,12 @@ func (r *Account) CheckONESAccount() error {
 	return nil
 }
 
+func (r *Account) Key() string {
+	return cache.GenCacheKey(r.URL)
+}
+
 func (r *Account) SetCache() error {
-	info, err := cache.GetCacheInfo()
+	info, err := cache.GetCacheInfo(r.Key())
 	if err != nil {
 		return err
 	}
@@ -432,7 +437,7 @@ func (r *Account) SetCache() error {
 		info.ImportResult = nil
 	}
 
-	return cache.SetCacheInfo(info)
+	return cache.SetCacheInfo(r.Key(), info)
 }
 
 func getExpectedResolveTime(fileSize int64) int64 {
@@ -477,7 +482,7 @@ func (r *Account) checkTeamPermission() (bool, error) {
 
 func (r *Account) postLogin() (*http.Response, error) {
 	if len(r.Email) == 0 || len(r.Password) == 0 || len(r.URL) == 0 {
-		info, err := cache.GetCacheInfo()
+		info, err := cache.GetCacheInfo(r.Key())
 		if err != nil {
 			return nil, err
 		}
@@ -512,16 +517,16 @@ func (r *Account) getThirdIssueTypeBind() ([]*services.JiraIssueType, error) {
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	defer resp.Body.Close()
 	res := make([]*services.JiraIssueType, 0)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	if err = json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	return res, nil
 }
@@ -531,7 +536,7 @@ func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
 	url := common.GenApiUrl(r.URL, uri)
 	resp, err := utils.GetWithHeader(url, r.AuthHeader)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	defer resp.Body.Close()
 	type issueTypeResp struct {
@@ -540,10 +545,10 @@ func (r *Account) getIssueTypeList() ([]*services.ONESIssueType, error) {
 	res := new(issueTypeResp)
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	if err = json.Unmarshal(data, &res); err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 	filterRes := make([]*services.ONESIssueType, 0)
 	for _, v := range res.IssueTypes {

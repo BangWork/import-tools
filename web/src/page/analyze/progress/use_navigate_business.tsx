@@ -23,11 +23,9 @@ const useNavigateBusiness = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [info, setInfo] = useState<Partial<AnalyzeInfoType>>({});
   const [loading, setLoading] = useState(true);
-
   const handleBackPack = () => {
     navigate('/page/analyze/pack', { replace: true });
   };
-
   const onFail = (msg) => {
     Modal.error({
       title: t('analyzeProgress.fail.title'),
@@ -42,11 +40,11 @@ const useNavigateBusiness = () => {
       getAnalyzeProgressInfoApi()
         .then((res) => {
           setInfo(res.body);
-          console.log(res.body);
           setLoading(false);
 
           if (res.body.status === AnalyzeStatusEnum.fail) {
             onFail(t('analyzeProgress.fail.normalDesc', { name: res.body.backup_name }));
+            throw new Error('Analyze fail');
           }
         })
         .catch((error) => {

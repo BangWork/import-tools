@@ -12,14 +12,16 @@ import (
 	"net/http"
 	"os"
 
+	_ "golang.org/x/image/webp"
+
 	"github.com/bangwork/import-tools/serve/common"
 	account2 "github.com/bangwork/import-tools/serve/services/account"
+	"github.com/bangwork/import-tools/serve/services/cache"
 	"github.com/bangwork/import-tools/serve/utils"
-	_ "golang.org/x/image/webp"
 )
 
 func UploadFile(account *account2.Account, file *os.File, realFileName string) (resourceUUID string, err error) {
-	if account.Cache.UseShareDisk {
+	if cache.SharedDiskPath != "" {
 		return uploadToShareDisk(file, account, realFileName)
 	}
 	return upload(file, account, realFileName)
@@ -27,7 +29,6 @@ func UploadFile(account *account2.Account, file *os.File, realFileName string) (
 
 func uploadToShareDisk(file *os.File,
 	account *account2.Account, realFileName string) (resourceUUID string, err error) {
-	shareDiskPath := account.Cache.ShareDiskPath
 	cacheInfo := account.Cache
 	fileInfo, err := utils.GetFileInfo(file)
 	if err != nil {
@@ -52,7 +53,7 @@ func uploadToShareDisk(file *os.File,
 	if err != nil {
 		return "", err
 	}
-	dstPath := fmt.Sprintf("%s/%s/%s", shareDiskPath, common.ShareDiskPathPrivate, body.Hash)
+	dstPath := fmt.Sprintf("%s/%s/%s", cache.SharedDiskPath, common.ShareDiskPathPrivate, body.Hash)
 	dst, err := os.Create(dstPath)
 	if err != nil {
 		log.Printf("open %s failed, err:%v.\n", dstPath, err)

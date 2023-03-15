@@ -17,7 +17,6 @@ export const WARNING_CONFIG = {
   [WarningEnum.importVersion]: {
     title: t('teamPage.error.importVersionDiff.title'),
     renderDesc: (params) => t('teamPage.error.importVersionDiff.desc', params),
-    backPath: '/page/analyze/pack',
   },
   [WarningEnum.version]: {
     title: t('teamPage.error.versionDiff.title'),

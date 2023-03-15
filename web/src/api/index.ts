@@ -11,15 +11,15 @@ import type {
 import {
   submitEnvironmentApi,
   cancelAnalyzeApi,
-  checkDiskPathApi,
-  setDiskPathApi,
   checkPathApi,
   chooseTeamApi,
   getBackUpApi,
   getIssuesApi,
+  saveIssuesApi,
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  saveProjectsApi,
 } from './analyze';
 
 import {
@@ -38,15 +38,15 @@ export {
   // analyze
   submitEnvironmentApi,
   cancelAnalyzeApi,
-  checkDiskPathApi,
-  setDiskPathApi,
   checkPathApi,
   chooseTeamApi,
   getBackUpApi,
   getIssuesApi,
+  saveIssuesApi,
   getAnalyzeProgressInfoApi,
   getProjectsApi,
   getResultApi,
+  saveProjectsApi,
 
   // import_pack
   getImportInfoApi,

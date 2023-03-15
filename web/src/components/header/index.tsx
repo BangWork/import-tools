@@ -96,7 +96,7 @@ const Header = memo(() => {
         <Popover
           open={open}
           placement="bottom"
-          content={<HelpContentPopover onSelected={handleHidePopover} />}
+          content={<HelpContentPopover onSelected={handleHidePopover} label={selected} />}
           trigger="click"
           onOpenChange={handleOpenChange}
         >

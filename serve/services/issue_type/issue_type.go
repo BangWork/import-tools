@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"github.com/gin-contrib/i18n"
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/bangwork/import-tools/serve/services"
@@ -38,18 +39,18 @@ var (
 	}
 )
 
-func GetIssueTypeList(typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
-	list, err := cache.GetCacheInfo()
+func GetIssueTypeList(key string, typeList *services.IssueTypeListResponse, issueTypes map[string]bool) (*services.IssueTypeListResponse, error) {
+	cacheInfo, err := cache.GetCacheInfo(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
-	v, found := list.MapFilePath[common.TagIssueType]
+	issueTypeFile, found := cacheInfo.MapFilePath[common.TagIssueType]
 	if !found {
 		return nil, common.Errors(common.NotFoundError, nil)
 	}
-	file, err := os.Open(v)
+	file, err := os.Open(issueTypeFile)
 	if err != nil {
-		return nil, err
+		return nil, errors.Trace(err)
 	}
 
 	mapBind := map[string]int{}
@@ -77,6 +78,8 @@ func GetIssueTypeList(typeList *services.IssueTypeListResponse, issueTypes map[s
 		detailType, found := mapBind[data.IssueTypeID]
 		if found {
 			data.ONESDetailType = detailType
+		} else {
+			data.ONESDetailType = -1
 		}
 		jiraList = append(jiraList, data)
 	}

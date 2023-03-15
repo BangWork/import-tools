@@ -6,6 +6,7 @@ import (
 
 	"github.com/bangwork/import-tools/serve/common"
 	"github.com/gin-gonic/gin"
+	"github.com/juju/errors"
 )
 
 func RenderJSON(c *gin.Context, err error, obj interface{}) {
@@ -20,15 +21,24 @@ func RenderJSON(c *gin.Context, err error, obj interface{}) {
 		c.Next()
 		return
 	}
-	res := err.(*common.Err)
-	r := gin.H{
-		"code":     res.Code,
-		"err_code": res.ErrCode,
+
+	coErr, ok := err.(*common.Err)
+	if !ok {
+		log.Printf("%+v\n", errors.Trace(err))
+		c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"err": err.Error(),
+		})
+	} else {
+		r := gin.H{
+			"code":     coErr.Code,
+			"err_code": coErr.ErrCode,
+		}
+		if coErr.Body != nil {
+			r["body"] = coErr.Body
+		}
+		log.Printf("ERROR: %+v", r)
+		c.JSON(http.StatusOK, r)
 	}
-	if res.Body != nil {
-		r["body"] = res.Body
-	}
-	log.Printf("ERROR: %+v", r)
-	c.JSON(http.StatusOK, r)
+
 	c.Next()
 }

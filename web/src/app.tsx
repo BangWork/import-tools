@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
 import { Layout, ConfigProvider } from 'antd';
+import i18n from 'i18next';
 
 import AutoRouter from '@/router';
 import { redirectRoutes } from '@/router/routes';
@@ -15,11 +15,6 @@ import GlobalStyle from './global';
 import './index.css';
 import { getCurrentLang, getAntDesignLang } from '@/i18n';
 
-const LayoutBox = styled(Layout)`
-  background: #fff;
-  height: 100%;
-`;
-
 const Content = styled.div`
   min-height: calc(100% - 104px);
   display: flex;
@@ -31,21 +26,20 @@ const Content = styled.div`
 
 /** default layout routes */
 const NormalLayoutRoutes = () => (
-  <LayoutBox>
+  <Layout className="h-full bg-white">
     <Header />
     <Content>
       <AutoRouter Loading={Loading} NoMatch={NoMatch} redirectRoutes={redirectRoutes} />
     </Content>
-  </LayoutBox>
+  </Layout>
 );
 
-const Main = () => {
-  const { i18n } = useTranslation();
-  const currentLang = getCurrentLang(i18n);
-  const local = getAntDesignLang(currentLang);
+const currentLang = getCurrentLang(i18n);
+const local = getAntDesignLang(currentLang);
 
+const Main = () => {
   return (
-    <ConfigProvider locale={local}>
+    <ConfigProvider locale={local.default || local}>
       <GlobalStyle />
       <HashRouter>
         <NormalLayoutRoutes />

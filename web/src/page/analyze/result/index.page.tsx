@@ -24,12 +24,12 @@ const ResultPage = () => {
   const [info, setInfo] = useState<Partial<ResultType>>({});
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     getResultApi().then((res) => {
       setInfo(res.body);
       setLoading(false);
     });
+
   }, []);
 
   const onBack = () => {
@@ -114,7 +114,7 @@ const ResultPage = () => {
                     <div>
                       {item.value.length
                         ? map(item.value, (sub) => (
-                            <div>
+                            <div key={sub.import_time+sub.jira_server_id}>
                               {t('analyzeResult.environment.history', {
                                 time: dayjs.unix(sub.import_time).format('YYYY-MM-DD HH:mm'),
                                 version: sub.jira_version,

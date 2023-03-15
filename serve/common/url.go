@@ -1,6 +1,9 @@
 package common
 
-import "fmt"
+import (
+	"fmt"
+	"path"
+)
 
 const (
 	//projectApiPrefix = "/"
@@ -12,17 +15,17 @@ func GenApiUrl(url, uri string) string {
 }
 
 func GenBackupFilePath(localHome, backupName string) string {
-	return fmt.Sprintf("%s/%s/%s", localHome, JiraExportDir, backupName)
+	return path.Join(localHome, JiraExportDir, backupName)
 }
 
 func GenExportPath(localHome string) string {
-	return fmt.Sprintf("%s/%s", localHome, JiraExportDir)
+	return path.Join(localHome, JiraExportDir)
 }
 
 func GenAttachmentFilePath(localHome string) string {
-	return fmt.Sprintf("%s/data/attachments", localHome)
+	return path.Join(localHome, "/data/attachments")
 }
 
 func GenPrivatePath(shareDiskPath string) string {
-	return fmt.Sprintf("%s/%s", shareDiskPath, ShareDiskPathPrivate)
+	return path.Join(shareDiskPath, ShareDiskPathPrivate)
 }

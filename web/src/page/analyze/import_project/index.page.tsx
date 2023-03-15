@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { map } from 'lodash-es';
 
-import { getProjectsApi } from '@/api';
+import { getProjectsApi, saveProjectsApi } from '@/api';
 import { LOCAL_CONFIG, listStyle } from './config';
 
 const ImportProjectPage = () => {
@@ -16,7 +16,9 @@ const ImportProjectPage = () => {
   const [projects, setProjects] = useState<{ id: string; title: string }[]>([]);
 
   const handleBack = () => {
-    navigate('/page/analyze/team', { replace: true, state: location?.state });
+    saveData().then(() => {
+      navigate('/page/analyze/team', { replace: true, state: location?.state });
+    });
   };
 
   useEffect(() => {
@@ -27,20 +29,26 @@ const ImportProjectPage = () => {
 
   useEffect(() => {
     getProjectsApi().then((res) => {
-      setProjects(map(res.body, (item) => ({ id: item.id, title: item.name })));
+      setProjects(map(res.body.projects, (item) => ({ id: item.id, title: item.name })));
+      setTargetKeys(map(res.body.cache));
     });
   }, []);
 
   const handleSubmit = () => {
-    navigate('/page/analyze/issue_map', {
-      replace: true,
-      state: {
-        ...(location?.state || {}),
-        projects: targetKeys,
-      },
+    saveData().then(() => {
+      navigate('/page/analyze/issue_map', {
+        replace: true,
+        state: {
+          ...(location?.state || {}),
+          projects: targetKeys,
+        },
+      });
     });
   };
 
+  const saveData = () => {
+    return saveProjectsApi(targetKeys);
+  };
   const handleChange = (newTargetKeys: string[]) => {
     setTargetKeys(newTargetKeys);
   };
@@ -57,7 +65,7 @@ const ImportProjectPage = () => {
 
   return (
     <div className="h-full w-full">
-      <div className="flex justify-between">
+      <div className="flex justify-between px-60">
         <h2>{t('importProject.title')}</h2>
         <div>
           <Button onClick={handleBack}>{t('common.back')}</Button>

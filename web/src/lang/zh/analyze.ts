@@ -1,24 +1,26 @@
 const analyze = {
   backupPage: {
     guide: {
-      title: '获取 Jira 备份包路径',
-      desc: '在 Jira 系统中找到 File Path（文件路径）以获取 Jira 备份包以便进行解析。',
+      alert: {
+        desc: '请在 Jira 系统中获取 Jira 备份包路径，并完成以下信息配置。',
+        link: '了解如何获取 Jira 备份包路径',
+      },
       step1: {
-        title: '点击 Jira 菜单栏 <1/> Administration/Settings （JIRA 管理）> System （系统）',
+        title: '获取备份包路径',
+        desc1: '1.1 以 Jira 系统管理员身份登录 Jira 应用程序； ',
+        desc2: '1.2 在 Jira 顶部导航栏中，点击 <1/> Jira administration > System；',
+        desc3: '1.3 在左侧导航中，点击 SYSTEM SUPPORT > System Info。',
       },
       step2: {
-        title: '点击 SYSTEM SUPPORT （系统支持） > System Info （系统信息）',
-      },
-      step3: {
-        title:
-          '在 System Info （系统信息）右侧下滑至 File Paths（文件路径） > Location of JIRA Local Home（JIRA 本地文件路径）， 复制该路径',
+        title: '填写 Jira 备份包信息',
+        desc: '向下滚动到文件路径部分，将 File Paths > Location of JIRA Local Home 路径复制并粘贴到以下输入框中。',
+        link: '查看默认 Jira 本地文件路径',
       },
     },
     form: {
-      title: '填写 Jira 备份包信息',
       desc: '输入 Location of JIRA Local Home，点击“获取 Jira 备份包”，路径正确将可以选择导入的 Jira 备份包。',
       localHome: {
-        label: 'Location of Jira Local Home（路径）',
+        label: 'Location of Jira Local Home',
         get: '获取 Jira 备份包',
         emptyError: '必填项不能为空',
         serverError: '路径错误，请重新填写',
@@ -38,8 +40,10 @@ const analyze = {
       message2: '2、导入者账号需为管理员',
     },
     url: {
-      label: '部署 ONES 服务域名/IP',
-      emptyError: '请输入域名/IP',
+      label: 'ONES 服务域名/IP',
+      emptyError: '请输入 ONES 服务域名/IP',
+      serverError: '请输入正确的 ONES 服务域名/IP',
+      placeholder: '例: http://ones.cn 或 https://ones.cn',
     },
     email: {
       label: 'ONES 邮箱（导入者）',
@@ -50,17 +54,13 @@ const analyze = {
       emptyError: '密码不能为空',
     },
     serverError: {
-      network: {
-        title: '访问失败！',
-        desc: '无法访问 ONES 服务器，请重新填写 ONES 环境信息',
-      },
       count: {
-        title: '账号或密码错误！',
-        desc: '请到 ONES 环境下验证正确的账号、密码后重新登陆该工具',
+        title: '请输入正确的帐号或密码',
+        desc: '请到 ONES 环境下验证正确的帐号和密码，10分钟后再重新登录此工具',
       },
-      account: '账号或密码错误，请重新填写',
-      team: '该 ONES 账号非团队管理员，请重新填写',
-      organize: '该 ONES 账号非组织管理员，请重新填写',
+      account: '请输入正确的帐号或密码',
+      team: '此 ONES 帐号非团队管理员，请重新填写',
+      organize: '此 ONES 帐号非组织管理员，请重新填写',
     },
     startButton: '开始解析',
   },
@@ -83,7 +83,7 @@ const analyze = {
     },
     fail: {
       title: '解析失败！',
-      normalDesc: '「{{name}}」解析失败！请导入正确的Jira数据包。',
+      normalDesc: '「{{name}}」解析失败！请导入正确的 Jira 数据包。',
       onExistDesc: '「{{name}}」不存在，解析失败！',
     },
   },
@@ -120,22 +120,26 @@ const analyze = {
     error: {
       packDiff: {
         title: 'Jira 备份包来源不同',
-        desc: '该 ONES 团队于 {{time}} 导入 Jira {{version}} ，该 Jira {{packVersion}} 备份包为不同来源，禁止导入。请填写新的 Jira 备份包信息！',
+        desc: '此 ONES 团队于 {{time}} 导入 Jira {{version}} ，该 Jira {{packVersion}} 备份包为不同来源，禁止导入。请填写新的 Jira 备份包信息！',
       },
       importDiff: {
         title: 'ONES 团队已导入 Jira 数据',
-        desc: '该ONES团队于 {{time}} 导入 Jira {{version}} ，是否确定导入该 Jira {{packVersion}} 备份包？',
+        desc: '此 ONES团队于 {{time}} 导入 Jira {{version}} ，是否确定导入该 Jira {{packVersion}} 备份包？',
       },
       importVersionDiff: {
         title: 'ONES 团队已导入 Jira 数据',
-        desc: '该 ONES 团队于 {{time}} 日导入 Jira {{version}} ，该数据包为 Jira {{packVersion}} ，可能部分数据未能正常导入，是否确定？',
+        desc: '此 ONES 团队于 {{time}} 日导入 Jira {{version}} ，该数据包为 Jira {{packVersion}} ，可能部分数据未能正常导入，是否确定导入此 Jira {{packVersion}} 备份包？',
       },
       versionDiff: {
         title: 'Jira 版本不兼容',
-        desc: '该 Jira 备份包为 Jira {{packVersion}} ，可能部分数据未能正常导入，是否确定？',
+        desc: '此 Jira 备份包为 Jira {{packVersion}} ，可能部分数据未能正常导入，是否确定导入此 Jira {{packVersion}} 备份包？',
       },
+      warning: {
+        cancel: '继续导入',
+        ok1: '重新选择团队',
+        ok2: '重新选择 Jira 备份包',
+      }
     },
-    backButton: '重新选择 Jira 备份包',
     buttonTip: '需选择导入的 ONES 团队',
   },
   importProject: {
@@ -144,39 +148,26 @@ const analyze = {
     targetTitle: '导入 ONES 项目列表',
     local: {
       searchPlaceholder: '搜索项目名称',
-      itemUnit: '项目',
+      itemUnit: '个',
     },
     buttonTip: '需选择导入的 Jira 项目',
   },
   issueMap: {
-    title: 'Jira 工作项映射为 ONES 工作项',
+    title: '映射 Jira 问题类型',
     tip: {
-      message1: '1、「 Jira 」列展示导入的 Jira 工作项类型',
-      message2: '2、「 ONES 」列展示 Jira 工作项类型在 ONES 中的映射',
-      message3: '3、单个映射关系只能建立一次，无法更改，请谨慎选择！',
+      message1: '「ONES」列支持选择如何映射 Jira 问题类型。选择映射关系后，对应问题工作流、属性将会对应创建。',
+      message2: '选择「ONES 自定义工作项」则将该 Jira 问题类型创建为 ONES 新的自定义工作项类型。',
+      message3: '选择需求、任务、缺陷、子任务，则将该 Jira 问题类型映射为 ONES 已有的系统工作项类型。',
+      message4: '问题映射关系创建后将无法更改，请您谨慎选择！',
     },
     table: {
       columns: {
         jira: 'Jira',
-        issueID: 'Jira 工作项类型ID',
+        issueID: 'Jira 问题类型 ID',
         onesIssue: 'ONES',
       },
-      disabledTip: '该映射关系已确定，不可更改',
+      disabledTip: '此映射关系已确定，不可更改',
       placeholder: 'ONES 自定义工作项类型',
-    },
-  },
-  shareDisk: {
-    title: '是否使用共享磁盘导入数据',
-    tip: {
-      message1: '1、当使用共享磁盘方式后，Jira 附件会直接拷贝到指定位置，无需走 HTTP 方式导入',
-      message2: '2、附件上传速度预计提升5倍，点击「使用」填写共享磁盘目录',
-      message3:
-        '3、注意：共享磁盘需要由运维人员将 ONES 文件存储目录(local_file_root)挂载到 Jira 服务器',
-    },
-    form: {
-      label: '共享磁盘目录',
-      emptyError: '共享磁盘目录不能为空',
-      serverError: '共享磁盘目录错误，请重新输入',
     },
   },
 };

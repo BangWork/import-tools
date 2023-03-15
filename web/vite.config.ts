@@ -7,13 +7,13 @@ import { visualizer } from 'rollup-plugin-visualizer';
 const configVisualizerConfig = (mode) => {
   return mode === 'report'
     ? [
-        visualizer({
-          emitFile: false,
-          sourcemap: true, // When is true,Always add plugin as last option
-          filename: 'pack_analyze.html',
-          open: true, // auto open
-        }),
-      ]
+      visualizer({
+        emitFile: false,
+        sourcemap: true, // When is true,Always add plugin as last option
+        filename: 'pack_analyze.html',
+        open: true, // auto open
+      }),
+    ]
     : [];
 };
 
@@ -26,12 +26,12 @@ export default defineConfig(({ mode }) => {
     build: {
       chunkSizeWarningLimit: 1000,
       reportCompressedSize: false,
-      minify: 'terser', // 「terserOptions」need to set terser
+      minify: false, // 「terserOptions」need to set terser
       terserOptions: {
         compress: {
           // remove console in production
-          drop_console: true,
-          drop_debugger: true,
+          drop_console: false,
+          drop_debugger: false,
         },
       },
     },
@@ -39,6 +39,12 @@ export default defineConfig(({ mode }) => {
     server: {
       host: envConfig.VITE_HOST,
       port: envConfig.VITE_PORT,
+      open: true,
+    },
+    preview: {
+      host: envConfig.VITE_HOST,
+      port: envConfig.VITE_PORT,
+      proxy: envConfig.VITE_PROXY_DOMAIN_REAL,
       open: true,
     },
     resolve: {

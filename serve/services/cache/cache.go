@@ -1,14 +1,26 @@
 package cache
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"sync"
+
+	"github.com/juju/errors"
 
 	"github.com/bangwork/import-tools/serve/common"
+	"github.com/bangwork/import-tools/serve/services/importer/types"
 	"github.com/bangwork/import-tools/serve/utils"
+)
+
+var (
+	SharedDiskPath  string
+	CurrentCacheKey string
 )
 
 type Cache struct {
@@ -36,12 +48,13 @@ type Cache struct {
 	MapOutputFilePath   map[string]string `json:"map_output_file_path"`
 	ImportTeamUUID      string            `json:"import_team_uuid"`
 	ImportTeamName      string            `json:"import_team_name"`
-	UseShareDisk        bool              `json:"use_share_disk"`
-	ShareDiskPath       string            `json:"share_disk_path"`
 
 	DaysPerWeek         string              `json:"days_per_week"`
 	HoursPerDay         string              `json:"hours_per_day"`
 	ProjectIssueTypeMap map[string][]string `json:"project_issue_type_map"`
+
+	IssueTypeMap map[string][]types.BuiltinIssueTypeMap `json:"issue_type_map"`
+	ProjectIDs   map[string][]string                    `json:"project_ids"`
 }
 
 type ResolveResult struct {
@@ -69,6 +82,10 @@ type ImportResult struct {
 }
 
 const cacheFile = "import.json"
+
+func GetCacheFile() string {
+	return path.Join(common.GetCachePath(), cacheFile)
+}
 
 var (
 	attachmentSizeExpectTimeMap = map[int64]int64{
@@ -102,67 +119,151 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
+	filePath := GetCacheFile()
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
 	if err := os.MkdirAll(common.GetCachePath(), 0755); err != nil {
 		return err
 	}
-	_, err := os.Create(filePath)
+	f, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
-	cache := new(Cache)
-	if err := SetCacheInfo(cache); err != nil {
-		return err
-	}
+	defer f.Close()
+	f.Write([]byte("{}"))
 	return nil
 }
 
-func GetCacheInfo() (*Cache, error) {
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
-	if !utils.CheckPathExist(filePath) {
-		log.Printf("cache file missing: %s", filePath)
-		return nil, common.Errors(common.CacheFileNotFoundError, nil)
-	}
-	bytes, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		log.Printf("open file error: %s, %s", filePath, err)
-		return nil, common.Errors(common.ServerError, nil)
-	}
-	res := new(Cache)
-	err = json.Unmarshal(bytes, &res)
-	if err != nil {
-		log.Printf("parse json file error: %s, %s", filePath, err)
-		return nil, common.Errors(common.ServerError, nil)
-	}
-	return res, nil
+func GenCacheKey(addr string) string {
+	buf := &bytes.Buffer{}
+	buf.WriteString(addr)
+	return base64.StdEncoding.EncodeToString(buf.Bytes())
 }
 
-func SetCacheInfo(cache *Cache) error {
-	filePath := fmt.Sprintf("%s/%s", common.GetCachePath(), cacheFile)
-	if !utils.CheckPathExist(filePath) {
-		log.Printf("cache file missing: %s", filePath)
-		return common.Errors(common.CacheFileNotFoundError, nil)
-	}
-	bytes, err := json.MarshalIndent(cache, "", "  ")
+const ConsCacheKey = "__cache_key__"
+
+var _CacheKey string
+
+func SaveCacheKey(key string) error {
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
+	_CacheKey = key
+
+	filePath := GetCacheFile()
+	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Printf("parse json file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
-	err = ioutil.WriteFile(filePath, bytes, 0644)
+
+	d := map[string]string{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		return errors.Trace(err)
+	}
+
+	d[ConsCacheKey] = key
+
+	b, err = json.Marshal(d)
 	if err != nil {
-		log.Printf("write file error: %s, %s", filePath, err)
-		return common.Errors(common.ServerError, nil)
+		return errors.Trace(err)
 	}
-	return nil
+	err = ioutil.WriteFile(filePath, b, 0644)
+	return errors.Trace(err)
 }
 
-func SetExpectTimeCache() {
-	info, err := GetCacheInfo()
+func GetCacheInfo(key string) (*Cache, error) {
+	cacheLock.RLock()
+	defer cacheLock.RUnlock()
+
+	filePath := GetCacheFile()
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+
+	d := map[string]string{}
+	if err := json.Unmarshal(b, &d); err != nil {
+		fmt.Printf("empty cache content: %s\n", string(b))
+		return nil, errors.Trace(err)
+	}
+
+	if key == "" {
+		key = d[ConsCacheKey]
+		if key == "" {
+			return nil, errors.New("empty cache key")
+		}
+	}
+
+	s, ok := d[key]
+	if !ok {
+		return new(Cache), nil
+	}
+
+	b, err = base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	s = string(b)
+
+	c := new(Cache)
+	err = json.Unmarshal([]byte(s), &c)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	return c, nil
+}
+
+var cacheLock sync.RWMutex
+
+func SetCacheInfo(key string, cache *Cache) error {
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
+	filePath := GetCacheFile()
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	m := map[string]string{}
+	if err := json.Unmarshal(b, &m); err != nil {
+		return errors.Trace(err)
+	}
+
+	if key == "" {
+		key = m[ConsCacheKey]
+		if key == "" {
+			return errors.New("empty cache key")
+		}
+	}
+
+	cb, err := json.Marshal(cache)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	m[key] = base64.StdEncoding.EncodeToString(cb)
+
+	b, err = json.Marshal(m)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	err = ioutil.WriteFile(filePath, b, 0644)
+	return errors.Trace(err)
+}
+
+func SetExpectTimeCache(key string) {
+	info, err := GetCacheInfo(key)
 	if err != nil {
 		log.Println("get cache err", err)
+		return
+	}
+	if info == nil {
+		log.Println("err: cache not found")
 		return
 	}
 	if info.ImportScope == nil {

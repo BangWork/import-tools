@@ -32,8 +32,11 @@ const Page = () => {
         }
 
         navigate(targetUrl || analyzeUrlMap[AnalyzeStatusEnum.none], { replace: true });
+        return null;
       })
       .then((res) => {
+        if (!res) return null;
+
         const importStatus = res.body.status;
         let targetUrl = importProgressUrl;
 
@@ -45,7 +48,7 @@ const Page = () => {
         navigate(targetUrl, { replace: true });
       })
       .catch(() => {
-        navigate(importProgressUrl, { replace: true });
+        navigate(analyzeUrlMap[AnalyzeStatusEnum.none], { replace: true });
       });
   }, []);
 

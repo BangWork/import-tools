@@ -12,17 +12,20 @@ type SetShareDiskRequest struct {
 }
 
 type ChooseTeamRequest struct {
+	Key      string `json:"key"`
 	TeamUUID string `json:"team_uuid"`
 	TeamName string `json:"team_name"`
 }
 
 type StartImportRequest struct {
+	Key          string                      `json:"key"`
 	Password     string                      `json:"password"`
 	ProjectIDs   []string                    `json:"project_ids"`
 	IssueTypeMap []types.BuiltinIssueTypeMap `json:"issue_type_map"`
 }
 
 type GetIssueTypeRequest struct {
+	Key        string   `json:"key"`
 	ProjectIDs []string `json:"project_ids"`
 }
 

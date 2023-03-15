@@ -1,3 +1,4 @@
 .idea/
 serve/router/dist/
 bin/
+*.tar.gz
