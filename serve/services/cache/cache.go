@@ -83,6 +83,10 @@ type ImportResult struct {
 
 const cacheFile = "import.json"
 
+func GetCacheFile() string {
+	return path.Join(common.GetCachePath(), cacheFile)
+}
+
 var (
 	attachmentSizeExpectTimeMap = map[int64]int64{
 		100000000000: 624000,
@@ -115,7 +119,10 @@ var (
 )
 
 func InitCacheFile() error {
-	filePath := path.Join(common.GetCachePath(), cacheFile)
+	cacheLock.Lock()
+	defer cacheLock.Unlock()
+
+	filePath := GetCacheFile()
 	if utils.CheckPathExist(filePath) {
 		return nil
 	}
@@ -142,11 +149,14 @@ const ConsCacheKey = "__cache_key__"
 var _CacheKey string
 
 func GetCacheKey() (string, error) {
+	cacheLock.RLock()
+	defer cacheLock.RUnlock()
+
 	if _CacheKey != "" {
 		return _CacheKey, nil
 	}
 
-	filePath := path.Join(common.GetCachePath(), cacheFile)
+	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", errors.Trace(err)
@@ -167,7 +177,7 @@ func SaveCacheKey(key string) error {
 
 	_CacheKey = key
 
-	filePath := path.Join(common.GetCachePath(), cacheFile)
+	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Trace(err)
@@ -189,6 +199,9 @@ func SaveCacheKey(key string) error {
 }
 
 func GetCacheInfo(key string) (*Cache, error) {
+	cacheLock.RLock()
+	defer cacheLock.RUnlock()
+
 	if key == "" {
 		var err error
 		key, err = GetCacheKey()
@@ -199,7 +212,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	if key == "" {
 		return nil, nil
 	}
-	filePath := path.Join(common.GetCachePath(), cacheFile)
+	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, errors.Trace(err)
@@ -207,7 +220,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 
 	d := map[string]string{}
 	if err := json.Unmarshal(b, &d); err != nil {
-		fmt.Printf("cache content: %s\n", string(b))
+		fmt.Printf("empty cache content: %s\n", string(b))
 		return nil, errors.Trace(err)
 	}
 	s, ok := d[key]
@@ -229,7 +242,7 @@ func GetCacheInfo(key string) (*Cache, error) {
 	return c, nil
 }
 
-var cacheLock sync.Mutex
+var cacheLock sync.RWMutex
 
 func SetCacheInfo(key string, cache *Cache) error {
 	cacheLock.Lock()
@@ -246,7 +259,7 @@ func SetCacheInfo(key string, cache *Cache) error {
 		return errors.New("cache key not found")
 	}
 
-	filePath := path.Join(common.GetCachePath(), cacheFile)
+	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Trace(err)
