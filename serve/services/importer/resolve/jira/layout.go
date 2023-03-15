@@ -187,6 +187,7 @@ func (p *JiraResolver) prepareProjectIssueTypeWithFields() error {
 		addFieldByIdentifier("resolution", mapFieldIdentifierWithItem, mapFields)
 		addFieldByIdentifier("summary", mapFieldIdentifierWithItem, mapFields)
 		addFieldByIdentifier("components", mapFieldIdentifierWithItem, mapFields)
+		addFieldByIdentifier("reporter", mapFieldIdentifierWithItem, mapFields)
 
 		sprintField := &resolve.Field{
 			FieldIdentifier: "sprint",
@@ -544,6 +545,7 @@ func (p *JiraResolver) prepareIssueTypeLayout() error {
 		addFieldByIdentifier("priority", mapFieldIdentifierWithItem, mapViewIssueFields)
 		addFieldByIdentifier("resolution", mapFieldIdentifierWithItem, mapViewIssueFields)
 		addFieldByIdentifier("summary", mapFieldIdentifierWithItem, mapViewIssueFields)
+		addFieldByIdentifier("reporter", mapFieldIdentifierWithItem, mapViewIssueFields)
 
 		addFieldByIdentifier("assignee", mapFieldIdentifierWithItem, mapCreateIssueFields)
 		addFieldByIdentifier("description", mapFieldIdentifierWithItem, mapCreateIssueFields)
@@ -551,6 +553,7 @@ func (p *JiraResolver) prepareIssueTypeLayout() error {
 		addFieldByIdentifier("issuetype", mapFieldIdentifierWithItem, mapCreateIssueFields)
 		addFieldByIdentifier("priority", mapFieldIdentifierWithItem, mapCreateIssueFields)
 		addFieldByIdentifier("summary", mapFieldIdentifierWithItem, mapCreateIssueFields)
+		addFieldByIdentifier("reporter", mapFieldIdentifierWithItem, mapCreateIssueFields)
 
 		sprintField := &resolve.Field{
 			FieldIdentifier: "sprint",
