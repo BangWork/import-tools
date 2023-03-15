@@ -148,29 +148,6 @@ const ConsCacheKey = "__cache_key__"
 
 var _CacheKey string
 
-func GetCacheKey() (string, error) {
-	cacheLock.RLock()
-	defer cacheLock.RUnlock()
-
-	if _CacheKey != "" {
-		return _CacheKey, nil
-	}
-
-	filePath := GetCacheFile()
-	b, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return "", errors.Trace(err)
-	}
-
-	d := map[string]string{}
-	if err := json.Unmarshal(b, &d); err != nil {
-		return "", errors.Trace(err)
-	}
-
-	_CacheKey = d[ConsCacheKey]
-	return _CacheKey, nil
-}
-
 func SaveCacheKey(key string) error {
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
@@ -202,16 +179,6 @@ func GetCacheInfo(key string) (*Cache, error) {
 	cacheLock.RLock()
 	defer cacheLock.RUnlock()
 
-	if key == "" {
-		var err error
-		key, err = GetCacheKey()
-		if err != nil {
-			return nil, errors.Trace(err)
-		}
-	}
-	if key == "" {
-		return nil, nil
-	}
 	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -223,6 +190,14 @@ func GetCacheInfo(key string) (*Cache, error) {
 		fmt.Printf("empty cache content: %s\n", string(b))
 		return nil, errors.Trace(err)
 	}
+
+	if key == "" {
+		key = d[ConsCacheKey]
+		if key == "" {
+			return nil, errors.New("empty cache key")
+		}
+	}
+
 	s, ok := d[key]
 	if !ok {
 		return new(Cache), nil
@@ -248,17 +223,6 @@ func SetCacheInfo(key string, cache *Cache) error {
 	cacheLock.Lock()
 	defer cacheLock.Unlock()
 
-	if key == "" {
-		var err error
-		key, err = GetCacheKey()
-		if err != nil {
-			return errors.Trace(err)
-		}
-	}
-	if key == "" {
-		return errors.New("cache key not found")
-	}
-
 	filePath := GetCacheFile()
 	b, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -268,6 +232,13 @@ func SetCacheInfo(key string, cache *Cache) error {
 	m := map[string]string{}
 	if err := json.Unmarshal(b, &m); err != nil {
 		return errors.Trace(err)
+	}
+
+	if key == "" {
+		key = m[ConsCacheKey]
+		if key == "" {
+			return errors.New("empty cache key")
+		}
 	}
 
 	cb, err := json.Marshal(cache)
