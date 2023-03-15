@@ -42,6 +42,7 @@ const (
 	customFieldResolution       = "Resolution"
 	customFieldComponent        = "Component/s"
 	customFieldEnvironment      = "Environment"
+	customFieldReporter         = "Reporter"
 
 	userDefinedFieldLabels = "userDefinedFieldLabels"
 )

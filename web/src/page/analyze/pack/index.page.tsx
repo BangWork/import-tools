@@ -139,7 +139,10 @@ const AnalyzePage = () => {
                 title: (
                   <div style={{ fontWeight: '500' }}>
                     {t('backupPage.guide.step1.title')}
-                    <Popover placement="bottom" content={<Image src={Guide1Image} />}>
+                    <Popover
+                      placement="right"
+                      content={<Image style={{ width: '780px' }} src={Guide1Image} />}
+                    >
                       <QuestionCircleOutlinedStyled />
                     </Popover>
                   </div>
@@ -160,7 +163,10 @@ const AnalyzePage = () => {
                 title: (
                   <div style={{ fontWeight: '500' }}>
                     {t('backupPage.guide.step2.title')}
-                    <Popover placement="bottom" content={<Image src={Guide2Image} />}>
+                    <Popover
+                      placement="right"
+                      content={<Image style={{ width: '780px' }} src={Guide2Image} />}
+                    >
                       <QuestionCircleOutlinedStyled />
                     </Popover>
                   </div>

@@ -202,6 +202,7 @@ var (
 		"Component/s",
 		fieldModel.PublishVersionFieldUUID,
 		"Environment",
+		customFieldReporter,
 	}
 	tabFields = map[string]string{
 		"issuelinks":   block.TabLabelRelatedContent,
@@ -218,6 +219,7 @@ var (
 		"components":                "Component/s",
 		customFieldReleaseStartDate: customFieldReleaseStartDate,
 		"environment":               "Environment",
+		"reporter":                  customFieldReporter,
 	}
 
 	// jira视图字段替换为ONES系统字段
@@ -238,7 +240,6 @@ var (
 		"priority":     "field012",
 		"duedate":      "field013",
 		"comment":      "",
-		"reporter":     "",
 		"sprint":       "field011",
 	}
 
@@ -2356,6 +2357,7 @@ func (p *JiraResolver) NextTask() ([]byte, error) {
 
 	// convert resolution to field value
 	p.handleIssueResolution(o)
+	p.handleIssueReporter(o)
 	r.Summary = getAttributeValue(o, "summary")
 	r.Desc = getAttributeValue(o, "description")
 	creator := getAttributeValue(o, "creator")
@@ -3177,6 +3179,13 @@ func (p *JiraResolver) getCustomField() ([]*resolve.ThirdTaskField, error) {
 		Name: customFieldEnvironment,
 		Type: fieldModel.FieldTypeMultiLineText,
 	})
+	fields = append(fields, &resolve.ThirdTaskField{
+		Base: resolve.Base{
+			ResourceID: customFieldReporter,
+		},
+		Name: customFieldReporter,
+		Type: fieldModel.FieldTypeUser,
+	})
 
 	for {
 		element, e := p.nextElement("CustomField")
@@ -3773,6 +3782,28 @@ func (p *JiraResolver) handleIssueKey(o *etree.Element) {
 	}
 	originalKey := fmt.Sprintf("%s-%s", p.jiraProjectIDOriginalKeyMap[projectID], number)
 	p.mapIssueIDWithOriginalKey[issueID] = originalKey
+}
+
+func (p *JiraResolver) handleIssueReporter(o *etree.Element) {
+	issueID := getAttributeValue(o, "id")
+	reporter := getAttributeValue(o, "reporter")
+	if reporter == "" {
+		return
+	}
+	reporterID, ok := p.jiraUserNameIDMap[reporter]
+	if !ok {
+		log.Printf("WARN: jira task reporter %s not found in jiraUserNameIDMap", reporter)
+	}
+	f := &resolve.ThirdTaskFieldValue{
+		Base: resolve.Base{
+			ResourceID: fmt.Sprintf("%s-%s", issueID, customFieldReporter),
+		},
+		TaskID:    issueID,
+		FieldID:   customFieldReporter,
+		FieldType: fieldModel.FieldTypeUser,
+		Value:     reporterID,
+	}
+	p.jiraCustomFieldValues = append(p.jiraCustomFieldValues, f)
 }
 
 func (p *JiraResolver) getVersion() (map[string]string, error) {
